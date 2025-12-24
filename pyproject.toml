@@ -4,10 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-core"
-version = "0.5.1"
+version = "0.5.2"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "core"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["core"]
+include = ["sum_core*"]
+
+[tool.setuptools.package-data]
+sum_core = [
+    "templates/**/*.html",
+    "static/**/*",
+]
 
 [project.optional-dependencies]
 dev = [

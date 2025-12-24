@@ -1,16 +1,9 @@
-Django<5.3,>=5.2
-wagtail<7.1,>=7.0
-celery<6.0,>=5.4
-requests<3.0,>=2.31
-sentry-sdk[celery]<3.0,>=2.0
 
 [dev]
-psycopg[binary]<4,>=3.2
-pytest
-pytest-django
-pytest-cov
-mypy
-types-requests<3.0,>=2.31
+black>=23.0.0
+isort>=5.12.0
 ruff>=0.1.0
-black
-isort
+pytest>=7.4.0
+pytest-cov>=4.1.0
+mypy>=1.5.0
+pre-commit>=3.4.0
