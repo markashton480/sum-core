@@ -1,0 +1,180 @@
+{% load wagtailcore_tags form_tags %}
+<section class="section section--muted contact-form-block">
+  <div class="container">
+    <div class="contact-form-layout">
+      <!-- Header Column -->
+      <div class="contact-form-header reveal-group">
+        <header class="section__header" style="text-align: left; max-width: none;">
+          {% if self.eyebrow %}
+            <span class="section__eyebrow">{{ self.eyebrow }}</span>
+          {% endif %}
+          <div class="section__heading">{{ self.heading|richtext }}</div>
+          {% if self.intro %}
+            <div class="section__intro text-lg">{{ self.intro|richtext }}</div>
+          {% endif %}
+        </header>
+      </div>
+
+      <!-- Form Column -->
+      <div class="contact-form-container reveal-group delay-100">
+        <form action="/forms/submit/" method="post" novalidate class="form premium-form" data-form-type="contact" id="contact-form"
+              data-success-message="{{ self.success_message|default:"Thanks, we'll be in touch shortly."|escapejs }}"
+              data-error-message="Something went wrong. Please try again.">
+          {% csrf_token %}
+
+          <!-- Hidden fields for attribution and spam protection -->
+          {% form_hidden_fields form_type="contact" %}
+
+          <!-- Honeypot field (visually hidden) -->
+          <div class="form__field form__field--honeypot" aria-hidden="true">
+            <label for="form-company-field">Company</label>
+            <input type="text" name="company" id="form-company-field" tabindex="-1" autocomplete="off">
+          </div>
+
+          {% if form %}
+            {% for field in form %}
+              <div class="form-group {% if field.errors %}has-error{% endif %}">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                <div class="form-control-wrapper">
+                    {{ field }}
+                </div>
+                {% if field.help_text %}
+                  <span class="form-hint text-sm text-muted">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                  <span class="form-error-msg" id="{{ field.auto_id }}_errors">
+                    {{ field.errors.0 }}
+                  </span>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+              <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                  <p class="form-error-msg">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+          {% else %}
+            <!-- Working form fields for frontend use (no backend form object yet) -->
+            <div class="form-group">
+                <label for="contact-name" class="form-label">Full Name</label>
+                <input type="text" id="contact-name" name="name" class="form-input" placeholder="e.g. James Sterling" required>
+            </div>
+            <div class="form-group">
+                <label for="contact-email" class="form-label">Email Address</label>
+                <input type="email" id="contact-email" name="email" class="form-input" placeholder="name@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="contact-phone" class="form-label">Phone (Optional)</label>
+                <input type="tel" id="contact-phone" name="phone" class="form-input" placeholder="+44 ...">
+            </div>
+            <div class="form-group">
+                <label for="contact-message" class="form-label">How can we help?</label>
+                <textarea id="contact-message" name="message" class="form-textarea" placeholder="Tell us about your project..."></textarea>
+            </div>
+          {% endif %}
+
+          <!-- Form messages -->
+          <div class="form-messages" role="alert" aria-live="polite"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-submit">
+              {{ self.submit_label|default:"Send enquiry" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% form_attribution_script %}
+
+<script>
+(function() {
+  'use strict';
+
+  var form = document.getElementById('contact-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var formData = new FormData(form);
+    var submitBtn = form.querySelector('.btn-submit');
+    var messagesDiv = form.querySelector('.form-messages');
+    var originalBtnText = submitBtn.textContent;
+
+    // Disable button and show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    messagesDiv.innerHTML = '';
+    messagesDiv.className = 'form-messages';
+
+    var csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+    var csrfToken = csrfInput ? csrfInput.value : '';
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        return { status: response.status, data: data };
+      });
+    })
+    .then(function(result) {
+      if (result.data.success) {
+        // Success - show success message from data attribute (safe from XSS)
+        messagesDiv.className = 'form-messages form-messages--success';
+        var successMsg = document.createElement('p');
+        successMsg.className = 'form-success-msg';
+        successMsg.textContent = form.dataset.successMessage || 'Thank you for your submission.';
+        messagesDiv.innerHTML = '';
+        messagesDiv.appendChild(successMsg);
+        form.reset();
+      } else {
+        // Error - show error messages (server response is trusted)
+        messagesDiv.className = 'form-messages form-messages--error';
+        messagesDiv.innerHTML = '';
+        if (result.data.errors) {
+          for (var field in result.data.errors) {
+            result.data.errors[field].forEach(function(msg) {
+              var errorP = document.createElement('p');
+              errorP.className = 'form-error-msg';
+              errorP.textContent = msg;
+              messagesDiv.appendChild(errorP);
+            });
+          }
+        }
+        if (!messagesDiv.hasChildNodes()) {
+          var fallbackP = document.createElement('p');
+          fallbackP.className = 'form-error-msg';
+          fallbackP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+          messagesDiv.appendChild(fallbackP);
+        }
+      }
+    })
+    .catch(function(error) {
+      messagesDiv.className = 'form-messages form-messages--error';
+      var errorP = document.createElement('p');
+      errorP.className = 'form-error-msg';
+      errorP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+      messagesDiv.innerHTML = '';
+      messagesDiv.appendChild(errorP);
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
+    });
+  });
+})();
+</script>

@@ -1,0 +1,72 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section services">
+    <div class="container">
+        <!-- Header Group -->
+        <header class="section__header reveal-group">
+            {% if self.eyebrow %}
+                <span class="section__eyebrow">{{ self.eyebrow }}</span>
+            {% endif %}
+
+            <div class="section__heading">
+                {{ self.heading|richtext }}
+            </div>
+
+            {% if self.intro %}
+                <p class="section__intro">
+                    {{ self.intro|striptags }}
+                </p>
+            {% endif %}
+        </header>
+
+        {% if self.cards %}
+            <!-- Grid Container: Supports horizontal scroll on mobile, grid on desktop -->
+            <div class="services__grid">
+                {% for card in self.cards %}
+                    <!-- Card with staggered delay animation -->
+                    <article class="services__card reveal-group delay-{{ forloop.counter0|add:1 }}00">
+                        <div class="card__body">
+                            
+                            <!-- Icon + Index Number Header -->
+                            <div class="services__icon-wrapper">
+                                {% if card.image %}
+                                    <div class="services__icon services__icon--image">
+                                        {% image card.image fill-160x160 class="services__icon-image" %}
+                                    </div>
+                                {% elif card.icon %}
+                                    <div class="services__icon services__icon--emoji">
+                                        {{ card.icon }}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Decorative Index: Formats 1 to 01, 2 to 02, etc. -->
+                                <span class="services__index">
+                                    {% if forloop.counter < 10 %}0{% endif %}{{ forloop.counter }}
+                                </span>
+                            </div>
+
+                            <h3 class="services__card-title">
+                                {{ card.title }}
+                            </h3>
+
+                            {% if card.description %}
+                                <div class="services__card-description text-body">
+                                    {{ card.description|richtext }}
+                                </div>
+                            {% endif %}
+
+                            <div class="services__card-link">
+                                {% if card.link_url %}
+                                    <a href="{{ card.link_url }}" class="btn--link">
+                                        {{ card.link_label|default:"Learn more" }}
+                                        <span>→</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>

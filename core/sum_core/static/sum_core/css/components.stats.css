@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Name: Stats Component
+   Path: core/sum_core/static/sum_core/css/components.stats.css
+   Purpose: Styles for StatsBlock displaying key metrics/statistics.
+   Family: SUM Platform Design System – Component: Stats
+   Dependencies: tokens.css (requires spacing, color, and typography tokens)
+   ========================================================================== */
+
+/* Stats Section */
+.stats {
+  background: hsla(var(--surface-pure), 1);
+}
+
+/* Stats Grid - Responsive layout for 2-4 stat items */
+.stats__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-8, 2rem);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .stats__grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-12, 3rem);
+  }
+}
+
+/* Individual Stat Item */
+.stat {
+  padding: var(--space-6, 1.5rem) var(--space-4, 1rem);
+  position: relative;
+}
+
+/* Decorative separator between stats on larger screens */
+@media (min-width: 768px) {
+  .stat:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60%;
+    width: 1px;
+    background: hsla(var(--text-main), 0.1);
+  }
+}
+
+/* Stat Value Container */
+.stat__value {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: var(--font-normal, 400);
+  line-height: var(--leading-tight, 1.25);
+  color: hsla(var(--text-main), 1);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+/* Stat Number - For potential animation targeting */
+.stat__number {
+  display: inline;
+}
+
+/* Prefix/Suffix styling */
+.stat__prefix,
+.stat__suffix {
+  font-size: 0.65em;
+  color: hsla(var(--accent-pop), 1);
+  font-weight: var(--font-medium, 500);
+}
+
+.stat__prefix {
+  margin-right: 0.1em;
+}
+
+.stat__suffix {
+  margin-left: 0.1em;
+}
+
+/* Stat Label */
+.stat__label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm, 0.875rem);
+  color: hsla(var(--text-muted), 1);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: var(--font-medium, 500);
+}
+
+/* Stats Eyebrow & Intro - Center aligned for stats sections */
+.stats .section__header {
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stats__eyebrow {
+  /* Inherits from .section__eyebrow */
+}
+
+.stats__intro {
+  /* Inherits from .section__intro */
+}
+
+/* ==========================================================================
+   Dark Theme Variant
+   ========================================================================== */
+
+.section--dark .stats__grid,
+.stats.section--dark {
+  background: transparent;
+}
+
+.section--dark .stat__value {
+  color: hsla(var(--surface-tint), 1);
+}
+
+.section--dark .stat__prefix,
+.section--dark .stat__suffix {
+  color: hsla(var(--brand-h), 60%, 70%, 1);
+}
+
+.section--dark .stat__label {
+  color: hsla(var(--surface-tint), 0.7);
+}
+
+.section--dark .stat:not(:last-child)::after {
+  background: hsla(var(--surface-tint), 0.1);
+}

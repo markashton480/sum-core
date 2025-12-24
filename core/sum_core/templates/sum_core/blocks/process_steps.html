@@ -1,0 +1,47 @@
+{% load wagtailcore_tags %}
+
+<section class="section process">
+    <div class="container">
+        <div class="process-layout">
+            <!-- Left Column: Sticky Header -->
+            <div class="process-header-col reveal-group">
+                {% if self.eyebrow %}
+                    <span class="block-eyebrow">{{ self.eyebrow }}</span>
+                {% endif %}
+                
+                <div class="block-heading">
+                    {{ self.heading|richtext }}
+                </div>
+                
+                {% if self.intro %}
+                    <div class="process-intro">
+                        {{ self.intro|richtext }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column: Steps Rail -->
+            <div class="process-rail-container">
+                {% for step in self.steps %}
+                    <div class="process-step-item reveal-group delay-{{ forloop.counter }}00">
+                        <div class="rail-marker">
+                            {% if step.number %}
+                                {% if step.number < 10 %}0{% endif %}{{ step.number }}
+                            {% else %}
+                                {% if forloop.counter < 10 %}0{% endif %}{{ forloop.counter }}
+                            {% endif %}
+                        </div>
+                        <div class="process-card">
+                            <h3 class="step-title">{{ step.title }}</h3>
+                            {% if step.description %}
+                                <div class="step-desc text-body">
+                                    {{ step.description|richtext }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

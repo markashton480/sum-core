@@ -1,0 +1,136 @@
+/* ==========================================================================
+   Name: Button Components
+   Path: core/sum_core/static/sum_core/css/components.buttons.css
+   Purpose: Button styles including primary, secondary (outline), and link variants
+            with physics-based hover states and transitions.
+   Family: SUM Platform Design System – Component: Buttons
+   Dependencies: tokens.css
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: var(--font-bold);
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.4s var(--ease-out-expo);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  text-decoration: none;
+  border: 1px solid transparent; /* Base border */
+}
+
+/* --------------------------------------------------------------------------
+   Primary Button
+   -------------------------------------------------------------------------- */
+.btn-primary {
+  background-color: hsla(var(--primary), 1);
+  color: white; /* Ensure high contrast */
+  border-color: hsla(var(--primary), 1);
+}
+
+/* Physics Hover Effect: Deeper shade slide/fill */
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(var(--primary-deep), 1);
+  z-index: -1;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  border-color: hsla(var(--primary-deep), 1);
+}
+
+.btn-primary:hover::before {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   Secondary Button (formerly Outline)
+   -------------------------------------------------------------------------- */
+.btn-secondary,
+.btn-outline {
+  background-color: transparent;
+  color: hsla(var(--text-main), 1);
+  border-color: hsla(var(--text-main), 0.2);
+}
+
+/* Physics Hover Effect: Slide fill from left */
+.btn-secondary::before,
+.btn-outline::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(var(--text-main), 1);
+  z-index: -1;
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.btn-secondary:hover,
+.btn-outline:hover {
+  color: hsla(var(--surface-pure), 1); /* White text on hover */
+  border-color: hsla(var(--text-main), 1);
+  transform: translateY(-2px);
+}
+
+.btn-secondary:hover::before,
+.btn-outline:hover::before {
+  transform: translateX(0);
+}
+
+/* --------------------------------------------------------------------------
+   Link Button Variant
+   -------------------------------------------------------------------------- */
+.btn--link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsla(var(--primary), 1);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.btn--link:hover {
+  color: hsla(var(--primary-deep), 1);
+}
+
+.btn--link span {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.btn--link:hover span {
+  transform: translateX(4px);
+}
+
+.btn-full {
+  width: 100%;
+}

@@ -1,0 +1,5 @@
+{% if schema_json_list %}{% for schema_json in schema_json_list %}
+  <script type="application/ld+json">
+{% autoescape off %}{{ schema_json }}{% endautoescape %}
+  </script>
+{% endfor %}{% endif %}

@@ -1,0 +1,217 @@
+{% load branding_tags wagtailcore_tags wagtailimages_tags navigation_tags %}
+{% get_site_settings as site_settings %}
+{% wagtail_site as current_site %}
+{% firstof site_settings.company_name current_site.site_name WAGTAIL_SITE_NAME as site_name %}
+{% header_nav as nav %}
+
+<header class="header">
+    <div class="container nav-inner">
+        <a href="/" class="logo">
+            {% if site_settings.header_logo %}
+                {% image site_settings.header_logo height-40 as header_logo %}
+                <img class="header-logo" src="{{ header_logo.url }}" alt="{{ site_name }}">
+            {% else %}
+                {{ site_name }}
+            {% endif %}
+        </a>
+
+        <nav class="nav-links" aria-label="Main navigation">
+            {% block primary_nav %}
+                {% for item in nav.menu_items %}
+                    {% if item.has_children %}
+                        <div class="nav-dropdown">
+                            <button
+                                class="nav-item nav-dropdown__toggle{% if item.is_active %} is-active{% endif %}"
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                            >
+                                {{ item.label }}
+                                <svg class="nav-dropdown__icon" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <ul class="nav-dropdown__menu" aria-label="{{ item.label }} submenu">
+                                {% for child in item.children %}
+                                    <li class="nav-dropdown__li">
+                                        {% if child.has_children %}
+                                            <div class="nav-nested-dropdown">
+                                                <button
+                                                    class="nav-dropdown__item nav-nested-dropdown__toggle{% if child.is_active %} is-active{% endif %}"
+                                                    aria-expanded="false"
+                                                    aria-haspopup="true"
+                                                >
+                                                    {{ child.label }}
+                                                    <svg class="nav-dropdown__icon" width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                                <ul class="nav-nested-dropdown__menu" aria-label="{{ child.label }} submenu">
+                                                    {% for grandchild in child.children %}
+                                                        <li>
+                                                            <a
+                                                                href="{{ grandchild.href }}"
+                                                                class="nav-dropdown__item nav-nested-dropdown__item{% if grandchild.is_current %} is-current{% endif %}{% if grandchild.is_active %} is-active{% endif %}"
+                                                                {% if grandchild.is_current %}aria-current="page"{% endif %}
+                                                                {% for k, v in grandchild.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                                                            >
+                                                                {{ grandchild.label }}
+                                                            </a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% else %}
+                                            <a
+                                                href="{{ child.href }}"
+                                                class="nav-dropdown__item{% if child.is_current %} is-current{% endif %}{% if child.is_active %} is-active{% endif %}"
+                                                {% if child.is_current %}aria-current="page"{% endif %}
+                                                {% for k, v in child.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                                            >
+                                                {{ child.label }}
+                                            </a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a
+                            href="{{ item.href }}"
+                            class="nav-item{% if item.is_active %} is-active{% endif %}"
+                            {% if item.is_current %}aria-current="page"{% endif %}
+                            {% for k, v in item.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                        >
+                            {{ item.label }}
+                        </a>
+                    {% endif %}
+                {% empty %}
+                    {# Fallback if no menu items configured #}
+                    <a href="/" class="nav-item">Home</a>
+                {% endfor %}
+
+                {% if nav.show_phone and nav.phone_number %}
+                    <a href="{{ nav.phone_href }}" class="nav-item nav-phone">
+                        <svg class="nav-phone__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        {{ nav.phone_number }}
+                    </a>
+                {% endif %}
+
+                {% if nav.header_cta.enabled %}
+                    <a
+                        href="{{ nav.header_cta.href }}"
+                        class="btn btn-primary"
+                        {% for k, v in nav.header_cta.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                    >
+                        {{ nav.header_cta.text }}
+                    </a>
+                {% endif %}
+            {% endblock %}
+        </nav>
+
+        <button
+            class="menu-btn"
+            id="menuBtn"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mobileDrawer"
+        >
+            <span class="menu-line"></span>
+            <span class="menu-line menu-line--short"></span>
+        </button>
+    </div>
+</header>
+
+<div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+    <div class="drawer-inner">
+        <nav class="mobile-nav" aria-label="Mobile navigation">
+            {% for item in nav.menu_items %}
+                {% if item.has_children %}
+                    <div class="mobile-group{% if item.is_active %} is-active{% endif %}">
+                        <button
+                            class="mobile-link has-submenu{% if item.is_active %} is-active{% endif %}"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="mobile-sub-{{ forloop.counter }}"
+                        >
+                            {{ item.label }}
+                            <span class="plus-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="mobile-sub" id="mobile-sub-{{ forloop.counter }}" aria-hidden="true">
+                            {% for child in item.children %}
+                                {% if child.has_children %}
+                                    <div class="mobile-group{% if child.is_active %} is-active{% endif %}">
+                                        <button
+                                            class="mobile-link sub-level-trigger has-submenu{% if child.is_active %} is-active{% endif %}"
+                                            type="button"
+                                            aria-expanded="false"
+                                            aria-controls="mobile-sub-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                        >
+                                            {{ child.label }}
+                                            <span class="plus-icon plus-icon--sub" aria-hidden="true">+</span>
+                                        </button>
+                                        <div
+                                            class="mobile-sub"
+                                            id="mobile-sub-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                            aria-hidden="true"
+                                        >
+                                            {% for grandchild in child.children %}
+                                                <a
+                                                    href="{{ grandchild.href }}"
+                                                    class="mobile-sub-item{% if grandchild.is_current %} is-current{% endif %}{% if grandchild.is_active %} is-active{% endif %}"
+                                                    {% if grandchild.is_current %}aria-current="page"{% endif %}
+                                                    {% for k, v in grandchild.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                                                >
+                                                    {{ grandchild.label }}
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <a
+                                        href="{{ child.href }}"
+                                        class="mobile-sub-item{% if child.is_current %} is-current{% endif %}{% if child.is_active %} is-active{% endif %}"
+                                        {% if child.is_current %}aria-current="page"{% endif %}
+                                        {% for k, v in child.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                                    >
+                                        {{ child.label }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <a
+                        href="{{ item.href }}"
+                        class="mobile-link{% if item.is_active %} is-active{% endif %}"
+                        {% if item.is_current %}aria-current="page"{% endif %}
+                        {% for k, v in item.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                    >
+                        {{ item.label }}
+                    </a>
+                {% endif %}
+            {% empty %}
+                <a href="/" class="mobile-link">Home</a>
+            {% endfor %}
+        </nav>
+
+        <div class="drawer-footer">
+            {% if nav.show_phone and nav.phone_number %}
+                <a href="{{ nav.phone_href }}" class="btn btn-outline btn-full">
+                    {{ nav.phone_number }}
+                </a>
+            {% endif %}
+
+            {% if nav.header_cta.enabled %}
+                <a
+                    href="{{ nav.header_cta.href }}"
+                    class="btn btn-primary btn-full"
+                    {% for k, v in nav.header_cta.attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+                >
+                    {{ nav.header_cta.text }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>

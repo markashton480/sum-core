@@ -1,0 +1,23 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section section--muted trust-strip trust-strip--logos">
+  <div class="container trust-strip__inner">
+    {% if self.eyebrow %}
+    <p class="section__eyebrow trust-strip__eyebrow">{{ self.eyebrow }}</p>
+    {% endif %}
+    
+    <div class="trust-strip__logos">
+      {% for item in self.items %}
+      <div class="trust-strip__logo">
+        {% if item.url %}
+        <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+          {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+        </a>
+        {% else %}
+          {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

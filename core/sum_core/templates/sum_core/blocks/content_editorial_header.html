@@ -1,0 +1,11 @@
+{% load wagtailcore_tags %}
+<header class="page-header observe-me page-header--{{ self.align|default:'center' }}">
+  <div class="container">
+    {% if self.eyebrow %}
+    <span class="page-meta">{{ self.eyebrow }}</span>
+    {% endif %}
+    <div class="page-header__title">
+      {{ self.heading|richtext }}
+    </div>
+  </div>
+</header>

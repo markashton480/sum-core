@@ -1,0 +1,26 @@
+{# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
+{% extends "theme/base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+  {% if not page.has_hero_block %}
+    <section class="section section--hero">
+      <div class="container">
+        <h1 class="heading-xl">
+          {{ page.title }}
+        </h1>
+        {% if page.intro %}
+          <div class="text-body">
+            {{ page.intro|richtext }}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if page.body %}
+    {% for block in page.body %}
+      {% include_block block %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}

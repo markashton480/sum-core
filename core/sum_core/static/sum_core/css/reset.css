@@ -1,0 +1,50 @@
+/* ==========================================================================
+   Name: Reset & Base Styles
+   Path: core/sum_core/static/sum_core/css/reset.css
+   Purpose: CSS Reset, normalize browser defaults, and base HTML/body styles.
+            Establishes foundational typography and element defaults.
+   Family: SUM Platform Design System – Reset
+   Dependencies: tokens.css (requires CSS custom properties)
+   ========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: hsla(var(--text-main), 1);
+  background-color: hsla(var(--surface-tint), 1);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  color: hsla(var(--text-main), 1);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease;
+}

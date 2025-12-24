@@ -1,0 +1,41 @@
+{% load wagtailcore_tags %}
+<header class="page-header page-header--center">
+  <div class="container">
+    {% if page and page.get_breadcrumbs %}
+      {% with breadcrumbs=page.get_breadcrumbs %}
+        {% if breadcrumbs %}
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol class="breadcrumbs__list">
+              {% for crumb in breadcrumbs %}
+                <li class="breadcrumbs__item">
+                  {% if crumb.is_current %}
+                    <span aria-current="page">{{ crumb.title }}</span>
+                  {% elif crumb.url %}
+                    <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+                  {% else %}
+                    <span>{{ crumb.title }}</span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ol>
+          </nav>
+        {% endif %}
+      {% endwith %}
+    {% endif %}
+    {% if self.eyebrow %}
+      <span class="page-meta">{{ self.eyebrow }}</span>
+    {% endif %}
+    {% if self.heading %}
+      <div class="page-header__title">
+        {{ self.heading|richtext }}
+      </div>
+    {% elif page %}
+      <div class="page-header__title">
+        <h1>{{ page.title }}</h1>
+      </div>
+    {% endif %}
+    {% if self.intro %}
+      <p class="page-header__intro">{{ self.intro }}</p>
+    {% endif %}
+  </div>
+</header>

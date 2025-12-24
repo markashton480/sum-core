@@ -1,0 +1,188 @@
+/* ==========================================================================
+   Name: Services Block Component
+   Path: core/sum_core/static/sum_core/css/components.services.css
+   Purpose: Service cards section with horizontal scroll on mobile and
+            3-column grid on desktop. Includes cards and hover effects.
+   Family: SUM Platform Design System – Component: Services
+   Dependencies: tokens.css, layout.css (provides section header styles),
+                 components.buttons.css
+   ========================================================================== */
+
+/* NOTE: Header styles (.section__header, .section__eyebrow, .section__heading,
+   .section__intro) are inherited from layout.css */
+
+/* Reduce top padding to close gap with Hero */
+.services {
+  padding-top: var(--space-8, 2rem);
+}
+
+@media (min-width: 1024px) {
+  .services {
+    padding-top: var(--space-16, 4rem);
+  }
+}
+
+/* The Grid / Slider Container */
+.services__grid {
+  /* Mobile: Snap Scroll Behavior */
+  display: flex;
+  gap: var(--space-6, 1.5rem);
+  overflow-x: auto;
+  padding-bottom: var(--space-12, 3rem);
+  scroll-snap-type: x mandatory;
+
+  /* Hide Scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  /* Full bleed on mobile hack */
+  margin: 0 calc(var(--container-padding) * -1);
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+.services__grid::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .services__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    gap: var(--space-8, 2rem);
+  }
+}
+
+/* The Card */
+.services__card {
+  position: relative;
+  min-width: 85vw; /* Mobile width */
+  scroll-snap-align: center;
+
+  background-color: hsla(var(--surface-pure), 1);
+  border: 1px solid hsla(var(--text-main), 0.06);
+  border-radius: var(--radius-sm);
+
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s var(--ease-out-expo);
+}
+
+@media (min-width: 768px) {
+  .services__card {
+    min-width: 45vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .services__card {
+    min-width: auto;
+    height: 100%;
+  }
+}
+
+/* Hover Effect (Desktop) */
+@media (hover: hover) {
+  .services__card:hover {
+    transform: translateY(-8px);
+    border-color: hsla(var(--primary), 0.3);
+    box-shadow: 0 20px 40px -10px hsla(var(--brand-h), var(--brand-s), 20%, 0.1);
+  }
+}
+
+.card__body {
+  padding: var(--space-10, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Icon Wrapper */
+.services__icon-wrapper {
+  margin-bottom: var(--space-8, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.services__icon {
+  font-size: var(--text-4xl);
+  color: hsla(var(--primary), 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: hsla(var(--surface-tint), 1);
+  border-radius: var(--radius-xl);
+}
+
+.services__icon img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+/* Decorative Index Number */
+.services__index {
+  font-family: var(--font-heading);
+  font-size: var(--text-5xl);
+  font-weight: var(--font-normal);
+  line-height: 1;
+  color: hsla(var(--text-main), 0.05);
+  font-style: italic;
+  user-select: none;
+}
+
+.services__card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--font-light);
+  font-style: italic;
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-4, 1rem);
+  text-align: left;
+}
+
+.services__card-description {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-normal);
+  color: hsla(var(--text-muted), 1);
+  margin-bottom: var(--space-10, 2.5rem);
+  flex-grow: 1;
+}
+
+.services__card-description p {
+  margin-bottom: 1em;
+}
+
+.services__card-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Card hover effect on link button */
+.services__card:hover .btn--link {
+  color: hsla(var(--accent-pop), 1);
+}
+
+.services__card:hover .btn--link span {
+  transform: translateX(6px);
+}
+
+/* Service Page Featured Image */
+.service-featured-image {
+  margin-top: var(--space-10, 2.5rem);
+}
+
+.service-featured-image img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}

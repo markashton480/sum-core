@@ -1,0 +1,51 @@
+{% load wagtailcore_tags %}
+
+<section class="section faq-section" data-faq-block data-allow-multiple="{{ self.allow_multiple_open|yesno:'true,false' }}">
+    <div class="container">
+        <div class="faq-layout">
+            <!-- Left Column: Sticky Header -->
+            <div class="faq-header-col reveal-group">
+                {% if self.eyebrow %}
+                    <span class="block-eyebrow">{{ self.eyebrow }}</span>
+                {% endif %}
+                
+                <div class="block-heading">
+                    {{ self.heading|richtext }}
+                </div>
+                
+                {% if self.intro %}
+                    <div class="process-intro">
+                        {{ self.intro|richtext }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column: FAQ List -->
+            <div class="faq-list">
+                {% for item in self.items %}
+                    <div class="faq-item reveal-group delay-{{ forloop.counter }}00" aria-expanded="false">
+                        <button class="faq-toggle" aria-controls="faq-ans-{{ block.id }}-{{ forloop.counter }}">
+                            <span class="faq-index">{% if forloop.counter < 10 %}0{% endif %}{{ forloop.counter }}</span>
+                            <span class="faq-question">{{ item.question }}</span>
+                            <div class="faq-icon">
+                                <span class="icon-h"></span>
+                                <span class="icon-v"></span>
+                            </div>
+                        </button>
+                        <div class="faq-answer" id="faq-ans-{{ block.id }}-{{ forloop.counter }}">
+                            <div class="faq-answer-inner text-body">
+                                {{ item.answer|richtext }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if faq_schema_json %}
+    <script type="application/ld+json">
+        {{ faq_schema_json|safe }}
+    </script>
+{% endif %}

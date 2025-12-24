@@ -1,0 +1,51 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section-featured-case-study py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+
+            <div class="case-study-image relative">
+                {% if self.stats_label or self.stats_value %}
+                    <div class="stats-card bg-gray-100 p-4 absolute top-4 right-4 z-10">
+                        {% if self.stats_value %}
+                            <div class="text-2xl font-bold">{{ self.stats_value }}</div>
+                        {% endif %}
+                        {% if self.stats_label %}
+                            <div class="text-sm text-gray-600">{{ self.stats_label }}</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% image self.image original as img %}
+                <img src="{{ img.url }}" alt="{{ self.image_alt }}" class="w-full h-auto object-cover">
+            </div>
+
+            <div class="case-study-content">
+                {% if self.eyebrow %}
+                    <div class="eyebrow text-sm uppercase tracking-wider mb-2 font-semibold text-gray-500">{{ self.eyebrow }}</div>
+                {% endif %}
+
+                <h2 class="text-3xl font-bold mb-4">{{ self.heading|richtext }}</h2>
+
+                {% if self.intro %}
+                    <div class="intro text-lg mb-6">{{ self.intro|richtext }}</div>
+                {% endif %}
+
+                {% if self.points %}
+                    <ul class="points list-decimal pl-5 mb-8 space-y-2">
+                        {% for point in self.points %}
+                            <li>{{ point }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if self.cta_text and self.cta_url %}
+                    <a href="{{ self.cta_url }}" class="inline-block border-b-2 border-black pb-1 hover:opacity-75 transition-opacity">
+                        {{ self.cta_text }}
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>

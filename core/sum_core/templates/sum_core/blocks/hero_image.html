@@ -1,0 +1,59 @@
+{% load wagtailimages_tags wagtailcore_tags %}
+
+<section class="section hero">
+    <div class="container hero-grid">
+        <div class="hero-content reveal-group">
+            {% if self.status %}
+                <div class="hero-status reveal-text">
+                    <span class="status-dot"></span> {{ self.status }}
+                </div>
+            {% endif %}
+            
+            <div class="reveal-text delay-100 hero-headline-wrapper">
+                {{ self.headline|richtext }}
+            </div>
+            
+            {% if self.subheadline %}
+                <div class="hero-desc reveal-text delay-200">{{ self.subheadline }}</div>
+            {% endif %}
+            
+            {% if self.ctas %}
+                <div class="hero-actions reveal-text delay-300">
+                    {% for cta in self.ctas %}
+                        <a href="{{ cta.url }}" 
+                           class="btn {% if cta.style == 'primary' %}btn-primary{% elif cta.style == 'secondary' %}btn-outline{% else %}btn-outline{% endif %}"
+                           {% if cta.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                            {{ cta.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="hero-visual reveal-group">
+            <div class="reveal-img-wrapper">
+                {% image self.image width-1200 class="hero-main-img" %}
+                
+                {% if self.overlay_opacity == 'light' %}
+                    <div class="hero__overlay hero__overlay--light"></div>
+                {% elif self.overlay_opacity == 'medium' %}
+                    <div class="hero__overlay hero__overlay--medium"></div>
+                {% elif self.overlay_opacity == 'strong' %}
+                    <div class="hero__overlay hero__overlay--strong"></div>
+                {% endif %}
+            </div>
+            
+            {% if self.floating_card_label or self.floating_card_value %}
+                <div class="float-card">
+                    {% if self.floating_card_label %}
+                        <span class="float-label">{{ self.floating_card_label }}</span>
+                    {% endif %}
+                    {% if self.floating_card_value %}
+                        <span class="float-value">{{ self.floating_card_value }}</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+</section>

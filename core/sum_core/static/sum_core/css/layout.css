@@ -1,0 +1,123 @@
+/* ==========================================================================
+   Name: Layout Utilities
+   Path: core/sum_core/static/sum_core/css/layout.css
+   Purpose: Layout shell styles including .container, .section, and grid
+            helpers that establish the structural foundation for all pages.
+   Family: SUM Platform Design System – Layout
+   Dependencies: tokens.css (requires spacing and layout tokens)
+   ========================================================================== */
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* Section */
+.section {
+  padding: var(--section-gap) 0;
+}
+
+/* Dark Theme Section Modifier */
+.section--dark {
+  background-color: hsla(var(--text-main), 1);
+  color: hsla(var(--surface-tint), 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient Glow Effect for Dark Sections */
+.section--dark::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, hsla(var(--brand-h), var(--brand-s), 45%, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   Section Header Pattern
+   
+   Shared header styles for all section blocks. Use these classes for consistent
+   eyebrow, heading, and intro styling across services, testimonials, gallery, etc.
+   ========================================================================== */
+
+.section__header {
+  max-width: 720px;
+  margin-bottom: var(--space-16, 4rem);
+  position: relative;
+  z-index: 1;
+}
+
+.section__eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: var(--font-bold);
+  color: hsla(var(--accent-pop), 1);
+  margin-bottom: var(--space-5);
+  display: inline-block;
+  border: 1px solid hsla(var(--text-main), 0.1);
+  padding: 0.35em 0.75em;
+  border-radius: var(--radius-full);
+  background: hsla(var(--surface-pure), 0.5);
+}
+
+.section__heading {
+  margin-bottom: var(--space-6);
+  color: hsla(var(--text-main), 1);
+}
+
+/* Rich text content inside heading */
+.section__heading > * {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+/* Italic accent styling for emphasized words */
+.section__heading em,
+.section__heading i {
+  font-style: italic;
+  color: hsla(var(--accent-pop), 1);
+}
+
+.section__intro {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  color: hsla(var(--text-muted), 1);
+  max-width: 540px;
+  line-height: var(--leading-normal);
+}
+
+/* ==========================================================================
+   Dark Theme Section Header Variants
+   ========================================================================== */
+
+.section--dark .section__eyebrow {
+  color: hsla(var(--brand-h), 60%, 70%, 1);
+  border-color: hsla(var(--surface-tint), 0.1);
+  background: hsla(var(--surface-pure), 0.05);
+  backdrop-filter: blur(4px);
+}
+
+.section--dark .section__heading {
+  color: hsla(var(--surface-tint), 1);
+}
+
+.section--dark .section__heading em,
+.section--dark .section__heading i {
+  color: hsla(var(--brand-h), 60%, 70%, 1);
+}
+
+.section--dark .section__intro {
+  color: hsla(var(--surface-tint), 0.7);
+}

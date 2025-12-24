@@ -1,0 +1,45 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% with has_image=self.image %}
+<section class="section service-detail">
+    <div class="container">
+        <div class="service-detail__inner{% if has_image and self.layout != 'no_image' %} service-detail__inner--with-image{% endif %}{% if has_image and self.layout == 'image_right' %} service-detail__inner--image-right{% endif %}">
+            <div class="service-detail__content">
+                {% if self.eyebrow %}
+                    <p class="service-detail__eyebrow">{{ self.eyebrow }}</p>
+                {% endif %}
+
+                <div class="service-detail__heading">
+                    {{ self.heading|richtext }}
+                </div>
+
+                <div class="service-detail__body text-body">
+                    {{ self.body|richtext }}
+                </div>
+
+                {% if self.highlights %}
+                    <ul class="service-detail__highlights">
+                        {% for highlight in self.highlights %}
+                            <li>{{ highlight }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if self.cta_text and self.cta_url %}
+                    <p class="service-detail__cta">
+                        <a href="{{ self.cta_url }}" class="btn--link">
+                            {{ self.cta_text }}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+
+            {% if has_image and self.layout != "no_image" %}
+                <div class="service-detail__media">
+                    {% image self.image fill-900x600 class="service-detail__image" alt=self.image_alt|default:self.heading|striptags %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endwith %}

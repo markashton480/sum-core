@@ -1,0 +1,31 @@
+{% load wagtailimages_tags %}
+
+<div class="content-block-wrapper">
+  <div class="container container--narrow">
+    <figure class="social-proof-quote observe-me">
+      <blockquote class="social-proof-quote__text">{{ self.quote|linebreaksbr }}</blockquote>
+
+      {% if self.logo %}
+      {% with logo_alt=self.company|default:self.author|default:"Logo" %}
+      <div class="social-proof-quote__logo">
+        {% image self.logo fill-120x120 alt=logo_alt %}
+      </div>
+      {% endwith %}
+      {% endif %}
+
+      {% if self.author or self.role or self.company %}
+      <figcaption class="social-proof-quote__attribution">
+        {% if self.author %}
+        <span class="social-proof-quote__author">{{ self.author }}</span>
+        {% endif %}
+        {% if self.role %}
+        <span class="social-proof-quote__role">{{ self.role }}</span>
+        {% endif %}
+        {% if self.company %}
+        <span class="social-proof-quote__company">{{ self.company }}</span>
+        {% endif %}
+      </figcaption>
+      {% endif %}
+    </figure>
+  </div>
+</div>

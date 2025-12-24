@@ -1,0 +1,31 @@
+{% load wagtailcore_tags %}
+
+<section class="section stats">
+  <div class="container">
+    
+    {% if self.eyebrow or self.intro %}
+    <header class="section__header">
+      {% if self.eyebrow %}
+      <span class="section__eyebrow stats__eyebrow">{{ self.eyebrow }}</span>
+      {% endif %}
+      {% if self.intro %}
+      <div class="section__intro stats__intro">
+        {{ self.intro|linebreaksbr }}
+      </div>
+      {% endif %}
+    </header>
+    {% endif %}
+
+    <div class="stats__grid" data-stats-animate>
+      {% for item in self.items %}
+      <div class="stat reveal-group">
+        <div class="stat__value">
+          {% if item.prefix %}<span class="stat__prefix">{{ item.prefix }}</span>{% endif %}<span class="stat__number" data-value="{{ item.value }}">{{ item.value }}</span>{% if item.suffix %}<span class="stat__suffix">{{ item.suffix }}</span>{% endif %}
+        </div>
+        <div class="stat__label">{{ item.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>

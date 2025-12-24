@@ -1,0 +1,214 @@
+{% load wagtailcore_tags form_tags %}
+<section class="section quote-form-block {% if self.show_compact_meta %}section--compact{% endif %}">
+  <div class="container">
+    <header class="section__header reveal-group">
+      {% if self.eyebrow %}
+        <span class="section__eyebrow">{{ self.eyebrow }}</span>
+      {% endif %}
+      <div class="section__heading">{{ self.heading|richtext }}</div>
+      {% if self.intro %}
+        <div class="section__intro text-lg">{{ self.intro|richtext }}</div>
+      {% endif %}
+    </header>
+
+    <div class="quote-form-container reveal-group delay-100">
+      <form action="/forms/submit/" method="post" novalidate class="form premium-form quote-form" data-form-type="quote_request" id="quote-form"
+            data-success-message="{{ self.success_message|default:"Thanks, we'll prepare your quote."|escapejs }}"
+            data-error-message="Something went wrong. Please try again.">
+        {% csrf_token %}
+
+        <!-- Hidden fields for attribution and spam protection -->
+        {% form_hidden_fields form_type="quote_request" %}
+
+        <!-- Honeypot field -->
+        <div class="form__field form__field--honeypot" aria-hidden="true">
+          <label for="form-company-field">Company</label>
+          <input type="text" name="company" id="form-company-field" tabindex="-1" autocomplete="off">
+        </div>
+
+        {% if form %}
+          <div class="form-fields-stack">
+            {% for field in form %}
+              <div class="form-group {% if field.errors %}has-error{% endif %}">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                <div class="form-control-wrapper">
+                  {{ field }}
+                </div>
+                {% if field.help_text %}
+                  <span class="form-hint text-sm text-muted">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                  <span class="form-error-msg" id="{{ field.auto_id }}_errors">
+                    {{ field.errors.0 }}
+                  </span>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if form.non_field_errors %}
+            <div class="form-errors">
+              {% for error in form.non_field_errors %}
+                <p class="form-error-msg">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+        {% else %}
+          <!-- Working form fields for frontend use (no backend form object yet) -->
+          <div class="form-fields-stack">
+             <!-- Pill selector - uses form-group--pills to exclude animated underline -->
+             <div class="form-group form-group--pills">
+                <span class="form-label">Project Type</span>
+                <div class="pill-group">
+                  <label class="pill-option">
+                    <input type="radio" name="project_type" value="residential" class="pill-input" checked>
+                    <span class="pill-label">Residential Retrofit</span>
+                  </label>
+                  <label class="pill-option">
+                    <input type="radio" name="project_type" value="newbuild" class="pill-input">
+                    <span class="pill-label">New Build / Extension</span>
+                  </label>
+                  <label class="pill-option">
+                    <input type="radio" name="project_type" value="commercial" class="pill-input">
+                    <span class="pill-label">Commercial</span>
+                  </label>
+                </div>
+             </div>
+
+             <!-- Two-column grid for postcode and budget -->
+             <div class="form-row">
+               <div class="form-group">
+                  <label for="quote-postcode" class="form-label">Project Postcode</label>
+                  <input type="text" id="quote-postcode" name="postcode" class="form-input" required>
+               </div>
+               <div class="form-group">
+                  <label for="quote-budget" class="form-label">Est. Budget</label>
+                  <select id="quote-budget" name="budget" class="form-select">
+                    <option value="" disabled selected>Select a range</option>
+                    <option value="10-20k">£10k - £20k</option>
+                    <option value="20-40k">£20k - £40k</option>
+                    <option value="40k+">£40k+</option>
+                  </select>
+               </div>
+             </div>
+
+             <!-- Name and Email row -->
+             <div class="form-row">
+               <div class="form-group">
+                  <label for="quote-name" class="form-label">Full Name</label>
+                  <input type="text" id="quote-name" name="name" class="form-input" placeholder="e.g. James Sterling" required>
+               </div>
+               <div class="form-group">
+                  <label for="quote-email" class="form-label">Email Address</label>
+                  <input type="email" id="quote-email" name="email" class="form-input" placeholder="name@example.com" required>
+               </div>
+             </div>
+
+             <div class="form-group">
+                <label for="quote-details" class="form-label">Additional Details</label>
+                <textarea id="quote-details" name="message" class="form-textarea" placeholder="Any specific requirements or constraints?"></textarea>
+             </div>
+          </div>
+        {% endif %}
+
+        <!-- Form messages -->
+        <div class="form-messages" role="alert" aria-live="polite"></div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-submit">
+            {{ self.submit_label|default:"Request a quote" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% form_attribution_script %}
+
+<script>
+(function() {
+  'use strict';
+
+  var form = document.getElementById('quote-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var formData = new FormData(form);
+    var submitBtn = form.querySelector('.btn-submit');
+    var messagesDiv = form.querySelector('.form-messages');
+    var originalBtnText = submitBtn.textContent;
+
+    // Disable button and show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    messagesDiv.innerHTML = '';
+    messagesDiv.className = 'form-messages';
+
+    var csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+    var csrfToken = csrfInput ? csrfInput.value : '';
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        return { status: response.status, data: data };
+      });
+    })
+    .then(function(result) {
+      if (result.data.success) {
+        // Success - show success message from data attribute (safe from XSS)
+        messagesDiv.className = 'form-messages form-messages--success';
+        var successMsg = document.createElement('p');
+        successMsg.className = 'form-success-msg';
+        successMsg.textContent = form.dataset.successMessage || 'Thank you for your submission.';
+        messagesDiv.innerHTML = '';
+        messagesDiv.appendChild(successMsg);
+        form.reset();
+      } else {
+        // Error - show error messages (server response is trusted)
+        messagesDiv.className = 'form-messages form-messages--error';
+        messagesDiv.innerHTML = '';
+        if (result.data.errors) {
+          for (var field in result.data.errors) {
+            result.data.errors[field].forEach(function(msg) {
+              var errorP = document.createElement('p');
+              errorP.className = 'form-error-msg';
+              errorP.textContent = msg;
+              messagesDiv.appendChild(errorP);
+            });
+          }
+        }
+        if (!messagesDiv.hasChildNodes()) {
+          var fallbackP = document.createElement('p');
+          fallbackP.className = 'form-error-msg';
+          fallbackP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+          messagesDiv.appendChild(fallbackP);
+        }
+      }
+    })
+    .catch(function(error) {
+      messagesDiv.className = 'form-messages form-messages--error';
+      var errorP = document.createElement('p');
+      errorP.className = 'form-error-msg';
+      errorP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+      messagesDiv.innerHTML = '';
+      messagesDiv.appendChild(errorP);
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
+    });
+  });
+})();
+</script>

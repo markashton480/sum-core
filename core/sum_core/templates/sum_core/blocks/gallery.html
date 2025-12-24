@@ -1,0 +1,48 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section gallery">
+  <div class="container">
+
+    {% if self.heading or self.eyebrow %}
+    <header class="section__header reveal-group">
+      {% if self.eyebrow %}
+      <span class="section__eyebrow">{{ self.eyebrow }}</span>
+      {% endif %}
+      {% if self.heading %}
+      <div class="section__heading">
+        {{ self.heading|richtext }}
+      </div>
+      {% endif %}
+      {% if self.intro %}
+      <p class="section__intro">{{ self.intro }}</p>
+      {% endif %}
+    </header>
+    {% endif %}
+
+    {% if self.images %}
+    <div class="gallery__grid">
+      {% for item in self.images %}
+      <figure class="gallery__item">
+        <div class="gallery__image-wrapper">
+          {% image item.image fill-600x400 as rendition %}
+          <img
+            src="{{ rendition.url }}"
+            width="{{ rendition.width }}"
+            height="{{ rendition.height }}"
+            alt="{{ item.alt_text|default:item.image.title }}"
+            class="gallery__image"
+            loading="lazy"
+          />
+        </div>
+        {% if item.caption %}
+        <figcaption class="gallery__caption text-sm text-muted">
+          {{ item.caption }}
+        </figcaption>
+        {% endif %}
+      </figure>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>

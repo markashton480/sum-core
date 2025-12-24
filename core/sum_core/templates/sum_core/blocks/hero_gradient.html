@@ -1,0 +1,33 @@
+{% load wagtailcore_tags %}
+<section class="section hero hero--gradient hero--gradient-{{ self.gradient_style }}">
+    <div class="container hero-grid">
+        <div class="hero-content reveal-group">
+            {% if self.status %}
+                <div class="hero-status reveal-text">
+                    <span class="status-dot"></span> {{ self.status }}
+                </div>
+            {% endif %}
+            
+            <div class="reveal-text delay-100 hero-headline-wrapper">
+                {{ self.headline|richtext }}
+            </div>
+            
+            {% if self.subheadline %}
+                <div class="hero-desc reveal-text delay-200">
+                    {{ self.subheadline }}
+                </div>
+            {% endif %}
+            
+            {% if self.ctas %}
+                <div class="hero-actions reveal-text delay-300">
+                    {% for cta in self.ctas %}
+                        <a href="{{ cta.url }}" class="btn {% if cta.style == 'primary' %}btn-primary{% elif cta.style == 'secondary' %}btn-outline{% else %}btn-outline{% endif %}"
+                           {% if cta.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                            {{ cta.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>

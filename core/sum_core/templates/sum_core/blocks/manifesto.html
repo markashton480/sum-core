@@ -1,0 +1,28 @@
+{% load wagtailcore_tags %}
+
+{# Fallback template (non-theme-owned) for ManifestoBlock. #}
+<section class="py-16">
+  <div class="container max-w-3xl mx-auto px-4 text-center">
+    {% if self.eyebrow %}
+      <p class="text-xs font-bold uppercase tracking-widest mb-4">{{ self.eyebrow }}</p>
+    {% endif %}
+
+    {% if self.heading %}
+      <div class="prose prose-lg mx-auto mb-6">
+        {{ self.heading|richtext }}
+      </div>
+    {% endif %}
+
+    {% if self.body %}
+      <div class="prose prose-lg mx-auto">
+        {{ self.body|richtext }}
+      </div>
+    {% endif %}
+
+    {% if self.quote %}
+      <div class="prose mx-auto mt-8 pt-6 border-t">
+        <p><em>{{ self.quote }}</em></p>
+      </div>
+    {% endif %}
+  </div>
+</section>

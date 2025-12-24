@@ -1,0 +1,9 @@
+{% load wagtailcore_tags %}
+<section id="{{ self.anchor|slugify }}" class="content-block-wrapper legal-section">
+  <div class="container container--narrow">
+    <h2 class="legal-section__heading">{{ self.heading }}</h2>
+    <div class="legal-section__body">
+      {{ self.body|richtext }}
+    </div>
+  </div>
+</section>

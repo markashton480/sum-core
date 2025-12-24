@@ -1,0 +1,37 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section team-members" aria-label="{{ self.heading|striptags|default:self.eyebrow|default:'Team' }}">
+  <div class="container">
+    {% if self.eyebrow or self.heading %}
+    <header class="section__header" data-team-heading>
+      {% if self.eyebrow %}
+      <span class="section__eyebrow">{{ self.eyebrow }}</span>
+      {% endif %}
+      {% if self.heading %}
+      <div class="section__heading">
+        {{ self.heading|richtext }}
+      </div>
+      {% endif %}
+    </header>
+    {% endif %}
+
+    <div class="team-members__grid" data-team-grid>
+      {% for member in self.members %}
+      <article class="team-member-card" data-team-member>
+        <div class="team-member-card__photo">
+          {% image member.photo fill-400x400 class="team-member-card__image" alt=member.alt_text %}
+        </div>
+        <div class="team-member-card__body">
+          <h3 class="team-member-card__name">{{ member.name }}</h3>
+          {% if member.role %}
+          <p class="team-member-card__role">{{ member.role }}</p>
+          {% endif %}
+          {% if member.bio %}
+          <p class="team-member-card__bio">{{ member.bio|linebreaksbr }}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

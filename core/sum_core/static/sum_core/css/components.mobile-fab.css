@@ -1,0 +1,35 @@
+/* ==========================================================================
+   Name: Mobile FAB Component
+   Path: core/sum_core/static/sum_core/css/components.mobile-fab.css
+   Purpose: Floating action button for mobile devices with slide-in animation.
+   Family: SUM Platform Design System – Component: Mobile FAB
+   Dependencies: tokens.css
+   ========================================================================== */
+
+.mobile-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99;
+  background: hsla(var(--text-main), 1);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateY(150%);
+  transition: transform 0.4s ease;
+}
+
+.mobile-fab.visible {
+  transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+  .mobile-fab {
+    display: none;
+  }
+}

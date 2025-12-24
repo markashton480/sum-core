@@ -1,0 +1,75 @@
+{# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
+{% extends "theme/base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+  {# Page header section #}
+  <section class="section">
+    <div class="container">
+      <header class="section__header">
+        <div class="section__heading">
+          <h1 class="heading-xl">{{ page.title }}</h1>
+        </div>
+      </header>
+    </div>
+  </section>
+
+  {# Intro content area (StreamField) #}
+  {% if page.intro %}
+    {% for block in page.intro %}
+      {% include_block block %}
+    {% endfor %}
+  {% endif %}
+
+  {# Service grid section #}
+  {% if services %}
+    <section class="section services">
+      <div class="container">
+        <div class="services__grid">
+          {% for service in services %}
+            <article class="services__card reveal-group delay-{{ forloop.counter0|add:1 }}00">
+              <div class="card__body">
+                {# Featured image if present #}
+                {% if service.featured_image %}
+                  <div class="services__icon-wrapper">
+                    <div class="services__icon services__icon--image">
+                      {% image service.featured_image fill-160x160 class="services__icon-image" %}
+                    </div>
+                    <span class="services__index">{{ forloop.counter|stringformat:"02d" }}</span>
+                  </div>
+                {% else %}
+                  <div class="services__icon-wrapper">
+                    <div class="services__icon">
+                      <span>🔧</span>
+                    </div>
+                    <span class="services__index">{{ forloop.counter|stringformat:"02d" }}</span>
+                  </div>
+                {% endif %}
+
+                {# Service title #}
+                <h3 class="services__card-title">
+                  {{ service.title }}
+                </h3>
+
+                {# Short description #}
+                {% if service.short_description %}
+                  <div class="services__card-description text-body">
+                    <p>{{ service.short_description }}</p>
+                  </div>
+                {% endif %}
+
+                {# Link to service page #}
+                <div class="services__card-link">
+                  <a href="{% pageurl service %}" class="btn btn--link">
+                    Learn More
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

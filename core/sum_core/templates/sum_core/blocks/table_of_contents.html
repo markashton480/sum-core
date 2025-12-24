@@ -1,0 +1,17 @@
+{% load wagtailcore_tags %}
+<nav class="content-block-wrapper table-of-contents" aria-label="Table of Contents">
+  <div class="container container--narrow">
+    <ol class="toc-list">
+      {% for item in self.items %}
+        {% with anchor=item.anchor|slugify %}
+          <li class="toc-list__item">
+            <a href="#{{ anchor }}" class="toc-list__link">
+              <span class="toc-list__index">{{ forloop.counter }}.</span>
+              <span class="toc-list__label">{{ item.label }}</span>
+            </a>
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ol>
+  </div>
+</nav>

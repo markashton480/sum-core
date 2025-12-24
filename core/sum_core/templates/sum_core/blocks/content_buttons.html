@@ -1,0 +1,16 @@
+<div class="content-block-wrapper">
+  <div class="container container--narrow">
+    <div
+      class="button-group observe-me button-group--{{ self.alignment|default:'left' }}"
+    >
+      {% for btn in self.buttons %}
+      <a
+        href="{{ btn.url }}"
+        class="btn {% if btn.style == 'primary' %}btn-primary{% else %}btn-secondary{% endif %}"
+      >
+        {{ btn.label }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>

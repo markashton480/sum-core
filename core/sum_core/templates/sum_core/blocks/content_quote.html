@@ -1,0 +1,19 @@
+<div class="content-block-wrapper">
+  <div class="container container--narrow">
+    <blockquote class="quote-block observe-me">
+      <div class="quote-line"></div>
+      <div class="quote-content">
+        <p class="quote-text">{{ self.quote }}</p>
+        {% if self.author or self.role %}
+        <div class="quote-attribution">
+          {% if self.author %}
+          <span class="quote-author">{{ self.author }}</span>
+          {% endif %} {% if self.role %}
+          <span class="quote-role"> — {{ self.role }}</span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </blockquote>
+  </div>
+</div>

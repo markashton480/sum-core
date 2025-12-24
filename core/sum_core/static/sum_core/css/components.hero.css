@@ -1,0 +1,231 @@
+/* ==========================================================================
+   Name: Hero Component
+   Path: core/sum_core/static/sum_core/css/components.hero.css
+   Purpose: Hero section styles including layout grid, headline wrapper,
+            status badges, description, CTAs, hero image, and floating cards.
+            Supports multiple gradient variants.
+   Family: SUM Platform Design System – Component: Hero
+   Dependencies: tokens.css, layout.css, utilities.css
+   ========================================================================== */
+
+.hero {
+  padding-top: 110px;
+  padding-bottom: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 6rem;
+  }
+}
+
+.hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsla(var(--accent-pop), 1);
+  margin-bottom: var(--space-6, 1.5rem);
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  background: hsla(var(--surface-pure), 0.5);
+  border: 1px solid hsla(var(--text-main), 0.1);
+  border-radius: 50px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: hsla(var(--color-success), 1);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px hsla(var(--surface-tint), 1);
+}
+
+.hero h1 {
+  font-size: var(--text-display);
+  margin-bottom: 2rem;
+}
+
+.hero-desc {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-relaxed);
+  color: hsla(var(--text-muted), 1);
+  max-width: 500px;
+  margin-bottom: var(--space-12, 3rem);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Hero Image Composition */
+.hero-visual {
+  position: relative;
+}
+
+.hero-main-img {
+  width: 100%;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+}
+
+/* Hero Image Overlays */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: var(--radius-xl);
+}
+
+.hero__overlay--light {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.hero__overlay--medium {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.hero__overlay--strong {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Floating Element */
+.float-card {
+  position: absolute;
+  bottom: 40px;
+  left: -40px;
+  background: hsla(var(--surface-pure), 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  max-width: 200px;
+  border: 1px solid hsla(var(--text-main), 0.05);
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .float-card {
+    display: block;
+  }
+}
+
+.float-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: hsla(var(--text-muted), 1);
+  margin-bottom: 0.25rem;
+}
+
+.float-value {
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  color: hsla(var(--primary), 1);
+}
+
+/* Hero Headline Styling for RichText */
+.hero-headline-wrapper h1,
+.hero-headline-wrapper p,
+.hero-headline-wrapper div {
+  font-family: var(--font-heading);
+  font-size: var(--text-display);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-8, 2rem);
+  color: hsla(var(--text-main), 1);
+}
+
+/* The Accent Styling for Italic */
+.hero-headline-wrapper em,
+.hero-headline-wrapper i {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: var(--font-normal);
+  color: hsla(var(--accent-pop), 1);
+}
+
+/* Responsive adjustments for Hero Image on Mobile */
+@media (max-width: 1023px) {
+  .hero-visual {
+    display: none;
+  }
+}
+
+/* ===================================
+   Hero Gradient Variants
+   =================================== */
+
+.hero--gradient .hero-grid {
+  grid-template-columns: 1fr;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.hero--gradient .hero-actions {
+  justify-content: center;
+}
+
+.hero--gradient .hero-desc {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero--gradient-primary {
+  background: radial-gradient(
+      circle at top right,
+      hsla(var(--primary), 0.15),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      hsla(var(--primary), 0.1),
+      transparent 60%
+    );
+}
+
+.hero--gradient-secondary {
+  background: radial-gradient(
+      circle at top right,
+      hsla(var(--text-muted), 0.1),
+      transparent 60%
+    ),
+    linear-gradient(
+      to bottom,
+      hsla(var(--surface-tint), 1),
+      hsla(var(--surface-pure), 1)
+    );
+}
+
+.hero--gradient-accent {
+  background: radial-gradient(
+      circle at top right,
+      hsla(var(--accent-pop), 0.15),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      hsla(var(--primary), 0.05),
+      transparent 60%
+    );
+}

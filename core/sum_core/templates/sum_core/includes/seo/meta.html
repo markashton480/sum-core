@@ -1,0 +1,8 @@
+<title>{{ meta_title }}</title>
+{% if meta_description %}
+<meta name="description" content="{{ meta_description }}">
+{% endif %}
+{% if robots_content %}
+<meta name="robots" content="{{ robots_content }}">
+{% endif %}
+<link rel="canonical" href="{{ canonical_url }}">

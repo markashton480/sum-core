@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Name: Generic Cards Component
+   Path: core/sum_core/static/sum_core/css/components.cards.css
+   Purpose: Base card styles and generic card patterns that can be extended
+            by specific component cards (services, testimonials, etc.).
+   Family: SUM Platform Design System – Component: Cards
+   Dependencies: tokens.css
+   ========================================================================== */
+
+/* 
+   Base Card Pattern
+   This provides a foundation that specific card types can extend.
+   Service cards and testimonial cards have their own component files
+   with more specialized styling.
+*/
+
+.card {
+  background-color: hsla(var(--surface-pure), 1);
+  border: 1px solid hsla(var(--text-main), 0.06);
+  border-radius: var(--radius-sm);
+  padding: var(--space-8, 2rem);
+  transition: all 0.4s var(--ease-out-expo);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card Body */
+.card__body {
+  padding: var(--space-10, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Card Header */
+.card__header {
+  margin-bottom: var(--space-6, 1.5rem);
+}
+
+/* Card Title */
+.card__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+/* Card Content */
+.card__content {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: hsla(var(--text-muted), 1);
+  flex-grow: 1;
+}
+
+/* Card Footer */
+.card__footer {
+  margin-top: auto;
+  padding-top: var(--space-6, 1.5rem);
+}
+
+/* Card with Dark Background */
+.card--dark {
+  background: hsla(var(--surface-pure), 0.03);
+  border-color: hsla(var(--surface-pure), 0.1);
+  color: hsla(var(--surface-tint), 1);
+}
+
+.card--dark:hover {
+  background: hsla(var(--surface-pure), 0.06);
+}

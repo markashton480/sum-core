@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<section class="panel summary">
+    <h2 class="title">{% trans "Lead Summary (Last 30 Days)" %}</h2>
+    <div class="panel-content">
+        <p class="total-leads">
+            <strong>{% trans "Total Leads" %}:</strong> {{ total }}
+        </p>
+
+        <div class="lead-breakdown" style="display: flex; gap: 2rem; margin-top: 1rem;">
+            <div class="status-column">
+                <h3>{% trans "By Status" %}</h3>
+                <ul class="listing">
+                    {% for label, count in by_status.items %}
+                        <li>
+                            <span class="label">{{ label }}:</span>
+                            <span class="value">{{ count }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="source-column">
+                <h3>{% trans "By Source" %}</h3>
+                <ul class="listing">
+                    {% for label, count in by_source.items %}
+                        <li>
+                            <span class="label">{{ label }}:</span>
+                            <span class="value">{{ count }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <p class="help-text" style="margin-top: 1.5rem; font-style: italic; color: #666;">
+            {% trans "For detailed analytics, visit Google Analytics." %}
+        </p>
+    </div>
+</section>

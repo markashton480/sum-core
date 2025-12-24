@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sum-core"
+version = "0.1.0"
+description = "Shared core package for SUM client websites"
+requires-python = ">=3.12"
+dependencies = [
+  "Django>=5.2,<5.3",
+  "wagtail>=7.0,<7.1",
+  "celery>=5.4,<6.0",
+  "requests>=2.31,<3.0",
+  "sentry-sdk[celery]>=2.0,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "psycopg[binary]>=3.2,<4",
+  "pytest",
+  "pytest-django",
+  "pytest-cov",
+  "mypy",
+  "types-requests>=2.31,<3.0",
+  "ruff>=0.1.0",
+  "black",
+  "isort",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sum_core*"]
+
+[tool.setuptools.package-data]
+sum_core = [
+  "templates/**/*.html",
+  "static/**/*",
+]

@@ -1,0 +1,87 @@
+/* ==========================================================================
+   Name: Gallery / Portfolio Section
+   Path: core/sum_core/static/sum_core/css/components.gallery.css
+   Purpose: Styles for the project gallery / portfolio grid block.
+   Family: SUM Platform Design System – Components
+   Dependencies: tokens.css, typography.css, layout.css
+   ========================================================================== */
+
+.gallery {
+  /* Inherits .section structural styles */
+}
+
+/* Grid Layout */
+.gallery__grid {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+@media (min-width: 48rem) {
+  .gallery__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .gallery__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Item Card */
+.gallery__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: relative; /* Context for any potential overlays */
+}
+
+/* Image Wrapper & Hover Interactions */
+.gallery__image-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  /* 4:3 Aspect Ratio equivalent if image doesn't force it, 
+     but wagtail fill-800x600 does 4:3. 
+     We can safeguard layout with aspect-ratio. */
+  aspect-ratio: 4 / 3;
+  background-color: hsla(var(--surface-sunken), 1);
+}
+
+.gallery__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-default) var(--ease-out-expo);
+}
+
+.gallery__item:hover .gallery__image {
+  transform: scale(1.05);
+}
+
+/* Content */
+.gallery__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.gallery__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* Typography handled by .text-sm .text-muted in template */
+}
+
+.gallery__title {
+  margin: 0;
+  /* Use heading color if not inherited */
+  color: hsla(var(--text-main), 1);
+}
+
+.gallery__link {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+  /* Button styles inherit from .btn .btn-secondary */
+}

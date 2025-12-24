@@ -1,0 +1,65 @@
+/* ==========================================================================
+   Name: Features Component
+   Path: core/sum_core/static/sum_core/css/components.features.css
+   Purpose: Feature cards section with horizontal scroll on mobile and
+            grid layout on desktop.
+   Family: SUM Platform Design System – Component: Features
+   Dependencies: tokens.css, layout.css
+   ========================================================================== */
+
+.features-header {
+  max-width: 700px;
+  margin-bottom: var(--space-16, 4rem);
+}
+
+.features-container {
+  display: flex;
+  overflow-x: auto;
+  gap: var(--space-6, 1.5rem);
+  padding-bottom: var(--space-8, 2rem);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin: 0 calc(var(--container-padding) * -1);
+  padding: 0 var(--container-padding) var(--space-8, 2rem);
+}
+
+.features-container::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .features-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+.feature-card {
+  min-width: 85%;
+  scroll-snap-align: center;
+  background: hsla(var(--surface-pure), 1);
+  padding: var(--space-8, 2rem);
+  border-radius: var(--radius-sm);
+  border: 1px solid hsla(var(--text-main), 0.05);
+  transition: transform 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .feature-card {
+    min-width: auto;
+  }
+  .feature-card:hover {
+    transform: translateY(-10px);
+  }
+}
+
+.feature-icon {
+  font-size: var(--space-8, 2rem);
+  color: hsla(var(--primary), 1);
+  margin-bottom: var(--space-6, 1.5rem);
+  display: inline-block;
+}

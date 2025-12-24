@@ -1,0 +1,53 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section gallery" id="gallery-{{ block.id }}">
+    <div class="container">
+        <header class="section__header reveal-group">
+            {% if self.eyebrow %}
+                <span class="section__eyebrow">{{ self.eyebrow }}</span>
+            {% endif %}
+            
+            {% if self.heading %}
+                <div class="section__heading">{{ self.heading|richtext }}</div>
+            {% endif %}
+            
+            {% if self.intro %}
+                <p class="section__intro text-body">{{ self.intro }}</p>
+            {% endif %}
+        </header>
+
+        <div class="gallery__grid">
+            {% for item in self.items %}
+                <div class="gallery__item reveal-group">
+                    <div class="gallery__image-wrapper">
+                        {% image item.image fill-800x600 class="gallery__image" alt=item.alt_text %}
+                    </div>
+                    
+                    <div class="gallery__content">
+                        {% if item.location or item.services %}
+                            <div class="gallery__meta text-muted text-sm">
+                                {% if item.location %}
+                                    <span class="gallery__location">{{ item.location }}</span>
+                                {% endif %}
+                                {% if item.location and item.services %}
+                                    <span class="gallery__separator">•</span>
+                                {% endif %}
+                                {% if item.services %}
+                                    <span class="gallery__services">{{ item.services }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <h3 class="gallery__title heading-sm">{{ item.title }}</h3>
+
+                        {% if item.link_url %}
+                            <a href="{{ item.link_url }}" class="gallery__link btn btn-secondary btn-sm">
+                                View Project
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

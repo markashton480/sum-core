@@ -1,0 +1,81 @@
+/* ==========================================================================
+   Name: Sticky CTA Component
+   Path: core/sum_core/static/sum_core/css/components.sticky-cta.css
+   Purpose: Mobile sticky call-to-action bar with phone and action button.
+   Family: SUM Platform Design System – Component: Sticky CTA
+   Dependencies: tokens.css, components.buttons.css
+   ========================================================================== */
+
+.sticky-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  display: flex;
+  align-items: stretch;
+  background: hsla(var(--surface-pure), 0.98);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid hsla(var(--text-main), 0.05);
+  transform: translateY(100%);
+  transition: transform 0.4s ease;
+  padding: var(--space-3, 0.75rem);
+  gap: var(--space-3, 0.75rem);
+}
+
+.sticky-cta.visible {
+  transform: translateY(0);
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+  .sticky-cta {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Phone Button
+   ========================================================================== */
+
+.sticky-cta__phone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  flex: 0 0 auto;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  background: hsla(var(--surface-tint), 1);
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: hsla(var(--text-main), 1);
+  transition: background 0.2s ease;
+}
+
+.sticky-cta__phone:hover {
+  background: hsla(var(--text-main), 0.1);
+}
+
+.sticky-cta__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: hsla(var(--primary), 1);
+}
+
+.sticky-cta__phone-text {
+  font-weight: var(--font-semibold);
+}
+
+/* ==========================================================================
+   Action Button
+   ========================================================================== */
+
+.sticky-cta__button {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-4, 1rem) var(--space-6, 1.5rem);
+}

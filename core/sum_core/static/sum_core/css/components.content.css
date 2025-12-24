@@ -1,0 +1,317 @@
+/* ==========================================================================
+   Name: Content Block Components
+   Path: core/sum_core/static/sum_core/css/components.content.css
+   Purpose: Styles for editorial content blocks (Rich Text, Quotes, Images).
+   Family: SUM Platform Design System – Component: Content
+   Dependencies: tokens.css
+   ========================================================================== */
+
+/* Wrapper for spacing instead of layout.css .section */
+.content-block-wrapper {
+  margin-bottom: var(--space-8); /* Tighter rhythm than full sections */
+  width: 100%;
+}
+.content-block-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Rich Text Block
+   -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+   Editorial Header
+   -------------------------------------------------------------------------- */
+.page-header {
+  text-align: center;
+  padding: var(--space-16) 0 var(--space-12);
+}
+
+.page-header--left {
+  text-align: left;
+}
+
+.page-header--center {
+  text-align: center;
+}
+
+/* Target the rich text output wrapper and its children */
+.page-header__title > * {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: 1;
+  margin-bottom: var(--space-4);
+  color: hsla(var(--text-main), 1);
+  margin-top: 0; /* Override rich text defaults */
+}
+
+/* Ensure italic emphasis works */
+.page-header__title em,
+.page-header__title i {
+  font-style: italic;
+  font-weight: var(--font-light);
+}
+
+/* Ensure bold emphasis works */
+.page-header__title strong,
+.page-header__title b {
+  font-weight: var(--font-bold);
+  color: hsla(var(--accent-pop), 1); /* Optional: add pop to bold? Or keep standard? Keeping standard for now unless requested */
+}
+
+.page-meta {
+  display: block;
+  font-size: var(--text-sm);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: hsla(var(--accent-pop), 1);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Rich Text Refinements (Premium Design)
+   -------------------------------------------------------------------------- */
+.rich-text {
+  font-size: var(--text-lg);
+  color: hsla(var(--text-main), 0.9);
+}
+
+/* Center Alignment Utility */
+.rich-text.text-center {
+  text-align: center;
+}
+
+.rich-text h2, 
+.rich-text h3 {
+  font-family: var(--font-display);
+  color: hsla(var(--text-main), 1);
+  margin-top: var(--space-12); 
+  margin-bottom: var(--space-6); 
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.rich-text h2 {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-normal);
+}
+
+.rich-text h3 {
+  font-size: var(--text-3xl);
+  font-style: italic;
+}
+
+/* H4 as Eyebrow */
+.rich-text h4 {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: var(--font-bold);
+  color: hsla(var(--accent-pop), 1);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+}
+
+/* Swoosh Link Effect */
+.rich-text a {
+  color: hsla(var(--primary), 1);
+  text-decoration: none;
+  border-bottom: none; /* Remove previous border style */
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-bottom: 2px;
+}
+
+.rich-text a:hover {
+  background-size: 100% 2px;
+  color: hsla(var(--accent-pop), 1);
+}
+
+.rich-text ul,
+.rich-text ol {
+  margin-bottom: var(--space-6);
+  padding-left: var(--space-6);
+}
+
+.rich-text li {
+  margin-bottom: var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
+   Quote Block
+   -------------------------------------------------------------------------- */
+.quote-block {
+  position: relative;
+  padding-left: var(--space-6);
+  margin: var(--space-8) 0;
+  max-width: 75ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Animated Vertical Line */
+.quote-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: hsla(var(--accent-pop), 1);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1s var(--ease-out-expo);
+}
+
+.quote-block.is-in-view .quote-line {
+  transform: scaleY(1);
+}
+
+.quote-content {
+  opacity: 0;
+  transform: translateX(var(--space-4));
+  transition: opacity 0.8s ease, transform 0.8s var(--ease-out-expo);
+  transition-delay: 0.2s;
+}
+
+.quote-block.is-in-view .quote-content {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quote-text {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-medium);
+  font-style: italic;
+  line-height: var(--leading-normal);
+  color: hsla(var(--text-main), 1);
+  margin-bottom: var(--space-4);
+}
+
+.quote-attribution {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: hsla(var(--text-muted), 1);
+}
+
+.quote-author {
+  font-weight: var(--font-bold);
+  color: hsla(var(--text-main), 1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --------------------------------------------------------------------------
+   Image Block
+   -------------------------------------------------------------------------- */
+.image-block {
+  margin: 0;
+}
+
+.image-wrapper {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+/* Reveal Effect */
+.image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transform: scale(1.1); /* Start slightly zoomed in */
+  transition: transform 1.5s var(--ease-out-expo);
+  will-change: transform;
+}
+
+.image-block.in-view .image-wrapper img {
+  transform: scale(1);
+}
+
+/* Curtain Reveal Overlay (Optional enhancement, using simple fade/slide for now as per "Reveal + Zoom-out") */
+.image-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(var(--surface-tint), 1); /* Or pure white depending on bg */
+  transform: scaleY(1);
+  transform-origin: bottom;
+  transition: transform 1s var(--ease-out-expo);
+  z-index: 1;
+}
+
+.image-block.in-view .image-wrapper::after {
+  transform: scaleY(0);
+}
+
+.image-caption {
+  margin-top: var(--space-3);
+  color: hsla(var(--text-muted), 1);
+  font-style: italic;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Button Group
+   -------------------------------------------------------------------------- */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.button-group--left {
+  justify-content: flex-start;
+}
+
+.button-group--center {
+  justify-content: center;
+}
+
+.button-group--right {
+  justify-content: flex-end;
+}
+
+/* --------------------------------------------------------------------------
+   Spacers & Dividers
+   -------------------------------------------------------------------------- */
+.content-spacer {
+  width: 100%;
+  display: block;
+}
+
+.content-spacer--small { height: var(--space-6); }
+.content-spacer--medium { height: var(--space-10); }
+.content-spacer--large { height: var(--space-16); }
+.content-spacer--xlarge { height: var(--space-24); }
+
+.content-divider {
+  width: 100%;
+  height: 1px;
+  margin: var(--space-8) 0;
+}
+
+.content-divider--muted {
+  background-color: hsla(var(--text-muted), 0.3);
+}
+
+.content-divider--strong {
+  background-color: hsla(var(--text-main), 0.4);
+  height: 2px;
+}
+
+.content-divider--accent {
+  background-color: hsla(var(--accent-pop), 1);
+  height: 2px;
+}

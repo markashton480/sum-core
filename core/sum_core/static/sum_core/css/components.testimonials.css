@@ -1,0 +1,157 @@
+/* ==========================================================================
+   Name: Testimonials Block Component
+   Path: core/sum_core/static/sum_core/css/components.testimonials.css
+   Purpose: Testimonial cards section with dark theme, horizontal scroll on
+            mobile and 3-column grid on desktop. Includes cards with quote
+            marks, author info, and star ratings.
+   Family: SUM Platform Design System – Component: Testimonials
+   Dependencies: tokens.css, layout.css (provides section header styles)
+   ========================================================================== */
+
+/* NOTE: Header styles (.section__header, .section__eyebrow, .section__heading)
+   are inherited from layout.css with dark theme variants via .section--dark */
+
+.testimonials__grid {
+  display: flex;
+  gap: var(--space-8, 2rem);
+  overflow-x: auto;
+  padding-bottom: var(--space-12, 3rem);
+  scroll-snap-type: x mandatory;
+  
+  /* Full bleed mobile */
+  margin: 0 calc(var(--container-padding) * -1);
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  
+  scrollbar-width: none;
+  position: relative;
+  z-index: 1;
+}
+
+.testimonials__grid::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .testimonials__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    overflow: visible;
+  }
+}
+
+.testimonial-card {
+  min-width: 85vw;
+  scroll-snap-align: center;
+  background: hsla(var(--surface-pure), 0.03);
+  border: 1px solid hsla(var(--surface-pure), 0.1);
+  border-radius: var(--radius-sm);
+  padding: var(--space-10, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.4s var(--ease-out-expo);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .testimonial-card {
+    min-width: 45vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonial-card {
+    min-width: auto;
+    height: 100%;
+  }
+  
+  .testimonial-card:hover {
+    background: hsla(var(--surface-pure), 0.06);
+    transform: translateY(-8px);
+    border-color: hsla(var(--brand-h), 60%, 70%, 0.3);
+  }
+}
+
+/* Huge Quote Mark */
+.testimonial-card::after {
+  content: '"';
+  position: absolute;
+  top: 0rem;
+  right: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 8rem;
+  color: hsla(var(--brand-h), 60%, 70%, 0.1);
+  line-height: 1;
+  pointer-events: none;
+  font-style: italic;
+}
+
+.testimonial__stars {
+  color: hsla(var(--brand-h), 60%, 70%, 1);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-6, 1.5rem);
+  letter-spacing: 0.1em;
+}
+
+.testimonial__quote {
+  font-family: var(--font-display);
+  font-size: var(--text-xl, 1.25rem);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-8, 2rem);
+  color: hsla(var(--surface-tint), 0.95);
+  font-style: italic;
+  font-weight: var(--font-light);
+}
+
+.testimonial__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4, 1rem);
+  margin-top: auto;
+  border-top: 1px solid hsla(var(--surface-pure), 0.1);
+  padding-top: var(--space-6, 1.5rem);
+}
+
+.author__avatar {
+  width: var(--space-12, 48px);
+  height: var(--space-12, 48px);
+  border-radius: 50%;
+  background-color: hsla(var(--surface-tint), 0.2);
+  object-fit: cover;
+}
+
+/* Initials fallback when no photo is available */
+.author__avatar--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsla(var(--primary), 1);
+  color: hsla(var(--surface-pure), 1);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+}
+
+.author__info {
+  font-family: var(--font-body);
+}
+
+.author__info h4 {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: hsla(var(--surface-tint), 1);
+  margin-bottom: 0.2rem;
+  line-height: var(--leading-tight);
+}
+
+.author__info p {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsla(var(--surface-tint), 0.6);
+}

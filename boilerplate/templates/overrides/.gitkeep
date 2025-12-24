@@ -1,0 +1,3 @@
+# Placeholder to preserve template overrides directory in Git
+# Place template overrides here mirroring sum_core template paths.
+# Example: overrides/sum_core/home_page.html

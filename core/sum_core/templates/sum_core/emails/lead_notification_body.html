@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New Lead Submission</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.5; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2c3e50; font-size: 24px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h2 { color: #34495e; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .field { margin-bottom: 5px; }
+        .label { font-weight: bold; width: 120px; display: inline-block; color: #555; }
+        .value { color: #000; }
+        .message-box { background-color: #f9f9f9; padding: 15px; border-left: 4px solid #3498db; margin-top: 10px; white-space: pre-wrap; }
+        .footer { margin-top: 30px; font-size: 12px; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>New Lead Submission</h1>
+        <p>A new <strong>{{ form_type }}</strong> form submission has been received.</p>
+
+        <h2>Contact Details</h2>
+        <div class="field"><span class="label">Name:</span> <span class="value">{{ name }}</span></div>
+        <div class="field"><span class="label">Email:</span> <span class="value"><a href="mailto:{{ email }}">{{ email }}</a></span></div>
+        {% if phone %}
+        <div class="field"><span class="label">Phone:</span> <span class="value"><a href="tel:{{ phone }}">{{ phone }}</a></span></div>
+        {% endif %}
+
+        <h2>Message</h2>
+        <div class="message-box">{{ message }}</div>
+
+        <h2>Submission Info</h2>
+        <div class="field"><span class="label">Form Type:</span> <span class="value">{{ form_type }}</span></div>
+        <div class="field"><span class="label">Submitted At:</span> <span class="value">{{ submitted_at|date:"N j, Y, P" }}</span></div>
+        {% if page_url %}
+        <div class="field"><span class="label">Page URL:</span> <span class="value"><a href="{{ page_url }}">{{ page_url }}</a></span></div>
+        {% endif %}
+        {% if referrer_url %}
+        <div class="field"><span class="label">Referrer:</span> <span class="value"><a href="{{ referrer_url }}">{{ referrer_url }}</a></span></div>
+        {% endif %}
+
+        {% if lead_source %}
+        <h2>Attribution</h2>
+        <div class="field"><span class="label">Lead Source:</span> <span class="value">{{ lead_source_display }}</span></div>
+        {% if lead_source_detail %}
+        <div class="field"><span class="label">Source Detail:</span> <span class="value">{{ lead_source_detail }}</span></div>
+        {% endif %}
+        {% if utm_source %}
+        <div class="field"><span class="label">UTM Source:</span> <span class="value">{{ utm_source }}</span></div>
+        {% endif %}
+        {% if utm_medium %}
+        <div class="field"><span class="label">UTM Medium:</span> <span class="value">{{ utm_medium }}</span></div>
+        {% endif %}
+        {% if utm_campaign %}
+        <div class="field"><span class="label">UTM Campaign:</span> <span class="value">{{ utm_campaign }}</span></div>
+        {% endif %}
+        {% if utm_term %}
+        <div class="field"><span class="label">UTM Term:</span> <span class="value">{{ utm_term }}</span></div>
+        {% endif %}
+        {% if utm_content %}
+        <div class="field"><span class="label">UTM Content:</span> <span class="value">{{ utm_content }}</span></div>
+        {% endif %}
+        {% if landing_page_url %}
+        <div class="field"><span class="label">Landing Page:</span> <span class="value"><a href="{{ landing_page_url }}">{{ landing_page_url }}</a></span></div>
+        {% endif %}
+        {% endif %}
+
+        <div class="footer">
+            <p>This is an automated notification from {{ site_name|default:"your website" }}.</p>
+            <p>Lead ID: {{ lead_id }}</p>
+        </div>
+    </div>
+</body>
+</html>

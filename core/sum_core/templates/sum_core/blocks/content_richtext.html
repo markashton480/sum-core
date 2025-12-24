@@ -1,0 +1,10 @@
+{% load wagtailcore_tags %}
+<div class="content-block-wrapper">
+  <div class="container container--narrow">
+    <div
+      class="content-block content-block--rich-text rich-text observe-me {% if self.align == 'center' %}text-center{% endif %}"
+    >
+      {{ self.body|richtext }}
+    </div>
+  </div>
+</div>

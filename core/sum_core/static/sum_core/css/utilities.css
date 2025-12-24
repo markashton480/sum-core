@@ -1,0 +1,99 @@
+/* ==========================================================================
+   Name: Utility Classes
+   Path: core/sum_core/static/sum_core/css/utilities.css
+   Purpose: Utility classes for spacing, typography helpers, reveal animations,
+            delay modifiers, and other reusable micro-classes.
+   Family: SUM Platform Design System – Utilities
+   Dependencies: tokens.css (requires animation easings and spacing tokens)
+   ========================================================================== */
+
+/* ===================================
+   Text Emphasis Utilities
+   =================================== */
+
+.italic-accent {
+  font-style: italic;
+  font-weight: var(--font-light);
+  color: hsla(var(--accent-pop), 1);
+}
+
+/* ===================================
+   Animation Utilities (The "Wow" Factor)
+   =================================== */
+
+/* Text Reveal */
+.reveal-text {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 1s var(--ease-out-expo);
+}
+
+.is-in-view .reveal-text,
+.is-in-view.reveal-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Image Curtain Reveal */
+.reveal-img-wrapper {
+  position: relative;
+  overflow: visible; /* Allow floating elements to spill out */
+  background-color: hsla(var(--primary), 0.1);
+}
+
+.reveal-img-wrapper img {
+  transform: scale(1.15);
+  transition: transform 1.5s var(--ease-out-expo);
+  will-change: transform;
+}
+
+.reveal-img-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: hsla(var(--surface-tint), 1); /* Matches bg */
+  transform: scaleY(1);
+  transform-origin: bottom;
+  transition: transform 1.2s var(--ease-out-expo);
+  z-index: 2;
+}
+
+.is-in-view .reveal-img-wrapper img,
+.is-in-view.reveal-img-wrapper img {
+  transform: scale(1);
+}
+
+.is-in-view .reveal-img-wrapper::after,
+.is-in-view.reveal-img-wrapper::after {
+  transform: scaleY(0);
+}
+
+/* General Fade Group */
+.reveal-group {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.is-in-view.reveal-group,
+.is-in-view .reveal-group {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===================================
+   Animation Stagger Delays
+   =================================== */
+
+.delay-100 {
+  transition-delay: 0.1s;
+}
+.delay-200 {
+  transition-delay: 0.2s;
+}
+.delay-300 {
+  transition-delay: 0.3s;
+}
+.delay-400 {
+  transition-delay: 0.4s;
+}

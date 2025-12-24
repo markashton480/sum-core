@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Name: Comparison Slider Component
+   Path: core/sum_core/static/sum_core/css/components.comparison.css
+   Purpose: Before/after comparison slider styles with dark section background
+            and interactive slider handle.
+   Family: SUM Platform Design System – Component: Comparison
+   Dependencies: tokens.css, layout.css
+   ========================================================================== */
+
+.comparison-section {
+  background-color: hsla(var(--text-main), 1);
+  color: hsla(var(--surface-tint), 1);
+}
+
+.comparison-section h2 {
+  color: hsla(var(--surface-tint), 1);
+}
+
+.comparison-section p {
+  color: hsla(var(--surface-tint), 0.7);
+}
+
+.slider-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-12, 3rem);
+}
+
+.img-background,
+.img-foreground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.img-foreground {
+  width: 50%;
+  /* TODO: Consider tokenizing this border color for theming */
+  border-right: 2px solid white;
+  background-position: left;
+  overflow: hidden;
+}
+
+.slider-range {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: ew-resize;
+  z-index: 10;
+}
+
+.slider-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  /* TODO: Consider tokenizing slider handle colors */
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  pointer-events: none;
+  z-index: 11;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

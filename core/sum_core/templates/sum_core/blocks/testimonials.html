@@ -1,0 +1,55 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+
+<section class="section section--dark testimonials">
+  <div class="container">
+    
+    <header class="section__header reveal-group">
+      {% if self.eyebrow %}
+      <span class="section__eyebrow">{{ self.eyebrow }}</span>
+      {% endif %}
+      {% if self.heading %}
+      <div class="section__heading">
+        {{ self.heading|richtext }}
+      </div>
+      {% endif %}
+    </header>
+
+    <div class="testimonials__grid">
+      {% for item in self.testimonials %}
+      <article class="testimonial-card reveal-group delay-100">
+        {% if item.rating %}
+        <div class="testimonial__stars" aria-label="{{ item.rating }} out of 5 stars">
+          {% for _ in "12345" %}
+          <span aria-hidden="true">{% if forloop.counter <= item.rating %}★{% else %}☆{% endif %}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if item.quote %}
+        <blockquote class="testimonial__quote">
+          "{{ item.quote }}"
+        </blockquote>
+        {% endif %}
+
+        <div class="testimonial__author">
+          {% if item.photo %}
+            {% image item.photo fill-96x96 class="author__avatar" %}
+          {% else %}
+            {% with initials=item.author_name|slice:":2" %}
+            <div class="author__avatar author__avatar--initials">{{ initials }}</div>
+            {% endwith %}
+          {% endif %}
+          
+          <div class="author__info">
+            <h4>{{ item.author_name }}</h4>
+            {% if item.company %}
+            <p>{{ item.company }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

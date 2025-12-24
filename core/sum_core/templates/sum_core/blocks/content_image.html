@@ -1,0 +1,17 @@
+{% load wagtailimages_tags %}
+<div class="content-block-wrapper">
+  <div
+    class="container{% if not self.full_width %} container--narrow{% endif %}"
+  >
+    <figure class="image-block observe-me">
+      <div class="image-wrapper">
+        {% image self.image width-1600 alt=self.alt_text %}
+      </div>
+      {% if self.caption %}
+      <figcaption class="image-caption text-sm">
+        {{ self.caption }}
+      </figcaption>
+      {% endif %}
+    </figure>
+  </div>
+</div>

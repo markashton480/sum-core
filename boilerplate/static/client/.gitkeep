@@ -1,0 +1,3 @@
+# Placeholder to preserve client static files directory in Git
+# Place client-specific CSS, JS, and images here.
+# Example: client/css/custom.css, client/images/logo.png

@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Name: Trust Strip Component (Marquee)
+   Path: core/sum_core/static/sum_core/css/components.trust-strip.css
+   Purpose: Scrolling trust strip / marquee styles for displaying partner
+            logos, certifications, or social proof items.
+   Family: SUM Platform Design System – Component: Trust Strip
+   Dependencies: tokens.css (requires spacing and color tokens)
+   ========================================================================== */
+
+.trust-strip {
+    border-top: 1px solid hsla(var(--text-main), 0.05);
+    border-bottom: 1px solid hsla(var(--text-main), 0.05);
+    padding: 2rem 0;
+    overflow: hidden;
+    background: hsla(var(--surface-pure), 0.5);
+}
+
+.marquee-wrapper {
+    display: flex;
+    width: 100%;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marquee-track {
+    display: flex;
+    gap: 4rem;
+    white-space: nowrap;
+    animation: scroll 30s linear infinite;
+    padding-left: 4rem;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.trust-item {
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: hsla(var(--text-muted), 0.6);
+    font-size: var(--text-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+/* ==========================================================================
+   Trust Strip Logo Variant
+   
+   Static grid of logo images for certifications, associations, etc.
+   Used by TrustStripLogosBlock (trust.py).
+   ========================================================================== */
+
+.trust-strip--logos {
+  padding: var(--space-12, 3rem) 0;
+}
+
+.trust-strip__inner {
+  text-align: center;
+}
+
+.trust-strip__eyebrow {
+  margin-bottom: var(--space-8, 2rem);
+}
+
+/* Logo Grid - Responsive flex layout */
+.trust-strip__logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-8, 2rem) var(--space-12, 3rem);
+}
+
+.trust-strip__logo {
+  flex: 0 0 auto;
+}
+
+.trust-strip__logo a {
+  display: block;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.trust-strip__logo a:hover {
+  opacity: 0.7;
+  transform: scale(1.05);
+}
+
+.trust-strip__logo-img {
+  max-height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.trust-strip__logo:hover .trust-strip__logo-img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .trust-strip__logos {
+    gap: var(--space-10, 2.5rem) var(--space-16, 4rem);
+  }
+  
+  .trust-strip__logo-img {
+    max-height: 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trust-strip__logo-img {
+    max-height: 64px;
+  }
+}
+

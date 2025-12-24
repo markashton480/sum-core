@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Process Steps Component
+   Matches design: docs/dev/design/faq_and_process_design.html
+   ========================================================================== */
+
+/* Layout & Grid */
+.process-layout {
+    display: grid;
+    gap: var(--space-16);
+}
+
+@media (min-width: 1024px) {
+    .process-layout {
+        grid-template-columns: 1fr 1.5fr;
+        align-items: start;
+    }
+
+    .process-header-col {
+        position: sticky;
+        top: 8rem;
+        padding-right: var(--space-8);
+    }
+}
+
+/* Header Elements - Robust targeting for RichText children */
+.block-heading {
+    margin-bottom: 1.25rem;
+}
+
+.block-heading > * {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    color: hsla(var(--text-main), 1);
+    margin: 0;
+}
+
+.block-heading em,
+.block-heading i {
+    color: hsla(var(--accent-pop), 1);
+    font-style: italic;
+}
+
+.block-eyebrow {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    color: hsla(var(--accent-pop), 1);
+    margin-bottom: 1.25rem;
+    display: inline-block;
+    border: 1px solid hsla(var(--text-main), 0.1);
+    padding: 0.35em 0.75em;
+    border-radius: 50px;
+    background: hsla(var(--surface-pure), 0.5);
+}
+
+.process-intro {
+    margin-top: 1.5rem;
+    color: hsla(var(--text-muted), 1);
+    font-size: var(--text-lg);
+    max-width: 400px;
+}
+
+/* Rail Container */
+.process-rail-container {
+    position: relative;
+    padding-left: 2rem;
+    border-left: 1px solid hsla(var(--text-main), 0.1);
+}
+
+/* Step Item */
+.process-step-item {
+    position: relative;
+    margin-bottom: 4rem;
+}
+
+.process-step-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Rail Marker (Number Bubble) */
+.rail-marker {
+    position: absolute;
+    left: -2rem;
+    top: 1.5rem;
+    transform: translateX(-50%);
+    background-color: hsla(var(--surface-tint), 1);
+    border: 1px solid hsla(var(--text-main), 0.2);
+    color: hsla(var(--text-main), 0.6);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-xs);
+    padding: 0.35em 0.85em;
+    border-radius: 50px;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.process-step-item:hover .rail-marker {
+    background-color: hsla(var(--accent-pop), 1);
+    border-color: hsla(var(--accent-pop), 1);
+    color: hsla(var(--surface-pure), 1);
+    box-shadow: 0 0 0 4px hsla(var(--surface-tint), 1);
+}
+
+/* Process Card */
+.process-card {
+    background-color: hsla(var(--surface-pure), 1);
+    border: 1px solid hsla(var(--text-main), 0.08);
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+    margin-left: 1.5rem;
+    transition: all 0.4s var(--ease-smooth);
+    position: relative;
+}
+
+.process-step-item:hover .process-card {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+    border-color: hsla(var(--text-main), 0.15);
+}
+
+/* Connector Line to Card */
+.process-card::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 2.3rem;
+    width: 1.5rem;
+    height: 1px;
+    background-color: hsla(var(--text-main), 0.1);
+    transition: width 0.3s ease;
+}
+
+.step-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    margin-bottom: 1rem;
+    color: hsla(var(--text-main), 1);
+}
+
+.step-desc {
+    color: hsla(var(--text-muted), 1);
+    line-height: 1.6;
+    font-size: var(--text-base);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .process-card {
+        padding: 1.5rem;
+        margin-left: 1rem;
+    }
+    
+    .rail-marker {
+        left: -2rem; 
+    }
+    
+    .process-rail-container {
+        padding-left: 2rem;
+        border-left-width: 1px;
+    }
+}

@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Name: Footer Component
+   Path: core/sum_core/static/sum_core/css/components.footer.css
+   Purpose: Footer section styles including grid layout, brand info,
+            link sections, social links, and contact information.
+   Family: SUM Platform Design System – Component: Footer
+   Dependencies: tokens.css, layout.css
+   ========================================================================== */
+
+.footer {
+  border-top: 1px solid hsla(var(--text-main), 0.1);
+  background-color: hsla(var(--surface-tint), 1);
+  padding: var(--section-gap) 0;
+}
+
+/* ==========================================================================
+   Grid Layout
+   ========================================================================== */
+
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12, 3rem);
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .footer__grid {
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-16, 4rem);
+  }
+}
+
+/* ==========================================================================
+   Brand Section
+   ========================================================================== */
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+}
+
+.footer__brand-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+}
+
+.footer__tagline {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-normal);
+  color: hsla(var(--text-muted), 1);
+}
+
+/* ==========================================================================
+   Social Links
+   ========================================================================== */
+
+.footer__social {
+  display: flex;
+  gap: var(--space-4, 1rem);
+  margin-top: var(--space-4, 1rem);
+}
+
+.footer__social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full, 50%);
+  background: hsla(var(--text-main), 0.05);
+  color: hsla(var(--text-main), 0.7);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.footer__social-link:hover {
+  background: hsla(var(--primary), 1);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Link Sections
+   ========================================================================== */
+
+.footer__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-8, 2rem);
+}
+
+@media (min-width: 768px) {
+  .footer__links {
+    gap: var(--space-12, 3rem);
+  }
+}
+
+.footer__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 0.75rem);
+}
+
+.footer__section-title {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+.footer__link-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  list-style: none;
+}
+
+/* ==========================================================================
+   Text & Links
+   ========================================================================== */
+
+.footer__text {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-normal);
+}
+
+.footer__text--spaced {
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+.footer__text--address {
+  margin-top: var(--space-4, 1rem);
+  white-space: pre-line;
+}
+
+.footer__link {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: hsla(var(--text-muted), 1);
+  transition: color 0.2s ease;
+}
+
+.footer__link:hover {
+  color: hsla(var(--primary), 1);
+}
+
+/* ==========================================================================
+   Footer Bottom (Copyright)
+   ========================================================================== */
+
+.footer__bottom {
+  margin-top: var(--space-12, 3rem);
+  padding-top: var(--space-6, 1.5rem);
+  border-top: 1px solid hsla(var(--text-main), 0.1);
+}
+
+.footer__copyright {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: hsla(var(--text-muted), 1);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .footer__copyright {
+    text-align: left;
+  }
+}

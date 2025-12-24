@@ -1,0 +1,48 @@
+<script>
+  /**
+   * Form Attribution Script
+   * Captures UTM parameters and referrer for lead attribution.
+   */
+  (function () {
+    "use strict";
+
+    // Get URL parameters
+    var params = new URLSearchParams(window.location.search);
+
+    // Populate UTM fields
+    var utmFields = [
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_term",
+      "utm_content",
+    ];
+    utmFields.forEach(function (field) {
+      var value = params.get(field) || "";
+      var inputs = document.querySelectorAll(".js-" + field.replace("_", "-"));
+      inputs.forEach(function (input) {
+        input.value = value;
+      });
+    });
+
+    // Populate referrer
+    var referrerInputs = document.querySelectorAll(".js-referrer-url");
+    referrerInputs.forEach(function (input) {
+      input.value = document.referrer || "";
+    });
+
+    // Store landing page URL in sessionStorage if not already set
+    var landingPageKey = "sum_landing_page_url";
+    if (!sessionStorage.getItem(landingPageKey)) {
+      sessionStorage.setItem(landingPageKey, window.location.href);
+    }
+
+    // Populate landing page URL fields
+    var landingPageInputs = document.querySelectorAll(".js-landing-page-url");
+    var landingPageUrl =
+      sessionStorage.getItem(landingPageKey) || window.location.href;
+    landingPageInputs.forEach(function (input) {
+      input.value = landingPageUrl;
+    });
+  })();
+</script>

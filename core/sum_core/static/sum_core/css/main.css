@@ -1,0 +1,69 @@
+/* ==========================================================================
+   SUM Platform Design System – CSS Entrypoint
+   Path: core/sum_core/static/sum_core/css/main.css
+   Purpose: Single public stylesheet referenced by templates. Imports all
+            modular CSS partials in the correct cascade order.
+   Family: SUM Platform Design System
+
+   IMPORTANT: This is the ONLY CSS file that should be referenced in templates.
+   All actual styles live in the imported partials below.
+
+   Cascade Order:
+   1. Tokens     – CSS custom properties (design values)
+   2. Reset      – Browser normalization and base element styles
+   3. Layout     – Container, section, and structural helpers
+   4. Utilities  – Animation, reveal, and helper classes
+   5. Components – Header, buttons, hero, services, testimonials, etc.
+   ========================================================================== */
+
+/* ===================================
+   1. DESIGN TOKENS
+   =================================== */
+@import "tokens.css";
+
+/* ===================================
+   2. RESET & BASE STYLES
+   =================================== */
+@import "reset.css";
+@import "typography.css";
+
+/* ===================================
+   3. LAYOUT SHELL
+   =================================== */
+@import "layout.css";
+
+/* ===================================
+   4. UTILITY CLASSES
+   =================================== */
+@import "utilities.css";
+
+/* ===================================
+   5. COMPONENTS
+   =================================== */
+
+/* Core UI Components */
+@import "components.buttons.css";
+@import "components.header.css";
+
+/* Page Sections */
+@import "components.hero.css";
+@import "components.trust-strip.css";
+@import "components.stats.css";
+@import "components.features.css";
+@import "components.comparison.css";
+@import "components.portfolio.css";
+@import "components.sticky-cta.css";
+
+/* Content Blocks */
+@import "components.cards.css";
+@import "components.services.css";
+@import "components.testimonials.css";
+@import "components.gallery.css";
+@import "components.forms.css";
+@import "components.process.css";
+@import "components.faq.css";
+@import "components.content.css";
+
+
+/* Site Chrome */
+@import "components.footer.css";

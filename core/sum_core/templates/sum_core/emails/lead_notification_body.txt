@@ -1,0 +1,37 @@
+New Lead Submission
+===================
+
+A new {{ form_type }} form submission has been received.
+
+CONTACT DETAILS
+---------------
+Name:    {{ name }}
+Email:   {{ email }}
+{% if phone %}Phone:   {{ phone }}
+{% endif %}
+
+MESSAGE
+-------
+{{ message }}
+
+SUBMISSION INFO
+---------------
+Form Type:     {{ form_type }}
+Submitted At:  {{ submitted_at|date:"N j, Y, P" }}
+{% if page_url %}Page URL:      {{ page_url }}
+{% endif %}{% if referrer_url %}Referrer:      {{ referrer_url }}
+{% endif %}
+{% if lead_source %}ATTRIBUTION
+-----------
+Lead Source:   {{ lead_source_display }}
+{% if lead_source_detail %}Source Detail: {{ lead_source_detail }}
+{% endif %}{% if utm_source %}UTM Source:    {{ utm_source }}
+{% endif %}{% if utm_medium %}UTM Medium:    {{ utm_medium }}
+{% endif %}{% if utm_campaign %}UTM Campaign:  {{ utm_campaign }}
+{% endif %}{% if utm_term %}UTM Term:      {{ utm_term }}
+{% endif %}{% if utm_content %}UTM Content:   {{ utm_content }}
+{% endif %}{% if landing_page_url %}Landing Page:  {{ landing_page_url }}
+{% endif %}{% endif %}
+---
+This is an automated notification from {{ site_name|default:"your website" }}.
+Lead ID: {{ lead_id }}

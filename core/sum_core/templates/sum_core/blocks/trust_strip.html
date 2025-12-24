@@ -1,0 +1,13 @@
+{% load wagtailcore_tags %}
+<div class="trust-strip">
+    <div class="marquee-wrapper">
+        <div class="marquee-track">
+            {% for item in self.items %}<div class="trust-item">{{ item.text }}</div>{% endfor %}{% for item in self.items %}<div class="trust-item">{{ item.text }}</div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+
+
+
+
