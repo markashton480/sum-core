@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Straight Up Marketing Platform"
-version = "0.1.0"
-description = "Monorepo for trade website platform"
+name = "sum-core"
+version = "0.5.1"
+description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
 
