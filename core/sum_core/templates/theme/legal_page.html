@@ -1,0 +1,138 @@
+{# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
+{% extends "theme/base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+  <section class="section">
+    <div class="container">
+      {% if page.get_breadcrumbs %}
+        {% with breadcrumbs=page.get_breadcrumbs %}
+          {% if breadcrumbs %}
+            <nav aria-label="Breadcrumb">
+              <ol>
+                {% for crumb in breadcrumbs %}
+                  <li>
+                    {% if crumb.is_current %}
+                      <span aria-current="page">{{ crumb.title }}</span>
+                    {% elif crumb.url %}
+                      <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+                    {% else %}
+                      <span>{{ crumb.title }}</span>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ol>
+            </nav>
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+
+      <header class="section__header">
+        <div class="section__heading">
+          <h1 class="heading-xl">{{ page.title }}</h1>
+        </div>
+        {% if page.search_description %}
+          <p>{{ page.search_description }}</p>
+        {% endif %}
+        <div>
+          {% if page.last_updated %}
+            <span>
+              Last Updated:
+              <time datetime="{{ page.last_updated|date:'Y-m-d' }}">
+                {{ page.last_updated|date:"F Y" }}
+              </time>
+            </span>
+          {% endif %}
+          <button type="button" onclick="window.print()">
+            Print Document
+          </button>
+        </div>
+      </header>
+    </div>
+  </section>
+
+  {% if page.sections %}
+    <section class="section">
+      <div class="container">
+        <div class="legal-page__toc">
+          <button
+            id="mobile-toc-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="mobile-toc-menu"
+          >
+            Jump to Section
+          </button>
+          <nav id="mobile-toc-menu" aria-label="Mobile Table of Contents" hidden>
+            <ol>
+              {% for section in page.sections %}
+                {% with section_id=section.value.anchor|slugify %}
+                  <li>
+                    <a href="#{{ section_id }}">
+                      {{ forloop.counter }}. {{ section.value.heading }}
+                    </a>
+                  </li>
+                {% endwith %}
+              {% endfor %}
+            </ol>
+          </nav>
+        </div>
+
+        <aside class="legal-page__toc legal-page__toc--desktop">
+          <nav aria-label="Table of Contents">
+            <ol>
+              {% for section in page.sections %}
+                {% with section_id=section.value.anchor|slugify %}
+                  <li>
+                    <a href="#{{ section_id }}">
+                      {{ forloop.counter }}. {{ section.value.heading }}
+                    </a>
+                  </li>
+                {% endwith %}
+              {% endfor %}
+            </ol>
+          </nav>
+        </aside>
+
+        <div class="legal-page__content">
+          {% for section in page.sections %}
+            {% with section_id=section.value.anchor|slugify %}
+              <article id="{{ section_id }}">
+                <h2>{{ section.value.heading }}</h2>
+                <div class="prose">
+                  {{ section.value.body|richtext }}
+                </div>
+              </article>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block extra_body %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggle = document.getElementById("mobile-toc-toggle");
+      const menu = document.getElementById("mobile-toc-menu");
+      if (!toggle || !menu) {
+        return;
+      }
+
+      const setExpanded = (expanded) => {
+        toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        menu.hidden = !expanded;
+        menu.setAttribute("aria-hidden", expanded ? "false" : "true");
+      };
+
+      setExpanded(false);
+
+      toggle.addEventListener("click", () => {
+        const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+        setExpanded(!isExpanded);
+      });
+    });
+  </script>
+{% endblock %}

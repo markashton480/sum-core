@@ -7,9 +7,10 @@ site tree and navigation settings so theme development can start immediately.
 
 It creates:
 - A HomePage (client-owned model) and sets it as the default Wagtail Site root
-- A StandardPage showroom + a Contact StandardPage
+- A StandardPage showroom (optional) + a Contact StandardPage
 - A ServiceIndexPage and two ServicePage children
 - A "Kitchen Sink" page with all blocks
+- Legal pages (Terms, Privacy, Cookies) with legal section blocks
 - Example content that showcases *all* blocks available in sum_core.PageStreamBlock,
   spread across multiple pages (not all on one page)
 - Branding SiteSettings and Navigation (HeaderNavigation / FooterNavigation)
@@ -17,6 +18,7 @@ It creates:
 Usage:
     python manage.py seed_showroom
     python manage.py seed_showroom --clear
+    python manage.py seed_showroom --profile starter
     python manage.py seed_showroom --hostname localhost --port 8000
     python manage.py seed_showroom --homepage-model home.HomePage
 """
@@ -57,6 +59,12 @@ class _ShowroomSlugs:
     kitchen_sink: str = "kitchen-sink"
     terms: str = "terms"
     privacy: str = "privacy"
+    cookies: str = "cookies"
+
+
+PROFILE_STARTER = "starter"
+PROFILE_SHOWROOM = "showroom"
+VALID_PROFILES = {PROFILE_STARTER, PROFILE_SHOWROOM}
 
 
 class Command(BaseCommand):
@@ -67,6 +75,12 @@ class Command(BaseCommand):
             "--clear",
             action="store_true",
             help="Delete existing showroom pages (by slug) before re-seeding.",
+        )
+        parser.add_argument(
+            "--profile",
+            choices=sorted(VALID_PROFILES),
+            default=PROFILE_SHOWROOM,
+            help="Seed profile to apply (starter or showroom).",
         )
         parser.add_argument(
             "--hostname",
@@ -90,6 +104,15 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args: Any, **options: Any) -> None:
+        profile = (options.get("profile") or PROFILE_STARTER).lower()
+        if profile not in VALID_PROFILES:
+            self.stdout.write(
+                self.style.ERROR(
+                    f"Unknown profile '{profile}'. Use one of: {', '.join(sorted(VALID_PROFILES))}."
+                )
+            )
+            return
+
         slugs = _ShowroomSlugs()
 
         home_page_model = self._resolve_home_page_model(options.get("homepage_model"))
@@ -100,6 +123,7 @@ class Command(BaseCommand):
                 )
             )
             return
+        legal_page_model = self._resolve_legal_page_model()
 
         root = Page.get_first_root_node()
         site = self._get_or_create_default_site(
@@ -116,21 +140,18 @@ class Command(BaseCommand):
         home = self._get_or_create_homepage(
             site=site, root=root, home_page_model=home_page_model, slugs=slugs
         )
-        showroom = self._get_or_create_standard_page(
-            parent=home, title="Showroom", slug=slugs.showroom
-        )
         contact = self._get_or_create_standard_page(
             parent=home, title="Contact", slug=slugs.contact
         )
-        terms = self._get_or_create_standard_page(
-            parent=home, title="Terms", slug=slugs.terms
-        )
-        privacy = self._get_or_create_standard_page(
-            parent=home, title="Privacy", slug=slugs.privacy
-        )
-        kitchen_sink = self._get_or_create_standard_page(
-            parent=home, title="Kitchen Sink", slug=slugs.kitchen_sink
-        )
+        showroom = None
+        kitchen_sink = None
+        if profile == PROFILE_SHOWROOM:
+            showroom = self._get_or_create_standard_page(
+                parent=home, title="Showroom", slug=slugs.showroom
+            )
+            kitchen_sink = self._get_or_create_standard_page(
+                parent=home, title="Kitchen Sink", slug=slugs.kitchen_sink
+            )
         services_index = self._get_or_create_services_index(
             parent=home, title="Services", slug=slugs.services
         )
@@ -146,34 +167,61 @@ class Command(BaseCommand):
             slug=slugs.service_two,
             short_description="Durable, weather-ready roofing from a trusted local team.",
         )
+        terms = self._get_or_create_legal_page(
+            parent=home, title="Terms", slug=slugs.terms, page_model=legal_page_model
+        )
+        privacy = self._get_or_create_legal_page(
+            parent=home,
+            title="Privacy",
+            slug=slugs.privacy,
+            page_model=legal_page_model,
+        )
+        cookies = self._get_or_create_legal_page(
+            parent=home,
+            title="Cookies",
+            slug=slugs.cookies,
+            page_model=legal_page_model,
+        )
 
         # Media (placeholder images)
         images = self._get_or_create_showroom_images()
 
-        # Content blocks (show all blocks across pages)
-        home.body = self._build_home_stream(images=images, contact_page=contact)
-        home.intro = (
-            "<p>This is a seeded theme showroom for SUM Platform. "
-            "Swap themes with <code>sum init ... --theme</code> and re-run this command.</p>"
-        )
+        if profile == PROFILE_STARTER:
+            home.title = "Starter Home"
+            home.body = self._build_starter_home_stream(
+                images=images, contact_page=contact
+            )
+            home.intro = (
+                "<p>This is a seeded starter homepage for SUM Platform. "
+                "Replace the placeholder copy with your client messaging.</p>"
+            )
+        else:
+            home.title = "Theme Showroom"
+            home.body = self._build_home_stream(images=images, contact_page=contact)
+            home.intro = (
+                "<p>This is a seeded theme showroom for SUM Platform. "
+                "Swap themes with <code>sum init ... --theme</code> and re-run this command.</p>"
+            )
         home.save_revision().publish()
 
-        showroom.body = self._build_showroom_stream(
-            images=images,
-            services_index=services_index,
-            service_one=service_one,
-            contact_page=contact,
-        )
-        showroom.save_revision().publish()
+        if showroom is not None:
+            showroom.body = self._build_showroom_stream(
+                images=images,
+                services_index=services_index,
+                service_one=service_one,
+                contact_page=contact,
+            )
+            showroom.save_revision().publish()
 
         # Kitchen Sink - All blocks in one place
-        kitchen_sink.body = self._build_kitchen_sink_stream(
-            images=images,
-            services_index=services_index,
-            service_one=service_one,
-            contact_page=contact,
-        )
-        kitchen_sink.save_revision().publish()
+        if kitchen_sink is not None:
+            kitchen_sink.body = self._build_kitchen_sink_stream(
+                images=images,
+                services_index=services_index,
+                service_one=service_one,
+                contact_page=contact,
+            )
+            kitchen_sink.save_revision().publish()
 
         services_index.intro = self._build_services_index_intro_stream(images=images)
         services_index.save_revision().publish()
@@ -193,35 +241,64 @@ class Command(BaseCommand):
         contact.body = self._build_contact_stream(images=images)
         contact.save_revision().publish()
 
-        terms.body = self._build_terms_stream()
-        terms.save_revision().publish()
+        terms_intro, terms_sections = self._build_terms_sections()
+        self._apply_legal_page_content(
+            terms,
+            heading="Terms & Conditions",
+            intro=terms_intro,
+            sections=terms_sections,
+        )
 
-        privacy.body = self._build_privacy_stream()
-        privacy.save_revision().publish()
+        privacy_intro, privacy_sections = self._build_privacy_sections()
+        self._apply_legal_page_content(
+            privacy,
+            heading="Privacy Notice",
+            intro=privacy_intro,
+            sections=privacy_sections,
+        )
+
+        cookies_intro, cookies_sections = self._build_cookie_sections()
+        self._apply_legal_page_content(
+            cookies,
+            heading="Cookie Policy",
+            intro=cookies_intro,
+            sections=cookies_sections,
+        )
 
         # Site settings (branding + navigation)
-        self._seed_branding(site=site, images=images)
+        self._seed_branding(
+            site=site,
+            images=images,
+            terms=terms,
+            privacy=privacy,
+            cookies=cookies,
+        )
         self._seed_navigation(
             site=site,
             home=home,
-            showroom=showroom,
             contact=contact,
             services_index=services_index,
             service_one=service_one,
             service_two=service_two,
             terms=terms,
             privacy=privacy,
+            cookies=cookies,
+            showroom=showroom,
+            kitchen_sink=kitchen_sink,
         )
         invalidate_nav_cache(site.id)
 
-        self.stdout.write(self.style.SUCCESS("✓ Showroom seeded"))
+        self.stdout.write(self.style.SUCCESS(f"✓ Showroom seeded ({profile})"))
         self.stdout.write(f"  - Home: / (Wagtail site root -> {home.title})")
-        self.stdout.write(f"  - Showroom: {showroom.url}")
-        self.stdout.write(f"  - Kitchen Sink: {kitchen_sink.url}")
+        if showroom is not None:
+            self.stdout.write(f"  - Showroom: {showroom.url}")
+        if kitchen_sink is not None:
+            self.stdout.write(f"  - Kitchen Sink: {kitchen_sink.url}")
         self.stdout.write(f"  - Services: {services_index.url}")
         self.stdout.write(f"  - Contact: {contact.url}")
         self.stdout.write(f"  - Terms: {terms.url}")
         self.stdout.write(f"  - Privacy: {privacy.url}")
+        self.stdout.write(f"  - Cookies: {cookies.url}")
 
     # -----------------------------------------------------------------------------
     # Model resolution / site helpers
@@ -263,6 +340,21 @@ class Command(BaseCommand):
                 continue
 
         return None
+
+    def _resolve_legal_page_model(self) -> Any:
+        """
+        Resolve LegalPage if available, otherwise fall back to StandardPage.
+        """
+        from wagtail.models import Page as WagtailPage
+
+        for model in apps.get_models():
+            try:
+                if model.__name__ == "LegalPage" and issubclass(model, WagtailPage):
+                    return model
+            except TypeError:
+                continue
+
+        return StandardPage
 
     def _get_or_create_default_site(
         self, hostname: str | None, port: int | None, root: Page
@@ -315,21 +407,24 @@ class Command(BaseCommand):
             )
             return
 
-        # Delete descendants using .specific to ensure Wagtail cleanup hooks run
-        # We iterate to be safe and use .specific.delete()
-        for child in home.get_children():
-            # Optional: check if child slug is in our known list if strict safety is needed,
-            # but getting children of *our* seeded home is generally safe.
-            # We'll just delete them all as they are part of the seeds.
+        known_child_slugs = {
+            slugs.showroom,
+            slugs.contact,
+            slugs.services,
+            slugs.kitchen_sink,
+            slugs.terms,
+            slugs.privacy,
+            slugs.cookies,
+        }
+        service_child_slugs = {slugs.service_one, slugs.service_two}
+
+        for child in home.get_children().filter(slug__in=known_child_slugs):
+            if child.slug == slugs.services:
+                for service in child.get_children().filter(
+                    slug__in=service_child_slugs
+                ):
+                    service.specific.delete()
             child.specific.delete()
-
-        # If the seeded home is the site root, reset site root before deleting
-        if site.root_page_id == home.id:
-            site.root_page = Page.get_first_root_node()
-            site.save()
-
-        # Delete the home itself
-        home.specific.delete()
 
         Site.clear_site_root_paths_cache()
 
@@ -365,6 +460,19 @@ class Command(BaseCommand):
             return existing.specific
 
         page = StandardPage(title=title, slug=slug, body=None)
+        parent.add_child(instance=page)
+        return page
+
+    def _get_or_create_legal_page(
+        self, *, parent: Page, title: str, slug: str, page_model: Any
+    ) -> Page:
+        existing = parent.get_children().type(page_model).filter(slug=slug).first()
+        if existing:
+            return existing.specific
+
+        page = page_model(title=title, slug=slug)
+        if hasattr(page, "body"):
+            page.body = None
         parent.add_child(instance=page)
         return page
 
@@ -544,6 +652,77 @@ class Command(BaseCommand):
     # -----------------------------------------------------------------------------
     # Stream builders (PageStreamBlock)
     # -----------------------------------------------------------------------------
+
+    def _build_starter_home_stream(
+        self, *, images: _Images, contact_page: StandardPage
+    ) -> Any:
+        stream_block = PageStreamBlock()
+        return stream_block.to_python(
+            [
+                {
+                    "type": "hero_image",
+                    "value": {
+                        "headline": "<p>Build with <em>confidence</em></p>",
+                        "subheadline": "Starter content to help you validate layouts and branding quickly.",
+                        "ctas": [
+                            {
+                                "label": "Get in touch",
+                                "url": "/contact/",
+                                "style": "primary",
+                                "open_in_new_tab": False,
+                            },
+                            {
+                                "label": "Browse services",
+                                "url": "/services/",
+                                "style": "secondary",
+                                "open_in_new_tab": False,
+                            },
+                        ],
+                        "status": "Starter",
+                        "image": images.hero_id,
+                        "image_alt": "Starter hero placeholder image",
+                        "overlay_opacity": "light",
+                        "layout": "full",
+                        "floating_card_label": "Local response time",
+                        "floating_card_value": "< 1 day",
+                    },
+                },
+                {
+                    "type": "content",
+                    "value": {
+                        "align": "left",
+                        "body": "<h2>Crafted for your next project</h2>"
+                        "<p>Use this section to introduce your brand and explain the next steps.</p>"
+                        "<ul><li>Highlight core services.</li>"
+                        "<li>Explain your process.</li>"
+                        "<li>Invite visitors to book a quote.</li></ul>",
+                    },
+                },
+                {
+                    "type": "testimonials",
+                    "value": {
+                        "eyebrow": "Testimonials",
+                        "heading": "<p>What clients <em>say</em></p>",
+                        "testimonials": [
+                            {
+                                "quote": "The team kept everything on schedule and the finish is perfect.",
+                                "author_name": "Jordan Lee",
+                                "company": "Lee Renovations",
+                                "photo": None,
+                                "rating": 5,
+                            },
+                            {
+                                "quote": "Clear communication from start to finish.",
+                                "author_name": "Morgan Cruz",
+                                "company": "Cruz Design",
+                                "photo": None,
+                                "rating": 5,
+                            },
+                        ],
+                    },
+                },
+            ]
+        )
 
     def _build_home_stream(self, *, images: _Images, contact_page: StandardPage) -> Any:
         stream_block = PageStreamBlock()
@@ -1037,71 +1216,192 @@ class Command(BaseCommand):
             ]
         )
 
+    def _build_terms_sections(self) -> tuple[str, list[dict[str, str]]]:
+        intro = "Ground rules for using this starter site and reviewing layouts."
+        sections = [
+            {
+                "anchor": "scope-of-works",
+                "heading": "Scope of Works",
+                "body": "<p>This starter content is for layout preview only.</p>"
+                "<ul><li>Keep experiments to non-sensitive data.</li>"
+                "<li>Use it to validate typography and spacing.</li></ul>",
+            },
+            {
+                "anchor": "payments",
+                "heading": "Payments",
+                "body": "<p>Payment terms render as rich text with lists and links.</p>"
+                "<p>Update this copy with client-approved wording before launch.</p>",
+            },
+            {
+                "anchor": "warranty",
+                "heading": "Warranty",
+                "body": "<p>Replace this placeholder with your project-specific warranty details.</p>",
+            },
+        ]
+        return intro, sections
+
     def _build_terms_stream(self) -> Any:
+        intro, sections = self._build_terms_sections()
         return self._build_legal_stream(
             heading="Terms & Conditions",
-            intro=(
-                "Ground rules for exploring the showroom content. Use this page to check "
-                "long-form typography and list styling."
-            ),
-            body=(
-                "<h3>Acceptable use</h3>"
-                "<p>This seeded content is a demo only. It helps you preview layouts, not store production data.</p>"
-                "<ul><li>Keep experiments to non-sensitive information.</li>"
-                "<li>Use the contact links to simulate user journeys.</li>"
-                "<li>Reset anytime by re-running the seed command.</li></ul>"
-                "<h3>Liability</h3>"
-                "<p>Everything here ships as-is for testing and visual QA. Replace with client-approved copy before launch.</p>"
-                "<h3>Questions</h3>"
-                "<p>Email hello@example.com if you spot an issue with the seeded pages.</p>"
-            ),
+            intro=intro,
+            sections=sections,
         )
+
+    def _build_privacy_sections(self) -> tuple[str, list[dict[str, str]]]:
+        intro = (
+            "How this starter site handles demo requests and placeholder contact data."
+        )
+        sections = [
+            {
+                "anchor": "data-collection",
+                "heading": "Data we collect",
+                "body": "<p>Contact details submitted through demo forms.</p>"
+                "<p>Anonymous analytics used to validate reporting flows.</p>",
+            },
+            {
+                "anchor": "data-usage",
+                "heading": "How we use it",
+                "body": "<p>Submissions route to the default email in Branding settings.</p>"
+                "<p>Analytics data powers reporting dashboards only.</p>",
+            },
+            {
+                "anchor": "your-choices",
+                "heading": "Your choices",
+                "body": "<p>Clear seeded data anytime by rerunning the command or editing in Wagtail.</p>",
+            },
+        ]
+        return intro, sections
 
     def _build_privacy_stream(self) -> Any:
+        intro, sections = self._build_privacy_sections()
         return self._build_legal_stream(
             heading="Privacy Notice",
-            intro=(
-                "How this showroom handles demo requests and placeholder contact data. "
-                "Use it to validate headings, paragraphs, and list rhythm."
-            ),
-            body=(
-                "<h3>What we collect</h3>"
-                "<ul><li>Basic contact details entered into demo forms.</li>"
-                "<li>Non-identifying analytics used only for local testing.</li></ul>"
-                "<h3>How we use it</h3>"
-                "<p>Submissions route to the default email in Branding settings so themes can demonstrate form flows.</p>"
-                "<h3>Staying in control</h3>"
-                "<p>Clear data by re-running the seed command with <code>--clear</code> or by deleting pages in Wagtail admin.</p>"
-            ),
+            intro=intro,
+            sections=sections,
         )
 
-    def _build_legal_stream(self, *, heading: str, intro: str, body: str) -> Any:
-        stream_block = PageStreamBlock()
-        return stream_block.to_python(
-            [
-                {
-                    "type": "editorial_header",
-                    "value": {
-                        "align": "center",
-                        "eyebrow": "Legal",
-                        "heading": f"<p>{heading}</p>",
-                    },
-                },
-                {
-                    "type": "content",
-                    "value": {
-                        "align": "left",
-                        "body": f"<p>{intro}</p>{body}",
-                    },
-                },
-            ]
+    def _build_cookie_sections(self) -> tuple[str, list[dict[str, str]]]:
+        intro = "Details on cookie usage and consent controls for this starter site."
+        sections = [
+            {
+                "anchor": "cookies-we-use",
+                "heading": "Cookies we use",
+                "body": "<p>Consent and analytics cookies are used to support the demo site.</p>"
+                "<ul><li>Consent status</li><li>Analytics identifiers</li></ul>",
+            },
+            {
+                "anchor": "consent-controls",
+                "heading": "Consent controls",
+                "body": "<p>Use the Manage cookies link in the footer to update your preferences.</p>",
+            },
+            {
+                "anchor": "updates",
+                "heading": "Updates",
+                "body": "<p>Cookie settings may change as policies are updated.</p>",
+            },
+        ]
+        return intro, sections
+
+    def _build_cookie_stream(self) -> Any:
+        intro, sections = self._build_cookie_sections()
+        return self._build_legal_stream(
+            heading="Cookie Policy",
+            intro=intro,
+            sections=sections,
         )
+
+    def _build_legal_stream(
+        self, *, heading: str, intro: str, sections: list[dict[str, str]]
+    ) -> Any:
+        stream_block = PageStreamBlock()
+        toc_items = [
+            {"label": section["heading"], "anchor": section["anchor"]}
+            for section in sections
+        ]
+        stream: list[dict[str, Any]] = [
+            {
+                "type": "editorial_header",
+                "value": {
+                    "align": "center",
+                    "eyebrow": "Legal",
+                    "heading": f"<p>{heading}</p>",
+                },
+            },
+            {
+                "type": "content",
+                "value": {
+                    "align": "left",
+                    "body": f"<p>{intro}</p>",
+                },
+            },
+        ]
+        if toc_items:
+            stream.append({"type": "table_of_contents", "value": {"items": toc_items}})
+        for section in sections:
+            stream.append(
+                {
+                    "type": "legal_section",
+                    "value": {
+                        "anchor": section["anchor"],
+                        "heading": section["heading"],
+                        "body": section["body"],
+                    },
+                }
+            )
+        return stream_block.to_python(stream)
+
+    def _build_legal_sections(
+        self, sections: list[dict[str, str]]
+    ) -> list[tuple[str, dict[str, str]]]:
+        return [
+            (
+                "section",
+                {
+                    "anchor": section["anchor"],
+                    "heading": section["heading"],
+                    "body": section["body"],
+                },
+            )
+            for section in sections
+        ]
+
+    def _apply_legal_page_content(
+        self,
+        page: Page,
+        *,
+        heading: str,
+        intro: str,
+        sections: list[dict[str, str]],
+    ) -> None:
+        """
+        Apply legal content to a page, supporting both LegalPage (sections field)
+        and StandardPage (body StreamField) models.
+
+        Args:
+            page: The page instance to populate (LegalPage or StandardPage).
+            heading: The main heading for the legal content.
+            intro: Introductory text/description.
+            sections: List of dicts with 'anchor', 'title', and 'content' keys.
+        """
+        if hasattr(page, "sections"):
+            page.sections = self._build_legal_sections(sections)
+            page.search_description = intro
+        else:
+            page.body = self._build_legal_stream(
+                heading=heading,
+                intro=intro,
+                sections=sections,
+            )
+        page.save_revision().publish()
 
     # -----------------------------------------------------------------------------
     # Branding & Navigation
     # -----------------------------------------------------------------------------
 
-    def _seed_branding(self, *, site: Site, images: _Images) -> None:
+    def _seed_branding(
+        self, *, site: Site, images: _Images, terms: Page, privacy: Page, cookies: Page
+    ) -> None:
         settings = SiteSettings.for_site(site)
         # SiteSettings lives in sum_core and uses explicit fields.
         settings.company_name = "Showroom"
@@ -1112,6 +1412,11 @@ class Command(BaseCommand):
         settings.phone_number = "0800 123 4567"
         settings.facebook_url = "https://facebook.com"
         settings.instagram_url = "https://instagram.com"
+        settings.cookie_banner_enabled = True
+        settings.cookie_consent_version = "2024-01"
+        settings.terms_page = terms
+        settings.privacy_policy_page = privacy
+        settings.cookie_policy_page = cookies
         settings.save()
 
     def _seed_navigation(
@@ -1119,18 +1424,20 @@ class Command(BaseCommand):
         *,
         site: Site,
         home: Page,
-        showroom: Page,
         contact: Page,
         services_index: Page,
         service_one: Page,
         service_two: Page,
         terms: Page,
         privacy: Page,
+        cookies: Page,
+        showroom: Page | None,
+        kitchen_sink: Page | None,
     ) -> None:
         # HeaderNavigation / FooterNavigation are StreamField-based settings.
         header = HeaderNavigation.for_site(site)
 
-        header.menu_items = [
+        menu_items = [
             {
                 "type": "item",
                 "value": {
@@ -1178,19 +1485,24 @@ class Command(BaseCommand):
                     ],
                 },
             },
-            {
-                "type": "item",
-                "value": {
-                    "label": "Showroom",
-                    "link": {
-                        "link_type": "page",
-                        "page": showroom.id,
-                        "link_text": "Showroom",
-                        "open_in_new_tab": False,
+        ]
+        if showroom is not None:
+            menu_items.append(
+                {
+                    "type": "item",
+                    "value": {
+                        "label": "Showroom",
+                        "link": {
+                            "link_type": "page",
+                            "page": showroom.id,
+                            "link_text": "Showroom",
+                            "open_in_new_tab": False,
+                        },
+                        "children": [],
                     },
-                    "children": [],
-                },
-            },
+                }
+            )
+        menu_items.append(
             {
                 "type": "item",
                 "value": {
@@ -1203,8 +1515,9 @@ class Command(BaseCommand):
                     },
                     "children": [],
                 },
-            },
-        ]
+            }
+        )
+        header.menu_items = menu_items
 
         header.header_cta_enabled = True
         header.header_cta_text = "Contact"
@@ -1238,7 +1551,6 @@ class Command(BaseCommand):
 
         footer = FooterNavigation.for_site(site)
 
-        kitchen_sink = home.get_children().filter(slug="kitchen-sink").first()
         explore_links = [
             {
                 "link_type": "page",
@@ -1246,14 +1558,17 @@ class Command(BaseCommand):
                 "link_text": "Home",
                 "open_in_new_tab": False,
             },
-            {
-                "link_type": "page",
-                "page": showroom.id,
-                "link_text": "Showroom",
-                "open_in_new_tab": False,
-            },
         ]
-        if kitchen_sink:
+        if showroom is not None:
+            explore_links.append(
+                {
+                    "link_type": "page",
+                    "page": showroom.id,
+                    "link_text": "Showroom",
+                    "open_in_new_tab": False,
+                }
+            )
+        if kitchen_sink is not None:
             explore_links.append(
                 {
                     "link_type": "page",
@@ -1326,6 +1641,12 @@ class Command(BaseCommand):
                             "link_type": "page",
                             "page": privacy.id,
                             "link_text": "Privacy",
+                            "open_in_new_tab": False,
+                        },
+                        {
+                            "link_type": "page",
+                            "page": cookies.id,
+                            "link_text": "Cookies",
                             "open_in_new_tab": False,
                         },
                     ],

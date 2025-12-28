@@ -7,8 +7,7 @@ Dependencies: SiteSettings, Django templates
 """
 
 from django import template
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
+from django.utils.html import json_script
 from sum_core.branding.models import SiteSettings
 
 register = template.Library()
@@ -17,7 +16,7 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def analytics_head(context):
     """
-    Renders the appropriate analytics script for the <head> section.
+    Emits analytics configuration data for client-side loading.
     Priority:
     1. GTM (if gtm_container_id is set)
     2. GA4 (if ga_measurement_id is set)
@@ -32,42 +31,26 @@ def analytics_head(context):
     ga4_id = getattr(settings, "ga_measurement_id", "").strip()
 
     if gtm_id:
-        return mark_safe(
-            render_to_string(
-                "sum_core/includes/analytics/gtm_head.html",
-                {"gtm_container_id": gtm_id},
-            )
-        )
+        config = {
+            "gtm_container_id": gtm_id,
+            "ga_measurement_id": "",
+            "cookie_banner_enabled": settings.cookie_banner_enabled,
+        }
     elif ga4_id:
-        return mark_safe(
-            render_to_string(
-                "sum_core/includes/analytics/ga4_head.html",
-                {"ga_measurement_id": ga4_id},
-            )
-        )
+        config = {
+            "gtm_container_id": "",
+            "ga_measurement_id": ga4_id,
+            "cookie_banner_enabled": settings.cookie_banner_enabled,
+        }
+    else:
+        return ""
 
-    return ""
+    return json_script(config, "sum-analytics-config")
 
 
 @register.simple_tag(takes_context=True)
 def analytics_body(context):
     """
-    Renders the appropriate analytics script for the start of <body>.
-    Only renders GTM noscript fallback if GTM is active.
+    Reserved for future analytics markup (kept for template compatibility).
     """
-    request = context.get("request")
-    if not request:
-        return ""
-
-    settings = SiteSettings.for_request(request)
-    gtm_id = getattr(settings, "gtm_container_id", "").strip()
-
-    if gtm_id:
-        return mark_safe(
-            render_to_string(
-                "sum_core/includes/analytics/gtm_body.html",
-                {"gtm_container_id": gtm_id},
-            )
-        )
-
     return ""

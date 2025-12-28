@@ -1,0 +1,235 @@
+{% load wagtailcore_tags form_tags %}
+<section class="dynamic-form-block" data-style="{{ self.presentation_style }}">
+  <div class="container">
+    {% if self.form_definition %}
+      <header class="section__header">
+        <h2 class="section__heading">{{ self.form_definition.name }}</h2>
+      </header>
+    {% endif %}
+
+    {% if form_inactive_warning %}
+      <div class="form-warning" role="alert">
+        <strong>Warning</strong>
+        <span>This form is currently inactive and won't accept submissions.</span>
+      </div>
+    {% endif %}
+
+    <form action="/forms/submit/" method="post" novalidate
+          class="form premium-form js-async-form"
+          data-form-type="{{ self.form_definition.slug }}"
+          data-success-message="{{ self.form_definition.success_message|default:"Thank you for your submission!"|escapejs }}"
+          data-error-message="Something went wrong. Please try again."
+          id="form-{{ self.form_definition.id }}-{{ block.id }}">
+      {% csrf_token %}
+      {% form_hidden_fields form_type=self.form_definition.slug %}
+      <input type="hidden" name="form_definition_id" value="{{ self.form_definition.pk }}">
+      <input type="hidden" name="_rendered_at" class="js-dynamic-form-timestamp" value="">
+
+      <div class="form__field form__field--honeypot" aria-hidden="true">
+        <label for="form-website-field-{{ block.id }}">Website</label>
+        <input type="text" name="website" id="form-website-field-{{ block.id }}" tabindex="-1" autocomplete="off">
+      </div>
+
+      {% for field in self.form_definition.fields %}
+          {% if field.block_type == "section_heading" %}
+          {% if field.value.level == "h2" %}
+            <h2 class="form-section-heading">{{ field.value.heading|escape }}</h2>
+          {% elif field.value.level == "h3" %}
+            <h3 class="form-section-heading">{{ field.value.heading|escape }}</h3>
+          {% else %}
+            <h4 class="form-section-heading">{{ field.value.heading|escape }}</h4>
+          {% endif %}
+        {% elif field.block_type == "help_text" %}
+          <div class="form-help-text">{{ field.value.text|richtext }}</div>
+        {% else %}
+          <div class="form-group">
+            <label for="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}" class="form-label">
+              {{ field.value.label|escape }}
+            </label>
+
+            {% if field.block_type == "text_input" %}
+              <input type="text" name="{{ field.value.field_name }}"
+                     id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                     class="form-input {% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                     {% if field.value.required %}required{% endif %}
+                     {% if field.value.placeholder %}placeholder="{{ field.value.placeholder }}"{% endif %}>
+            {% elif field.block_type == "email_input" %}
+              <input type="email" name="{{ field.value.field_name }}"
+                     id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                     class="form-input {% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                     {% if field.value.required %}required{% endif %}
+                     {% if field.value.placeholder %}placeholder="{{ field.value.placeholder }}"{% endif %}>
+            {% elif field.block_type == "phone_input" %}
+              <input type="tel" name="{{ field.value.field_name }}"
+                     id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                     class="form-input {% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                     {% if field.value.required %}required{% endif %}
+                     {% if field.value.placeholder %}placeholder="{{ field.value.placeholder }}"{% endif %}>
+            {% elif field.block_type == "textarea" %}
+              <textarea name="{{ field.value.field_name }}"
+                        id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                        class="form-textarea {% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                        {% if field.value.required %}required{% endif %}
+                        {% if field.value.placeholder %}placeholder="{{ field.value.placeholder }}"{% endif %}
+                        {% if field.value.rows %}rows="{{ field.value.rows }}"{% endif %}></textarea>
+            {% elif field.block_type == "select" %}
+              <select name="{{ field.value.field_name }}"
+                      id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                      class="form-select {% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                      {% if field.value.required %}required{% endif %}
+                      {% if field.value.allow_multiple %}multiple{% endif %}>
+                {% for option in field.value.choices %}
+                  <option value="{{ option.value.value }}">{{ option.value.label|escape }}</option>
+                {% endfor %}
+              </select>
+            {% elif field.block_type == "checkbox" %}
+              <div class="form-checkbox">
+                <input type="checkbox" name="{{ field.value.field_name }}"
+                       id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                       class="{% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                       value="{{ field.value.checked_value }}"
+                       {% if field.value.required %}required{% endif %}>
+                <span>{{ field.value.help_text|escape }}</span>
+              </div>
+            {% elif field.block_type == "checkbox_group" %}
+              <div class="form-checkbox-group">
+                {% for option in field.value.choices %}
+                  <label class="form-checkbox">
+                    <input type="checkbox" name="{{ field.value.field_name }}"
+                           value="{{ option.value.value }}">
+                    <span>{{ option.value.label|escape }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            {% elif field.block_type == "radio_buttons" %}
+              <div class="form-radio-group">
+                {% for option in field.value.choices %}
+                  <label class="form-radio">
+                    <input type="radio" name="{{ field.value.field_name }}"
+                           value="{{ option.value.value }}"
+                           {% if field.value.required %}required{% endif %}>
+                    <span>{{ option.value.label|escape }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            {% elif field.block_type == "file_upload" %}
+              <input type="file" name="{{ field.value.field_name }}"
+                     id="form-{{ self.form_definition.id }}-{{ block.id }}-{{ field.value.field_name }}"
+                     class="form-input {% if field.value.css_class %}{{ field.value.css_class }}{% endif %}"
+                     {% if field.value.allowed_extensions %}accept="{{ field.value.allowed_extensions }}"{% endif %}
+                     {% if field.value.required %}required{% endif %}>
+            {% endif %}
+
+            {% if field.value.help_text %}
+              <span class="form-hint">{{ field.value.help_text|escape }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="form-messages" role="alert" aria-live="polite"></div>
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary btn-submit"
+          {% if form_inactive_warning %}disabled aria-disabled="true"{% endif %}
+        >
+          {{ self.cta_button_text|default:"Submit" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+{% form_attribution_script %}
+
+<script>
+(function() {
+  'use strict';
+
+  document.querySelectorAll('.js-dynamic-form-timestamp').forEach(function(input) {
+    input.value = Date.now().toString();
+  });
+
+  function bindForm(form) {
+    if (!form || form.dataset.formBound === 'true') return;
+    form.dataset.formBound = 'true';
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var formData = new FormData(form);
+      var submitBtn = form.querySelector('.btn-submit');
+      var messagesDiv = form.querySelector('.form-messages');
+      var originalBtnText = submitBtn.textContent;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      messagesDiv.innerHTML = '';
+      messagesDiv.className = 'form-messages';
+
+      var csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+      var csrfToken = csrfInput ? csrfInput.value : '';
+
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(function(response) {
+        return response.json().then(function(data) {
+          return { status: response.status, data: data };
+        });
+      })
+      .then(function(result) {
+        if (result.data.success) {
+          messagesDiv.className = 'form-messages form-messages--success';
+          var successMsg = document.createElement('p');
+          successMsg.className = 'form-success-msg';
+          successMsg.textContent = form.dataset.successMessage || 'Thank you for your submission.';
+          messagesDiv.innerHTML = '';
+          messagesDiv.appendChild(successMsg);
+          form.reset();
+        } else {
+          messagesDiv.className = 'form-messages form-messages--error';
+          messagesDiv.innerHTML = '';
+          if (result.data.errors) {
+            for (var field in result.data.errors) {
+              result.data.errors[field].forEach(function(msg) {
+                var errorP = document.createElement('p');
+                errorP.className = 'form-error-msg';
+                errorP.textContent = msg;
+                messagesDiv.appendChild(errorP);
+              });
+            }
+          }
+          if (!messagesDiv.hasChildNodes()) {
+            var fallbackP = document.createElement('p');
+            fallbackP.className = 'form-error-msg';
+            fallbackP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+            messagesDiv.appendChild(fallbackP);
+          }
+        }
+      })
+      .catch(function() {
+        messagesDiv.className = 'form-messages form-messages--error';
+        var errorP = document.createElement('p');
+        errorP.className = 'form-error-msg';
+        errorP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+        messagesDiv.innerHTML = '';
+        messagesDiv.appendChild(errorP);
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      });
+    });
+  }
+
+  document.querySelectorAll('.js-async-form').forEach(bindForm);
+})();
+</script>

@@ -27,7 +27,11 @@ from sum_core.blocks.content import (
     TimelineBlock,
     TrustStripBlock,
 )
-from sum_core.blocks.forms import ContactFormBlock, QuoteRequestFormBlock
+from sum_core.blocks.forms import (
+    ContactFormBlock,
+    DynamicFormBlock,
+    QuoteRequestFormBlock,
+)
 from sum_core.blocks.gallery import FeaturedCaseStudyBlock, GalleryBlock
 from sum_core.blocks.hero import HeroGradientBlock, HeroImageBlock
 from sum_core.blocks.process_faq import FAQBlock, ProcessStepsBlock
@@ -84,6 +88,7 @@ class PageStreamBlock(StreamBlock):
     # Forms
     contact_form = ContactFormBlock(group="Forms")
     quote_request_form = QuoteRequestFormBlock(group="Forms")
+    dynamic_form = DynamicFormBlock(group="Forms")
 
     rich_text = blocks.RichTextBlock(
         label="Rich Text",

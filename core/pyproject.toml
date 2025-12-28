@@ -4,15 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-core"
-version = "0.5.3"
+version = "0.6.0"
 description = "Shared core package for SUM client websites"
 requires-python = ">=3.12"
 dependencies = [
   "Django>=5.2,<5.3",
   "wagtail>=7.0,<7.1",
   "celery>=5.4,<6.0",
+  "Pillow>=10.0,<11.0",
   "requests>=2.31,<3.0",
   "sentry-sdk[celery]>=2.0,<3.0",
+  "python-magic>=0.4.27,<1.0",
 ]
 
 [project.optional-dependencies]
@@ -21,6 +23,7 @@ dev = [
   "pytest",
   "pytest-django",
   "pytest-cov",
+  "responses>=0.25.0",
   "mypy",
   "types-requests>=2.31,<3.0",
   "ruff>=0.1.0",

@@ -8,4 +8,4 @@ Dependencies: None (standard library only).
 
 __all__ = ["__version__"]
 
-__version__: str = "0.5.3"
+__version__: str = "0.6.0"

@@ -11,9 +11,38 @@ from __future__ import annotations
 from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from sum_core.forms.dynamic import DynamicFormGenerator
 from sum_core.forms.services import generate_time_token
 
 register = template.Library()
+
+
+@register.filter(name="generate_dynamic_form")
+def generate_dynamic_form(form_definition):
+    """
+    Return a dynamic form instance from a FormDefinition.
+
+    Usage:
+        {% load form_tags %}
+        {% with form_class=form_definition|generate_dynamic_form %}
+            {% with form=form_class %}
+                {{ form }}
+            {% endwith %}
+        {% endwith %}
+    """
+    if not form_definition:
+        return None
+
+    form_class = DynamicFormGenerator(form_definition).generate_form_class()
+    return form_class()
+
+
+@register.filter(name="form_field")
+def form_field(form, field_name):
+    """Return a bound form field by name for template lookups."""
+    if not form or not field_name:
+        return None
+    return form[field_name]
 
 
 @register.simple_tag

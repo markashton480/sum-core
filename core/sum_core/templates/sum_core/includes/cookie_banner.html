@@ -1,0 +1,31 @@
+{% load branding_tags wagtailcore_tags %}
+{% get_site_settings as site_settings %}
+
+{% if site_settings.cookie_banner_enabled %}
+  <aside class="cookie-banner" aria-label="Cookie preferences" style="display: none;" aria-hidden="true">
+    <div class="cookie-banner__content">
+      <p class="cookie-banner__message">
+        We use cookies to improve your experience and analyze site traffic.
+      </p>
+      {% if site_settings.privacy_policy_page or site_settings.cookie_policy_page %}
+        <p class="cookie-banner__links">
+          {% if site_settings.privacy_policy_page %}
+            <a href="{% pageurl site_settings.privacy_policy_page %}">
+              Privacy Policy
+            </a>
+          {% endif %}
+          {% if site_settings.cookie_policy_page %}
+            <a href="{% pageurl site_settings.cookie_policy_page %}">
+              Cookie Policy
+            </a>
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    <div class="cookie-banner__actions">
+      <button type="button" data-cookie-consent="accept">Accept</button>
+      <button type="button" data-cookie-consent="reject">Reject</button>
+    </div>
+    <p class="cookie-banner__status" aria-live="polite"></p>
+  </aside>
+{% endif %}

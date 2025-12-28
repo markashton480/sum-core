@@ -1,0 +1,37 @@
+New Form Submission
+
+A new "{{ form_definition.name }}" submission has been received.
+
+Contact Details
+- Name: {{ lead.name }}
+- Email: {{ lead.email }}
+{% if lead.phone %}- Phone: {{ lead.phone }}
+{% endif %}
+
+Message
+{{ lead.message|default_if_none:"" }}
+
+Submission Info
+- Form: {{ form_definition.name }} ({{ form_definition.slug }})
+- Submitted At: {{ lead.submitted_at }}
+
+{% if lead.page_url or lead.landing_page_url or lead.referrer_url or lead.utm_source or lead.utm_medium or lead.utm_campaign or lead.utm_term or lead.utm_content %}Attribution
+{% if lead.page_url %}- Page URL: {{ lead.page_url }}
+{% endif %}{% if lead.landing_page_url %}- Landing Page: {{ lead.landing_page_url }}
+{% endif %}{% if lead.referrer_url %}- Referrer: {{ lead.referrer_url }}
+{% endif %}{% if lead.utm_source %}- UTM Source: {{ lead.utm_source }}
+{% endif %}{% if lead.utm_medium %}- UTM Medium: {{ lead.utm_medium }}
+{% endif %}{% if lead.utm_campaign %}- UTM Campaign: {{ lead.utm_campaign }}
+{% endif %}{% if lead.utm_term %}- UTM Term: {{ lead.utm_term }}
+{% endif %}{% if lead.utm_content %}- UTM Content: {{ lead.utm_content }}
+{% endif %}
+{% endif %}
+
+{% if lead.form_data %}Additional Fields
+{% for key, value in lead.form_data.items %}- {{ key }}: {% if value.name %}{{ value.name|default_if_none:"" }}{% elif value.path %}{{ value.path|default_if_none:"" }}{% else %}{{ value|default_if_none:"" }}{% endif %}
+{% endfor %}
+{% endif %}
+
+--
+Lead ID: {{ lead.id }}
+Site: {{ form_definition.site.hostname }}

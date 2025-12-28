@@ -1,0 +1,25 @@
+{% extends "wagtailadmin/base.html" %}
+
+{% block content %}
+    <div class="nice-padding">
+        <h1>Usage: {{ form_definition.name }}</h1>
+
+        {% if usage_pages %}
+            <p class="help-block">
+                This form is used on {{ usage_pages|length }} page{{ usage_pages|length|pluralize }}.
+            </p>
+            <ul>
+                {% for page in usage_pages %}
+                    <li>
+                        <a href="{{ page.get_admin_url }}">{{ page.title }}</a>
+                        <span class="help-text">({{ page._meta.verbose_name }})</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="help-block">No pages are currently using this form.</p>
+        {% endif %}
+
+        <a href="{{ edit_url }}" class="button">Back to edit</a>
+    </div>
+{% endblock %}

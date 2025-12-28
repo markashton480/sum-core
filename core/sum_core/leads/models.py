@@ -32,6 +32,7 @@ class EmailStatus(models.TextChoices):
     IN_PROGRESS = "in_progress", "In progress"
     SENT = "sent", "Sent"
     FAILED = "failed", "Failed"
+    DISABLED = "disabled", "Disabled"
 
 
 class WebhookStatus(models.TextChoices):
@@ -195,6 +196,78 @@ class Lead(models.Model):
             null=True,
             blank=True,
             help_text="HTTP status code from last webhook attempt.",
+        )
+    )
+
+    # Dynamic form admin notification status
+    form_notification_status: models.CharField = models.CharField(
+        max_length=20,
+        choices=EmailStatus.choices,
+        default=EmailStatus.DISABLED,
+        help_text="Status of dynamic form admin notification delivery.",
+    )
+    form_notification_sent_at: models.DateTimeField = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the dynamic form admin notification was sent.",
+    )
+    form_notification_last_error: models.TextField = models.TextField(
+        blank=True,
+        help_text="Last error message for dynamic form admin notification.",
+    )
+    form_notification_attempts: models.PositiveIntegerField = (
+        models.PositiveIntegerField(
+            default=0,
+            help_text="Number of dynamic form admin notification attempts.",
+        )
+    )
+
+    # Dynamic form auto-reply status
+    auto_reply_status: models.CharField = models.CharField(
+        max_length=20,
+        choices=EmailStatus.choices,
+        default=EmailStatus.DISABLED,
+        help_text="Status of dynamic form auto-reply delivery.",
+    )
+    auto_reply_sent_at: models.DateTimeField = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the dynamic form auto-reply was sent.",
+    )
+    auto_reply_last_error: models.TextField = models.TextField(
+        blank=True,
+        help_text="Last error message for dynamic form auto-reply.",
+    )
+    auto_reply_attempts: models.PositiveIntegerField = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of dynamic form auto-reply attempts.",
+    )
+
+    # Dynamic form webhook status
+    form_webhook_status: models.CharField = models.CharField(
+        max_length=20,
+        choices=WebhookStatus.choices,
+        default=WebhookStatus.DISABLED,
+        help_text="Status of dynamic form webhook delivery.",
+    )
+    form_webhook_sent_at: models.DateTimeField = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the dynamic form webhook was sent.",
+    )
+    form_webhook_last_error: models.TextField = models.TextField(
+        blank=True,
+        help_text="Last error message for dynamic form webhook delivery.",
+    )
+    form_webhook_attempts: models.PositiveIntegerField = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of dynamic form webhook attempts.",
+    )
+    form_webhook_last_status_code: models.PositiveSmallIntegerField = (
+        models.PositiveSmallIntegerField(
+            null=True,
+            blank=True,
+            help_text="HTTP status code from last dynamic form webhook attempt.",
         )
     )
 

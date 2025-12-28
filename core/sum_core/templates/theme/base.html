@@ -5,6 +5,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% get_site_settings as site_settings %}
+    {% wagtail_site as current_site %}
     {% analytics_head %}
 
     {% if page %}
@@ -13,12 +15,15 @@
       {% render_schema page %}
     {% endif %}
 
-    {% get_site_settings as site_settings %}
-    {% wagtail_site as current_site %}
     {% firstof site_settings.company_name current_site.site_name WAGTAIL_SITE_NAME as site_name %}
     {% if site_settings.favicon %}
       {% image site_settings.favicon fill-32x32 as favicon_rendition %}
       <link rel="icon" href="{{ favicon_rendition.url }}">
+    {% endif %}
+
+    {# Expose consent version for cookie_consent.js #}
+    {% if site_settings.cookie_banner_enabled %}
+      <meta name="sum:cookie-consent-version" content="{{ site_settings.cookie_consent_version }}">
     {% endif %}
 
     <!-- Branding Fonts -->
@@ -41,12 +46,18 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% include "sum_core/includes/cookie_banner.html" %}
+
     {% include "theme/includes/footer.html" %}
 
     <!-- Sticky CTA (Mobile) -->
     {% include "theme/includes/sticky_cta.html" %}
 
     <!-- Main JS -->
+    <script src="{% static 'sum_core/js/cookie_consent.js' %}" defer></script>
+    {% if site_settings.gtm_container_id or site_settings.ga_measurement_id %}
+      <script src="{% static 'sum_core/js/analytics_loader.js' %}" defer></script>
+    {% endif %}
     <script src="{% static 'sum_core/js/event_tracking.js' %}" defer></script>
     <script src="{% static 'sum_core/js/main.js' %}"></script>
     <script src="{% static 'sum_core/js/navigation.js' %}"></script>

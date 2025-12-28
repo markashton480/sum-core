@@ -17,3 +17,7 @@ class FormsConfig(AppConfig):
     name = "sum_core.forms"
     label = "sum_core_forms"
     verbose_name = "Form Configuration"
+
+    def ready(self) -> None:
+        """Import cache module to register signal handlers."""
+        import sum_core.forms.cache  # noqa: F401

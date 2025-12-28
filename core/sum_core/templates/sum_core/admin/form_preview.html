@@ -1,0 +1,26 @@
+{% extends "wagtailadmin/base.html" %}
+{% load form_tags %}
+
+{% block content %}
+    <div class="nice-padding">
+        <h1>Preview: {{ form_definition.name }}</h1>
+
+        <p class="help-block">
+            This is a preview of how the form will appear to visitors.
+        </p>
+
+        <div class="w-panel">
+            <div class="w-panel__content">
+                {% with form=form_definition|generate_dynamic_form %}
+                    {% if form %}
+                        {{ form.as_p }}
+                    {% else %}
+                        <p>No fields configured for this form yet.</p>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <a href="{{ edit_url }}" class="button">Back to edit</a>
+    </div>
+{% endblock %}

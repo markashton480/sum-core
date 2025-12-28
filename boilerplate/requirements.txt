@@ -7,7 +7,7 @@
 # and uncomment the editable install:
 #   -e ../../core
 
-sum-core @ git+https://github.com/markashton480/sum-core.git@v0.5.3#subdirectory=core
+sum-core @ git+https://github.com/markashton480/sum-core.git@v0.6.0#subdirectory=core
 
 # PostgreSQL driver for production deployments
 psycopg[binary]>=3.2,<4

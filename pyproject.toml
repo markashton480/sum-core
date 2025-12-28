@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-core"
-version = "0.5.3"
+version = "0.6.0"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
@@ -30,6 +30,8 @@ dev = [
     "ruff>=0.1.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
+    "pytest-playwright>=0.4.0",
+    "responses>=0.25.0",
     "mypy>=1.5.0",
     "pre-commit>=3.4.0",
 ]
@@ -103,6 +105,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=term-missing",
     "--cov-report=html",
+    "--ignore=tests/e2e",
 ]
 pythonpath = ["core", "core/sum_core/test_project", "cli"]
 DJANGO_SETTINGS_MODULE = "sum_core.test_project.test_project.settings"
@@ -115,6 +118,7 @@ markers = [
     "requires_themes: Tests that require sum_core 0.6+ theme support",
     "legacy_only: Tests intended to run on sum_core 0.5.x",
     "loopsite: Loopsite-specific tests",
+    "e2e: End-to-end tests using Playwright (slow, run separately)",
 ]
 
 [tool.coverage.run]

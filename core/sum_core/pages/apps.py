@@ -18,3 +18,7 @@ class PagesConfig(AppConfig):
     name: str = "sum_core.pages"
     label: str = "sum_core_pages"
     verbose_name: str = "SUM Core Pages"
+
+    def ready(self) -> None:
+        """Import cache module to register signal handlers."""
+        import sum_core.pages.cache  # noqa: F401

@@ -29,7 +29,7 @@ from .content import (
     TimelineItemBlock,
     TrustStripBlock,
 )
-from .forms import ContactFormBlock, QuoteRequestFormBlock
+from .forms import ContactFormBlock, DynamicFormBlock, QuoteRequestFormBlock
 from .gallery import FeaturedCaseStudyBlock, GalleryBlock, GalleryImageBlock
 from .hero import HeroCTABlock, HeroGradientBlock, HeroImageBlock
 from .links import LINK_TYPE_CHOICES, UniversalLinkBlock, UniversalLinkValue
@@ -80,6 +80,7 @@ __all__ = [
     "SpacerBlock",
     "DividerBlock",
     "ContactFormBlock",
+    "DynamicFormBlock",
     "QuoteRequestFormBlock",
     "UniversalLinkBlock",
     "UniversalLinkValue",

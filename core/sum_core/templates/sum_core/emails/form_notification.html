@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New Form Submission</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.5; color: #333; }
+        h1 { font-size: 22px; margin-bottom: 12px; }
+        h2 { font-size: 16px; margin-top: 20px; margin-bottom: 8px; }
+        .field { margin-bottom: 6px; }
+        .label { font-weight: bold; margin-right: 6px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { text-align: left; padding: 6px; border-bottom: 1px solid #eee; }
+        th { background: #f7f7f7; }
+    </style>
+</head>
+<body>
+    <h1>New Form Submission</h1>
+    <p>A new <strong>{{ form_definition.name }}</strong> submission has been received.</p>
+
+    <h2>Contact Details</h2>
+    <div class="field"><span class="label">Name:</span> {{ lead.name }}</div>
+    <div class="field"><span class="label">Email:</span> <a href="mailto:{{ lead.email|urlencode }}">{{ lead.email }}</a></div>
+    {% if lead.phone %}
+    <div class="field"><span class="label">Phone:</span> <a href="tel:{{ lead.phone|urlencode }}">{{ lead.phone }}</a></div>
+    {% endif %}
+
+    <h2>Message</h2>
+    <div class="field">{{ lead.message|linebreaksbr }}</div>
+
+    <h2>Submission Info</h2>
+    <div class="field"><span class="label">Form:</span> {{ form_definition.name }} ({{ form_definition.slug }})</div>
+    <div class="field"><span class="label">Submitted At:</span> {{ lead.submitted_at|date:"N j, Y, P" }}</div>
+
+    {% if lead.page_url or lead.landing_page_url or lead.referrer_url or lead.utm_source or lead.utm_medium or lead.utm_campaign or lead.utm_term or lead.utm_content %}
+    <h2>Attribution</h2>
+    {% if lead.page_url %}
+    <div class="field"><span class="label">Page URL:</span> <a href="{{ lead.page_url }}">{{ lead.page_url }}</a></div>
+    {% endif %}
+    {% if lead.landing_page_url %}
+    <div class="field"><span class="label">Landing Page:</span> <a href="{{ lead.landing_page_url }}">{{ lead.landing_page_url }}</a></div>
+    {% endif %}
+    {% if lead.referrer_url %}
+    <div class="field"><span class="label">Referrer:</span> <a href="{{ lead.referrer_url }}">{{ lead.referrer_url }}</a></div>
+    {% endif %}
+    {% if lead.utm_source %}
+    <div class="field"><span class="label">UTM Source:</span> {{ lead.utm_source }}</div>
+    {% endif %}
+    {% if lead.utm_medium %}
+    <div class="field"><span class="label">UTM Medium:</span> {{ lead.utm_medium }}</div>
+    {% endif %}
+    {% if lead.utm_campaign %}
+    <div class="field"><span class="label">UTM Campaign:</span> {{ lead.utm_campaign }}</div>
+    {% endif %}
+    {% if lead.utm_term %}
+    <div class="field"><span class="label">UTM Term:</span> {{ lead.utm_term }}</div>
+    {% endif %}
+    {% if lead.utm_content %}
+    <div class="field"><span class="label">UTM Content:</span> {{ lead.utm_content }}</div>
+    {% endif %}
+    {% endif %}
+
+    {% if lead.form_data %}
+    <h2>Additional Fields</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in lead.form_data.items %}
+            <tr>
+                <td>{{ key|escape }}</td>
+                <td>
+                    {% if value.name %}{{ value.name|escape }}{% elif value.path %}{{ value.path|escape }}{% else %}{{ value|default_if_none:""|escape }}{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <p>Lead ID: {{ lead.id }}</p>
+    <p>Site: {{ form_definition.site.hostname }}</p>
+</body>
+</html>

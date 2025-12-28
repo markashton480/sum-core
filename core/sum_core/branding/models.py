@@ -143,6 +143,44 @@ class SiteSettings(BaseSiteSetting):
         blank=True,
         help_text="Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX).",
     )
+    cookie_banner_enabled = models.BooleanField(
+        default=False,
+        help_text=(
+            "When enabled, analytics load only after a visitor accepts the banner; "
+            "when disabled, analytics load immediately."
+        ),
+    )
+    cookie_consent_version = models.CharField(
+        max_length=20,
+        default="1",
+        help_text=(
+            "Increment this version when consent text changes to trigger a new prompt."
+        ),
+    )
+    privacy_policy_page = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional link to your privacy policy page.",
+    )
+    cookie_policy_page = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional link to your cookie policy page.",
+    )
+    terms_page = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional link to your terms page.",
+    )
 
     robots_txt = models.TextField(
         blank=True,
@@ -250,6 +288,16 @@ class SiteSettings(BaseSiteSetting):
                 FieldPanel("ga_measurement_id"),
             ],
             heading="Analytics",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("cookie_banner_enabled"),
+                FieldPanel("cookie_consent_version"),
+                FieldPanel("privacy_policy_page"),
+                FieldPanel("cookie_policy_page"),
+                FieldPanel("terms_page"),
+            ],
+            heading="Consent & Legal",
         ),
         MultiFieldPanel(
             [

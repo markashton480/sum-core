@@ -12,7 +12,8 @@
     </header>
 
     <div class="quote-form-container reveal-group delay-100">
-      <form action="/forms/submit/" method="post" novalidate class="form premium-form quote-form" data-form-type="quote_request" id="quote-form"
+      {% with block_id=block.id %}
+      <form action="/forms/submit/" method="post" novalidate class="form premium-form quote-form js-async-form" data-form-type="quote_request" id="quote-form{% if block_id %}-{{ block_id }}{% endif %}"
             data-success-message="{{ self.success_message|default:"Thanks, we'll prepare your quote."|escapejs }}"
             data-error-message="Something went wrong. Please try again.">
         {% csrf_token %}
@@ -22,8 +23,8 @@
 
         <!-- Honeypot field -->
         <div class="form__field form__field--honeypot" aria-hidden="true">
-          <label for="form-company-field">Company</label>
-          <input type="text" name="company" id="form-company-field" tabindex="-1" autocomplete="off">
+          <label for="form-company-field{% if block_id %}-{{ block_id }}{% endif %}">Company</label>
+          <input type="text" name="company" id="form-company-field{% if block_id %}-{{ block_id }}{% endif %}" tabindex="-1" autocomplete="off">
         </div>
 
         {% if form %}
@@ -79,12 +80,12 @@
              <!-- Two-column grid for postcode and budget -->
              <div class="form-row">
                <div class="form-group">
-                  <label for="quote-postcode" class="form-label">Project Postcode</label>
-                  <input type="text" id="quote-postcode" name="postcode" class="form-input" required>
+                  <label for="quote-postcode{% if block_id %}-{{ block_id }}{% endif %}" class="form-label">Project Postcode</label>
+                  <input type="text" id="quote-postcode{% if block_id %}-{{ block_id }}{% endif %}" name="postcode" class="form-input" required>
                </div>
                <div class="form-group">
-                  <label for="quote-budget" class="form-label">Est. Budget</label>
-                  <select id="quote-budget" name="budget" class="form-select">
+                  <label for="quote-budget{% if block_id %}-{{ block_id }}{% endif %}" class="form-label">Est. Budget</label>
+                  <select id="quote-budget{% if block_id %}-{{ block_id }}{% endif %}" name="budget" class="form-select">
                     <option value="" disabled selected>Select a range</option>
                     <option value="10-20k">£10k - £20k</option>
                     <option value="20-40k">£20k - £40k</option>
@@ -96,18 +97,18 @@
              <!-- Name and Email row -->
              <div class="form-row">
                <div class="form-group">
-                  <label for="quote-name" class="form-label">Full Name</label>
-                  <input type="text" id="quote-name" name="name" class="form-input" placeholder="e.g. James Sterling" required>
+                  <label for="quote-name{% if block_id %}-{{ block_id }}{% endif %}" class="form-label">Full Name</label>
+                  <input type="text" id="quote-name{% if block_id %}-{{ block_id }}{% endif %}" name="name" class="form-input" placeholder="e.g. James Sterling" required>
                </div>
                <div class="form-group">
-                  <label for="quote-email" class="form-label">Email Address</label>
-                  <input type="email" id="quote-email" name="email" class="form-input" placeholder="name@example.com" required>
+                  <label for="quote-email{% if block_id %}-{{ block_id }}{% endif %}" class="form-label">Email Address</label>
+                  <input type="email" id="quote-email{% if block_id %}-{{ block_id }}{% endif %}" name="email" class="form-input" placeholder="name@example.com" required>
                </div>
              </div>
 
              <div class="form-group">
-                <label for="quote-details" class="form-label">Additional Details</label>
-                <textarea id="quote-details" name="message" class="form-textarea" placeholder="Any specific requirements or constraints?"></textarea>
+                <label for="quote-details{% if block_id %}-{{ block_id }}{% endif %}" class="form-label">Additional Details</label>
+                <textarea id="quote-details{% if block_id %}-{{ block_id }}{% endif %}" name="message" class="form-textarea" placeholder="Any specific requirements or constraints?"></textarea>
              </div>
           </div>
         {% endif %}
@@ -121,6 +122,7 @@
           </button>
         </div>
       </form>
+      {% endwith %}
     </div>
   </div>
 </section>
@@ -131,84 +133,88 @@
 (function() {
   'use strict';
 
-  var form = document.getElementById('quote-form');
-  if (!form) return;
+  function bindForm(form) {
+    if (!form || form.dataset.formBound === 'true') return;
+    form.dataset.formBound = 'true';
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-    var formData = new FormData(form);
-    var submitBtn = form.querySelector('.btn-submit');
-    var messagesDiv = form.querySelector('.form-messages');
-    var originalBtnText = submitBtn.textContent;
+      var formData = new FormData(form);
+      var submitBtn = form.querySelector('.btn-submit');
+      var messagesDiv = form.querySelector('.form-messages');
+      var originalBtnText = submitBtn.textContent;
 
-    // Disable button and show loading state
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending...';
-    messagesDiv.innerHTML = '';
-    messagesDiv.className = 'form-messages';
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      messagesDiv.innerHTML = '';
+      messagesDiv.className = 'form-messages';
 
-    var csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
-    var csrfToken = csrfInput ? csrfInput.value : '';
+      var csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+      var csrfToken = csrfInput ? csrfInput.value : '';
 
-    fetch(form.action, {
-      method: 'POST',
-      body: formData,
-      credentials: 'same-origin',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': csrfToken
-      }
-    })
-    .then(function(response) {
-      return response.json().then(function(data) {
-        return { status: response.status, data: data };
-      });
-    })
-    .then(function(result) {
-      if (result.data.success) {
-        // Success - show success message from data attribute (safe from XSS)
-        messagesDiv.className = 'form-messages form-messages--success';
-        var successMsg = document.createElement('p');
-        successMsg.className = 'form-success-msg';
-        successMsg.textContent = form.dataset.successMessage || 'Thank you for your submission.';
-        messagesDiv.innerHTML = '';
-        messagesDiv.appendChild(successMsg);
-        form.reset();
-      } else {
-        // Error - show error messages (server response is trusted)
-        messagesDiv.className = 'form-messages form-messages--error';
-        messagesDiv.innerHTML = '';
-        if (result.data.errors) {
-          for (var field in result.data.errors) {
-            result.data.errors[field].forEach(function(msg) {
-              var errorP = document.createElement('p');
-              errorP.className = 'form-error-msg';
-              errorP.textContent = msg;
-              messagesDiv.appendChild(errorP);
-            });
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(function(response) {
+        return response.json().then(function(data) {
+          return { status: response.status, data: data };
+        });
+      })
+      .then(function(result) {
+        if (result.data.success) {
+          // Success - show success message from data attribute (safe from XSS)
+          messagesDiv.className = 'form-messages form-messages--success';
+          var successMsg = document.createElement('p');
+          successMsg.className = 'form-success-msg';
+          successMsg.textContent = form.dataset.successMessage || 'Thank you for your submission.';
+          messagesDiv.innerHTML = '';
+          messagesDiv.appendChild(successMsg);
+          form.reset();
+        } else {
+          // Error - show error messages (server response is trusted)
+          messagesDiv.className = 'form-messages form-messages--error';
+          messagesDiv.innerHTML = '';
+          if (result.data.errors) {
+            for (var field in result.data.errors) {
+              result.data.errors[field].forEach(function(msg) {
+                var errorP = document.createElement('p');
+                errorP.className = 'form-error-msg';
+                errorP.textContent = msg;
+                messagesDiv.appendChild(errorP);
+              });
+            }
+          }
+          if (!messagesDiv.hasChildNodes()) {
+            var fallbackP = document.createElement('p');
+            fallbackP.className = 'form-error-msg';
+            fallbackP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+            messagesDiv.appendChild(fallbackP);
           }
         }
-        if (!messagesDiv.hasChildNodes()) {
-          var fallbackP = document.createElement('p');
-          fallbackP.className = 'form-error-msg';
-          fallbackP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
-          messagesDiv.appendChild(fallbackP);
-        }
-      }
-    })
-    .catch(function(error) {
-      messagesDiv.className = 'form-messages form-messages--error';
-      var errorP = document.createElement('p');
-      errorP.className = 'form-error-msg';
-      errorP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
-      messagesDiv.innerHTML = '';
-      messagesDiv.appendChild(errorP);
-    })
-    .finally(function() {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalBtnText;
+      })
+      .catch(function() {
+        messagesDiv.className = 'form-messages form-messages--error';
+        var errorP = document.createElement('p');
+        errorP.className = 'form-error-msg';
+        errorP.textContent = form.dataset.errorMessage || 'Something went wrong. Please try again.';
+        messagesDiv.innerHTML = '';
+        messagesDiv.appendChild(errorP);
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      });
     });
-  });
+  }
+
+  document.querySelectorAll('.js-async-form').forEach(bindForm);
 })();
 </script>

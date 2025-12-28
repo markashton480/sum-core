@@ -54,6 +54,7 @@ class HomePage(SeoFieldsMixin, OpenGraphMixin, BreadcrumbMixin, Page):
     subpage_types: list[str] = [
         "sum_core_pages.StandardPage",
         "sum_core_pages.ServiceIndexPage",
+        "sum_core_pages.BlogIndexPage",
     ]
 
     # v0.6 rendering contract: themes own page templates under theme/
