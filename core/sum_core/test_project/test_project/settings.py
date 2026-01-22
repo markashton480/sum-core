@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from sum_core.ops.logging import get_logging_config
@@ -60,6 +61,24 @@ ENV_FILE_PATH = _load_env_file()
 SECRET_KEY: str = "dev-only-not-for-production"
 DEBUG: bool = True
 ALLOWED_HOSTS: list[str] = ["localhost", "testserver", "127.0.0.1", "[::1]"]
+if os.getenv("ALLOWED_HOSTS_EXTRA"):
+    ALLOWED_HOSTS.extend(os.getenv("ALLOWED_HOSTS_EXTRA", "").split(","))
+
+CSRF_TRUSTED_ORIGINS: list[str] = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+VISUAL_TEST: bool = os.getenv("VISUAL_TEST") == "1"
+VISUAL_TEST_FROZEN_ISO: str = os.getenv(
+    "VISUAL_TEST_FROZEN_ISO", "2025-10-14T00:00:00Z"
+)
+try:
+    _frozen_iso = VISUAL_TEST_FROZEN_ISO.replace("Z", "+00:00")
+    VISUAL_TEST_FROZEN_YEAR: int = datetime.fromisoformat(_frozen_iso).year
+except ValueError:
+    VISUAL_TEST_FROZEN_YEAR = 2025
 
 INSTALLED_APPS: list[str] = [
     "django.contrib.admin",
@@ -86,6 +105,7 @@ INSTALLED_APPS: list[str] = [
     # Project apps
     "sum_core",
     "sum_core.pages",
+    "sum_core.banners",
     "sum_core.navigation",
     "sum_core.leads",
     "sum_core.forms",
@@ -161,6 +181,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "sum_core.context_processors.visual_test",
             ],
         },
     },
@@ -176,26 +197,59 @@ DB_PORT = os.getenv("DJANGO_DB_PORT", "5432")
 
 
 def _validate_db_env() -> None:
-    supplied_any = any([DB_NAME, DB_USER, DB_PASSWORD, DB_HOST])
+    """Validate database environment configuration.
+
+    For development (non-test) runs, Postgres is REQUIRED. This ensures all agents
+    share the same database state and prevents silent SQLite fallback issues.
+
+    For tests, SQLite in-memory is used by default for speed, unless SUM_TEST_DB=postgres.
+    """
     required_present = DB_NAME and DB_HOST
-    if supplied_any and not required_present:
-        missing = []
-        if not DB_NAME:
-            missing.append("DJANGO_DB_NAME")
-        if not DB_HOST:
-            missing.append("DJANGO_DB_HOST")
-        raise ValueError(
-            "Partial Postgres configuration supplied. Missing required env vars: "
-            + ", ".join(missing)
-        )
+    supplied_any = any([DB_NAME, DB_USER, DB_PASSWORD, DB_HOST])
+
+    if not required_present:
+        if supplied_any:
+            # Partial config - tell them what's missing
+            missing = []
+            if not DB_NAME:
+                missing.append("DJANGO_DB_NAME")
+            if not DB_HOST:
+                missing.append("DJANGO_DB_HOST")
+            raise ValueError(
+                "Partial Postgres configuration supplied. Missing required env vars: "
+                + ", ".join(missing)
+            )
+        else:
+            # No config at all - explain the setup
+            raise ValueError(
+                "Database configuration required.\n\n"
+                "The test project requires Postgres for development. SQLite is only "
+                "used during pytest runs.\n\n"
+                "To set up:\n"
+                "  1. cp .env.example .env\n"
+                "  2. make db-up\n"
+                "  3. make dev-reset  # migrate + seed\n\n"
+                "See AGENTS.md for full setup instructions."
+            )
 
 
 USE_POSTGRES_FOR_TESTS = os.getenv("SUM_TEST_DB", "sqlite").lower() == "postgres"
 
+# Development runs require Postgres - fail fast if not configured
 if not RUNNING_TESTS:
     _validate_db_env()
 
-if (DB_HOST and DB_NAME) and (not RUNNING_TESTS or USE_POSTGRES_FOR_TESTS):
+# Database configuration: Postgres for dev, SQLite for tests (unless overridden)
+if RUNNING_TESTS and not USE_POSTGRES_FOR_TESTS:
+    # Tests use in-memory SQLite for speed
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+        }
+    }
+else:
+    # Development and Postgres-backed tests use Postgres
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -204,14 +258,6 @@ if (DB_HOST and DB_NAME) and (not RUNNING_TESTS or USE_POSTGRES_FOR_TESTS):
             "PASSWORD": DB_PASSWORD,
             "HOST": DB_HOST,
             "PORT": DB_PORT,
-        }
-    }
-else:
-    SQLITE_DB_NAME: str = ":memory:" if RUNNING_TESTS else str(BASE_DIR / "db.sqlite3")
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": SQLITE_DB_NAME,
         }
     }
 
@@ -268,6 +314,11 @@ CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "memory://")
 CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "cache+memory://")
 CELERY_TASK_ALWAYS_EAGER: bool = True  # Run tasks synchronously
 CELERY_TASK_EAGER_PROPAGATES: bool = True  # Propagate exceptions in eager mode
+
+# Forms Configuration
+# Silence Django 6.0 deprecation warning about URL scheme
+# Default scheme will change from 'http' to 'https' in Django 6.0
+FORMS_URLFIELD_ASSUME_HTTPS: bool = True
 
 # Email Configuration
 EMAIL_BACKEND: str = os.getenv(

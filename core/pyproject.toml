@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-core"
-version = "0.6.0"
+version = "0.6.1"
 description = "Shared core package for SUM client websites"
 requires-python = ">=3.12"
 dependencies = [
@@ -20,11 +20,14 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "psycopg[binary]>=3.2,<4",
+  "PyYAML>=6.0,<7.0",
+  "playwright>=1.41.0",
+  "pytest-playwright>=0.4.0",
   "pytest",
   "pytest-django",
   "pytest-cov",
   "responses>=0.25.0",
-  "mypy",
+  "pyrefly>=0.46.0",
   "types-requests>=2.31,<3.0",
   "ruff>=0.1.0",
   "black",

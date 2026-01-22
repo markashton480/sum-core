@@ -11,6 +11,7 @@ Required INSTALLED_APPS for client projects:
         # ... Django and Wagtail apps ...
         "sum_core",
         "sum_core.pages",
+        "sum_core.banners",
         "sum_core.navigation",
         "sum_core.leads",
         "sum_core.forms",

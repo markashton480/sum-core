@@ -93,6 +93,13 @@
     if (banner) {
       banner.style.display = 'block';
       banner.setAttribute('aria-hidden', 'false');
+
+      if (banner.classList.contains('translate-y-[110%]')) {
+        banner.dataset.cookieSlide = 'true';
+        setTimeout(() => {
+          banner.classList.remove('translate-y-[110%]');
+        }, 2000);
+      }
     }
   }
 
@@ -102,6 +109,15 @@
   function hideBanner() {
     const banner = document.querySelector('.cookie-banner');
     if (banner) {
+      if (banner.dataset.cookieSlide === 'true') {
+        banner.classList.add('translate-y-[110%]');
+        banner.setAttribute('aria-hidden', 'true');
+        setTimeout(() => {
+          banner.style.display = 'none';
+        }, 700);
+        return;
+      }
+
       banner.style.display = 'none';
       banner.setAttribute('aria-hidden', 'true');
     }

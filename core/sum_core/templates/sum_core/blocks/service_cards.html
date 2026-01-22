@@ -1,6 +1,6 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<section class="section services">
+<section class="section services"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
     <div class="container">
         <!-- Header Group -->
         <header class="section__header reveal-group">
@@ -26,7 +26,7 @@
                     <!-- Card with staggered delay animation -->
                     <article class="services__card reveal-group delay-{{ forloop.counter0|add:1 }}00">
                         <div class="card__body">
-                            
+
                             <!-- Icon + Index Number Header -->
                             <div class="services__icon-wrapper">
                                 {% if card.image %}
@@ -38,7 +38,7 @@
                                         {{ card.icon }}
                                     </div>
                                 {% endif %}
-                                
+
                                 <!-- Decorative Index: Formats 1 to 01, 2 to 02, etc. -->
                                 <span class="services__index">
                                     {% if forloop.counter < 10 %}0{% endif %}{{ forloop.counter }}
@@ -57,10 +57,12 @@
 
                             <div class="services__card-link">
                                 {% if card.link_url %}
-                                    <a href="{{ card.link_url }}" class="btn--link">
+                                    {% with link=card.link_url %}
+                                    <a href="{{ link.href }}" {{ link.attrs_str }} class="btn--link">
                                         {{ card.link_label|default:"Learn more" }}
                                         <span>→</span>
                                     </a>
+                                    {% endwith %}
                                 {% endif %}
                             </div>
                         </div>

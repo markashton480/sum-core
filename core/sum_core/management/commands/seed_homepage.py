@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 from typing import Any
 
 from django.core.management.base import BaseCommand
-from home.models import HomePage
+from sum_core.pages.home import HomePage
 from wagtail.models import Page, Site
 
 

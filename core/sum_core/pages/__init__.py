@@ -25,6 +25,14 @@ def __getattr__(name: str):
         from sum_core.pages.services import ServicePage
 
         return ServicePage
+    if name == "PortfolioIndexPage":
+        from sum_core.pages.portfolio import PortfolioIndexPage
+
+        return PortfolioIndexPage
+    if name == "CaseStudyPage":
+        from sum_core.pages.portfolio import CaseStudyPage
+
+        return CaseStudyPage
     if name == "Category":
         from sum_core.pages.blog import Category
 
@@ -41,6 +49,14 @@ def __getattr__(name: str):
         from sum_core.pages.legal import LegalPage
 
         return LegalPage
+    if name == "HomePage":
+        from sum_core.pages.home import HomePage
+
+        return HomePage
+    if name == "HomePageHeroCTA":
+        from sum_core.pages.home import HomePageHeroCTA
+
+        return HomePageHeroCTA
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -48,10 +64,14 @@ __all__ = [
     "StandardPage",
     "ServiceIndexPage",
     "ServicePage",
+    "PortfolioIndexPage",
+    "CaseStudyPage",
     "Category",
     "BlogIndexPage",
     "BlogPostPage",
     "LegalPage",
+    "HomePage",
+    "HomePageHeroCTA",
 ]
 
 default_app_config = "sum_core.pages.apps.PagesConfig"

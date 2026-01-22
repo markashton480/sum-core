@@ -1,31 +1,42 @@
 """
 Name: Standard Page Model
 Path: core/sum_core/pages/standard.py
-Purpose: A reusable general-purpose content page using StreamField with PageStreamBlock.
+Purpose: A reusable general-purpose content page using StreamField with BodyStreamBlock.
 Family: SUM Platform – Page Types
-Dependencies: Wagtail Page model, sum_core.blocks.base.PageStreamBlock
+Dependencies: Wagtail Page model, sum_core.blocks.base.BodyStreamBlock
 """
 
 from __future__ import annotations
 
-from sum_core.blocks.base import PageStreamBlock
-from sum_core.pages.mixins import BreadcrumbMixin, OpenGraphMixin, SeoFieldsMixin
+from django.db import models
+from sum_core.blocks.base import BodyStreamBlock
+from sum_core.pages.mixins import (
+    BreadcrumbMixin,
+    DesktopStickyCTAMixin,
+    OpenGraphMixin,
+    SeoFieldsMixin,
+)
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import StreamField
 from wagtail.models import Page
 
 
-class StandardPage(SeoFieldsMixin, OpenGraphMixin, BreadcrumbMixin, Page):
+class StandardPage(
+    DesktopStickyCTAMixin, SeoFieldsMixin, OpenGraphMixin, BreadcrumbMixin, Page
+):
     """
     General-purpose content page for About, FAQ, Terms, Service Overview, etc.
 
-    Uses the same PageStreamBlock as HomePage, allowing editors to compose pages
-    from the full set of available blocks (hero, trust strip, testimonials,
-    services, content blocks, etc.) without developer involvement.
+    Uses BodyStreamBlock so editors can compose content blocks (no hero/header
+    blocks) while the hero is owned by the page template.
     """
 
+    hero_intro = models.TextField(
+        blank=True,
+        help_text="Optional intro text displayed in the hero area.",
+    )
     body: StreamField = StreamField(
-        PageStreamBlock(),
+        BodyStreamBlock(),
         blank=True,
         null=True,
         use_json_field=True,
@@ -33,13 +44,13 @@ class StandardPage(SeoFieldsMixin, OpenGraphMixin, BreadcrumbMixin, Page):
     )
 
     content_panels = Page.content_panels + [
+        FieldPanel("hero_intro"),
         FieldPanel("body"),
     ]
 
-    promote_panels = (
-        SeoFieldsMixin.seo_panels
-        + OpenGraphMixin.open_graph_panels
-        + Page.promote_panels
+    promote_panels = SeoFieldsMixin.promote_panels + OpenGraphMixin.open_graph_panels
+    settings_panels = (
+        Page.settings_panels + DesktopStickyCTAMixin.desktop_sticky_cta_panels
     )
 
     # NOTE: parent_page_types is intentionally NOT set here.
@@ -59,13 +70,10 @@ class StandardPage(SeoFieldsMixin, OpenGraphMixin, BreadcrumbMixin, Page):
 
     @property
     def has_hero_block(self) -> bool:
-        """Check if the StreamField body contains any hero blocks."""
-        if not self.body:
-            return False
+        """Return True because StandardPage hero is template-owned."""
+        return True
 
-        hero_block_types = ["hero_image", "hero_gradient", "hero"]
-
-        for block in self.body:
-            if block.block_type in hero_block_types:
-                return True
-        return False
+    @property
+    def header_transparent_at_top(self) -> bool:
+        """Return True when the header should be transparent at the top."""
+        return True

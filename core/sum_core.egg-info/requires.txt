@@ -1,16 +1,21 @@
 Django<5.3,>=5.2
 wagtail<7.1,>=7.0
 celery<6.0,>=5.4
+Pillow<11.0,>=10.0
 requests<3.0,>=2.31
 sentry-sdk[celery]<3.0,>=2.0
+python-magic<1.0,>=0.4.27
 
 [dev]
 psycopg[binary]<4,>=3.2
+PyYAML<7.0,>=6.0
+playwright>=1.41.0
+pytest-playwright>=0.4.0
 pytest
 pytest-django
 pytest-cov
 responses>=0.25.0
-mypy
+pyrefly>=0.46.0
 types-requests<3.0,>=2.31
 ruff>=0.1.0
 black

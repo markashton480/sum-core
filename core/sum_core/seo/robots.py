@@ -8,9 +8,13 @@ Dependencies: Wagtail Site, SiteSettings
 
 from __future__ import annotations
 
+import logging
+
 from django.http import HttpRequest, HttpResponse
 from sum_core.branding.models import SiteSettings
 from wagtail.models import Site
+
+logger = logging.getLogger(__name__)
 
 
 def robots_view(request: HttpRequest) -> HttpResponse:
@@ -27,7 +31,8 @@ def robots_view(request: HttpRequest) -> HttpResponse:
     # Get site settings
     try:
         site_settings = SiteSettings.for_site(site) if site else None
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed to retrieve SiteSettings for site %s: %s", site, e)
         site_settings = None
 
     # Get custom robots content if configured

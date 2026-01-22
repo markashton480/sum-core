@@ -21,7 +21,7 @@ class SeoFieldsMixin(models.Model):
     """
     Adds SEO fields + helper methods.
 
-    Fields:
+    Fields (stored on the model but not exposed in the SEO promote panel):
     - meta_title: short title suitable for search snippets (<title>)
     - meta_description: short summary suitable for <meta name="description">
     """
@@ -29,12 +29,18 @@ class SeoFieldsMixin(models.Model):
     meta_title = models.CharField(
         max_length=60,
         blank=True,
-        help_text="Optional. If blank, defaults to “{page title} | {site name}”.",
+        help_text=(
+            "Optional. Overrides the SEO title when set; otherwise uses the SEO title "
+            "or “{page title} | {site name}”."
+        ),
     )
     meta_description = models.TextField(
         max_length=160,
         blank=True,
-        help_text="Optional. Brief summary for search engines (recommended max 160 characters).",
+        help_text=(
+            "Optional. Overrides the search description for SEO snippets "
+            "(recommended max 160 characters)."
+        ),
     )
 
     seo_noindex = models.BooleanField(
@@ -51,14 +57,16 @@ class SeoFieldsMixin(models.Model):
     seo_panels = [
         MultiFieldPanel(
             [
-                FieldPanel("meta_title"),
-                FieldPanel("meta_description"),
+                FieldPanel("slug"),
+                FieldPanel("seo_title"),
+                FieldPanel("search_description"),
                 FieldPanel("seo_noindex"),
                 FieldPanel("seo_nofollow"),
             ],
             heading="SEO",
         )
     ]
+    promote_panels = seo_panels + [FieldPanel("show_in_menus")]
 
     class Meta:
         abstract = True
@@ -203,3 +211,41 @@ class BreadcrumbMixin(models.Model):
                 }
             )
         return crumbs
+
+
+class DesktopStickyCTAMode(models.TextChoices):
+    INHERIT = "inherit", "Inherit site default"
+    DISABLED = "disabled", "Disabled"
+    CUSTOM = "custom", "Custom snippet"
+
+
+class DesktopStickyCTAMixin(models.Model):
+    """Add per-page desktop sticky CTA controls."""
+
+    desktop_sticky_cta_mode = models.CharField(
+        max_length=20,
+        choices=DesktopStickyCTAMode.choices,
+        default=DesktopStickyCTAMode.INHERIT,
+        help_text="Control whether this page uses the site default or a custom CTA.",
+    )
+    desktop_sticky_cta_snippet = models.ForeignKey(
+        "sum_core_navigation.DesktopStickyCTASnippet",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Used when mode is set to Custom snippet.",
+    )
+
+    desktop_sticky_cta_panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel("desktop_sticky_cta_mode"),
+                FieldPanel("desktop_sticky_cta_snippet"),
+            ],
+            heading="Desktop Sticky CTA",
+        )
+    ]
+
+    class Meta:
+        abstract = True

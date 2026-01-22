@@ -143,5 +143,5 @@ def set_sentry_context(request_id: str | None = None, **kwargs) -> None:
 
     except ImportError:
         pass  # Sentry not installed
-    except Exception:
-        pass  # Don't break app if Sentry fails
+    except Exception as e:
+        logger.debug("Failed to set Sentry context: %s", e)

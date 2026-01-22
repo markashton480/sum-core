@@ -1,20 +1,25 @@
 Metadata-Version: 2.4
 Name: sum-core
-Version: 0.5.3
+Version: 0.6.0
 Summary: Shared core package for SUM client websites
 Requires-Python: >=3.12
 Requires-Dist: Django<5.3,>=5.2
 Requires-Dist: wagtail<7.1,>=7.0
 Requires-Dist: celery<6.0,>=5.4
+Requires-Dist: Pillow<11.0,>=10.0
 Requires-Dist: requests<3.0,>=2.31
 Requires-Dist: sentry-sdk[celery]<3.0,>=2.0
+Requires-Dist: python-magic<1.0,>=0.4.27
 Provides-Extra: dev
 Requires-Dist: psycopg[binary]<4,>=3.2; extra == "dev"
+Requires-Dist: PyYAML<7.0,>=6.0; extra == "dev"
+Requires-Dist: playwright>=1.41.0; extra == "dev"
+Requires-Dist: pytest-playwright>=0.4.0; extra == "dev"
 Requires-Dist: pytest; extra == "dev"
 Requires-Dist: pytest-django; extra == "dev"
 Requires-Dist: pytest-cov; extra == "dev"
 Requires-Dist: responses>=0.25.0; extra == "dev"
-Requires-Dist: mypy; extra == "dev"
+Requires-Dist: pyrefly>=0.46.0; extra == "dev"
 Requires-Dist: types-requests<3.0,>=2.31; extra == "dev"
 Requires-Dist: ruff>=0.1.0; extra == "dev"
 Requires-Dist: black; extra == "dev"

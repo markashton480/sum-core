@@ -1,7 +1,7 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% with has_image=self.image %}
-<section class="section service-detail">
+<section class="section service-detail"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
     <div class="container">
         <div class="service-detail__inner{% if has_image and self.layout != 'no_image' %} service-detail__inner--with-image{% endif %}{% if has_image and self.layout == 'image_right' %} service-detail__inner--image-right{% endif %}">
             <div class="service-detail__content">
@@ -27,7 +27,7 @@
 
                 {% if self.cta_text and self.cta_url %}
                     <p class="service-detail__cta">
-                        <a href="{{ self.cta_url }}" class="btn--link">
+                        <a href="{{ self.cta_url.href }}" {{ self.cta_url.attrs_str }} class="btn--link">
                             {{ self.cta_text }}
                         </a>
                     </p>
@@ -36,7 +36,7 @@
 
             {% if has_image and self.layout != "no_image" %}
                 <div class="service-detail__media">
-                    {% image self.image fill-900x600 class="service-detail__image" alt=self.image_alt|default:self.heading|striptags %}
+                    {% image self.image fill-900x600 class="service-detail__image" alt=self.alt_text|default:self.heading|striptags %}
                 </div>
             {% endif %}
         </div>

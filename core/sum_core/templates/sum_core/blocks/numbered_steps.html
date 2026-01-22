@@ -1,0 +1,15 @@
+<div class="content-block-wrapper">
+  <div class="container container--narrow">
+    <ol class="content-block content-block--numbered-steps">
+      {% for step in self.steps %}
+        <li class="content-block__step">
+          <span class="content-block__step-number">{{ forloop.counter }}</span>
+          <div class="content-block__step-body">
+            <strong class="content-block__step-title">{{ step.title }}</strong>
+            <p class="content-block__step-description">{{ step.description }}</p>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>

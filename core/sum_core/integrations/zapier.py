@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import requests
+from sum_core.forms.tasks import _validate_webhook_url
 
 if TYPE_CHECKING:
     from sum_core.leads.models import Lead
@@ -78,16 +79,32 @@ def send_zapier_request(
     timeout: int = ZAPIER_TIMEOUT_SECONDS,
 ) -> ZapierResult:
     """
-    Perform HTTP POST to Zapier webhook URL.
+    Perform HTTP POST to Zapier webhook URL with SSRF protection.
+
+    Validates the URL before making the request to prevent Server-Side Request
+    Forgery (SSRF) attacks. This provides defense-in-depth even if callers
+    forget to validate.
 
     Args:
-        url: The Zapier webhook URL.
+        url: The Zapier webhook URL (must be a public, non-internal address).
         payload: JSON payload to send.
         timeout: Request timeout in seconds.
 
     Returns:
         ZapierResult indicating success/failure with status code and error message.
     """
+    # SSRF Protection: Validate URL before making request
+    is_valid, validation_error = _validate_webhook_url(url)
+    if not is_valid:
+        logger.warning(
+            "Zapier webhook URL validation failed (SSRF protection)",
+            extra={"validation_error": validation_error},
+        )
+        return ZapierResult(
+            success=False,
+            error_message=f"URL validation failed: {validation_error}",
+        )
+
     try:
         response = requests.post(
             url,

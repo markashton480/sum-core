@@ -6,6 +6,7 @@ Family: Used by PageStreamBlock and homepage templates.
 Dependencies: wagtail.blocks, wagtail.images, sum_core.blocks.base.
 """
 
+from django.core.exceptions import ValidationError
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
@@ -14,17 +15,43 @@ class TrustStripItemBlock(blocks.StructBlock):
     """A single logo/badge item for the trust strip."""
 
     logo = ImageChooserBlock(
-        required=True,
+        required=False,
         help_text="Logo image for a certification, association, or partner.",
     )
     alt_text = blocks.CharBlock(
-        required=True,
+        required=False,
         max_length=255,
-        help_text="Descriptive alt text for the logo (accessibility).",
+        help_text="Descriptive alt text for the logo (required for accessibility).",
+    )
+    text_label = blocks.CharBlock(
+        required=False,
+        max_length=120,
+        help_text="Text-only fallback when no logo image is available.",
     )
     url = blocks.URLBlock(
         required=False, help_text="Optional URL to link to (e.g. association website)."
     )
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        logo = cleaned.get("logo")
+        alt_text = (cleaned.get("alt_text") or "").strip()
+        text_label = (cleaned.get("text_label") or "").strip()
+        errors = {}
+
+        if not logo and not text_label:
+            message = "Provide a logo image or a text label."
+            errors["logo"] = ValidationError(message)
+            errors["text_label"] = ValidationError(message)
+
+        if logo and not alt_text:
+            errors["alt_text"] = ValidationError(
+                "Alt text is required when a logo image is provided."
+            )
+
+        if errors:
+            raise blocks.StructBlockValidationError(errors)
+        return cleaned
 
     class Meta:
         icon = "image"

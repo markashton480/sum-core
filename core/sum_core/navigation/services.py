@@ -108,7 +108,11 @@ class EffectiveHeaderSettings:
         header_cta: Header CTA configuration
         mobile_cta_enabled: Mobile sticky CTA bar enabled
         mobile_cta_phone_enabled: Show phone in mobile CTA
+        mobile_cta_label: Optional label for the mobile CTA bar
+        mobile_cta_label_compact: Optional compact label for small screens
         mobile_cta_button: Mobile CTA button configuration
+        desktop_sticky_cta_enabled: Desktop sticky CTA enabled
+        desktop_sticky_cta_snippet: Desktop sticky CTA snippet
         menu_items: The menu items StreamValue from HeaderNavigation
     """
 
@@ -117,8 +121,20 @@ class EffectiveHeaderSettings:
     header_cta: EffectiveCTAConfig = field(default_factory=EffectiveCTAConfig)
     mobile_cta_enabled: bool = True
     mobile_cta_phone_enabled: bool = True
+    mobile_cta_label: str = ""
+    mobile_cta_label_compact: str = ""
     mobile_cta_button: EffectiveCTAConfig = field(default_factory=EffectiveCTAConfig)
+    desktop_sticky_cta_enabled: bool = False
+    desktop_sticky_cta_snippet: Any = None
     menu_items: Any = None
+
+
+@dataclass
+class EffectiveDesktopStickyCTA:
+    """Resolved desktop sticky CTA settings after page overrides."""
+
+    enabled: bool = False
+    snippet: Any = None
 
 
 # =============================================================================
@@ -331,6 +347,45 @@ def get_effective_header_settings(
         header_cta=header_cta,
         mobile_cta_enabled=header_nav.mobile_cta_enabled,
         mobile_cta_phone_enabled=header_nav.mobile_cta_phone_enabled,
+        mobile_cta_label=header_nav.mobile_cta_label or "",
+        mobile_cta_label_compact=header_nav.mobile_cta_label_compact or "",
         mobile_cta_button=mobile_cta_button,
+        desktop_sticky_cta_enabled=header_nav.desktop_sticky_cta_enabled,
+        desktop_sticky_cta_snippet=header_nav.desktop_sticky_cta_snippet,
         menu_items=header_nav.menu_items if header_nav.menu_items else None,
     )
+
+
+def get_effective_desktop_sticky_cta(
+    site_or_request: Site | HttpRequest,
+    page: Any | None = None,
+) -> EffectiveDesktopStickyCTA:
+    """
+    Resolve desktop sticky CTA defaults with per-page overrides.
+
+    Precedence:
+        - Page mode = disabled → disabled
+        - Page mode = custom → page snippet (if set)
+        - Page mode = inherit → site default snippet
+    """
+    site = _resolve_site(site_or_request)
+    header_nav = _get_header_navigation(site)
+
+    enabled = header_nav.desktop_sticky_cta_enabled
+    snippet = header_nav.desktop_sticky_cta_snippet
+
+    specific = getattr(page, "specific", page) if page is not None else None
+    mode = getattr(specific, "desktop_sticky_cta_mode", None)
+    if mode == "disabled":
+        return EffectiveDesktopStickyCTA(enabled=False, snippet=None)
+    if mode == "custom":
+        enabled = True
+        snippet = getattr(specific, "desktop_sticky_cta_snippet", None)
+
+    if not enabled or snippet is None:
+        return EffectiveDesktopStickyCTA(enabled=False, snippet=None)
+
+    if getattr(snippet, "site_id", None) and snippet.site_id != site.id:
+        return EffectiveDesktopStickyCTA(enabled=False, snippet=None)
+
+    return EffectiveDesktopStickyCTA(enabled=True, snippet=snippet)

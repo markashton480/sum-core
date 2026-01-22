@@ -1,23 +1,41 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
 {% extends "theme/base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags chrome_tags %}
 
 {% block content %}
-  {# Page header section #}
-  <section class="section">
-    <div class="container">
-      <header class="section__header">
-        <div class="section__heading">
-          <h1 class="heading-xl">{{ page.title }}</h1>
-        </div>
-      </header>
-    </div>
-  </section>
+  {% hero_context page status=page.hero_status headline=page.hero_heading subheadline=page.hero_subheading gradient_style=page.hero_gradient_style section_id="services-03" as hero %}
+  {% include "sum_core/blocks/hero_gradient.html" with hero=hero %}
 
   {# Intro content area (StreamField) #}
   {% if page.intro %}
     {% for block in page.intro %}
-      {% include_block block %}
+      {% if not block|is_header_block %}
+        {% if block.block_type == "value_proposition" %}
+          {% include_block block with section_id="services-04" %}
+        {% elif block.block_type == "process_timeline" %}
+          {% include_block block with section_id="services-05" %}
+        {% elif block.block_type == "lead_magnet" %}
+          <section class="section lead-magnet">
+            <div class="container">
+              {% include_block block %}
+            </div>
+          </section>
+        {% elif block.block_type == "service_icon_grid" %}
+          {% include_block block with section_id="services-06" %}
+        {% elif block.block_type == "service_detail" %}
+          {% include_block block with section_id="services-07" %}
+        {% elif block.block_type == "service_cards" %}
+          {% include_block block with section_id="services-08" %}
+        {% elif block.block_type == "accreditations_and_warranty" %}
+          {% include_block block with section_id="services-09" %}
+        {% elif block.block_type == "faq" %}
+          {% include_block block with section_id="services-10" %}
+        {% elif block.block_type == "centered_cta_section" %}
+          {% include_block block with section_id="services-11" %}
+        {% else %}
+          {% include_block block %}
+        {% endif %}
+      {% endif %}
     {% endfor %}
   {% endif %}
 

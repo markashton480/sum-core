@@ -5,16 +5,24 @@
     {% if self.eyebrow %}
     <p class="section__eyebrow trust-strip__eyebrow">{{ self.eyebrow }}</p>
     {% endif %}
-    
+
     <div class="trust-strip__logos">
       {% for item in self.items %}
       <div class="trust-strip__logo">
         {% if item.url %}
         <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
-          {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+          {% if item.logo %}
+            {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+          {% else %}
+            <span class="trust-strip__logo-text">{{ item.text_label }}</span>
+          {% endif %}
         </a>
         {% else %}
-          {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+          {% if item.logo %}
+            {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+          {% else %}
+            <span class="trust-strip__logo-text">{{ item.text_label }}</span>
+          {% endif %}
         {% endif %}
       </div>
       {% endfor %}

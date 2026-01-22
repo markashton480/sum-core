@@ -11,6 +11,7 @@ Models:
     - FooterNavigation: Site-level settings for footer links and social media
 """
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from sum_core.blocks import UniversalLinkBlock
 from sum_core.navigation.blocks import FooterLinkSectionBlock, MenuItemBlock
@@ -18,6 +19,8 @@ from wagtail import blocks
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.fields import StreamField
+from wagtail.models import Site
+from wagtail.snippets.models import register_snippet
 
 # =============================================================================
 # Custom StreamBlocks for Constraints
@@ -63,6 +66,74 @@ class SingleLinkStreamBlock(blocks.StreamBlock):
     class Meta:
         min_num = 0
         max_num = 1
+
+
+@register_snippet
+class DesktopStickyCTASnippet(models.Model):
+    """Snippet for desktop sticky CTA button configuration."""
+
+    title = models.CharField(
+        max_length=80,
+        help_text="Internal label for editors.",
+    )
+    label = models.CharField(
+        max_length=80,
+        blank=True,
+        help_text="Optional label shown alongside the button.",
+    )
+    button_text = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Button text (max 50 characters).",
+    )
+    button_link = StreamField(
+        SingleLinkStreamBlock(),
+        blank=True,
+        use_json_field=True,
+        help_text="Link destination for the desktop sticky CTA button.",
+    )
+    site = models.ForeignKey(
+        Site,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="desktop_sticky_ctas",
+        help_text="Optional site restriction for this CTA snippet.",
+    )
+
+    panels = [
+        FieldPanel("title"),
+        FieldPanel("label"),
+        MultiFieldPanel(
+            [
+                FieldPanel("button_text"),
+                FieldPanel("button_link"),
+            ],
+            heading="Button",
+        ),
+        FieldPanel("site"),
+    ]
+
+    class Meta:
+        verbose_name = "Desktop Sticky CTA"
+        verbose_name_plural = "Desktop Sticky CTAs"
+
+    def __str__(self) -> str:
+        return str(self.title)
+
+    def clean(self) -> None:
+        super().clean()
+        has_link = bool(self.button_link)
+        errors = {}
+
+        if self.button_text and not has_link:
+            errors["button_link"] = "Button text requires a link destination."
+
+        if has_link and not self.button_text:
+            errors["button_text"] = "Link destination requires button text."
+
+        if errors:
+            raise ValidationError(errors)
 
 
 # =============================================================================
@@ -142,6 +213,18 @@ class HeaderNavigation(BaseSiteSetting):
         help_text="Show phone button in mobile CTA bar.",
     )
 
+    mobile_cta_label = models.CharField(
+        max_length=80,
+        blank=True,
+        help_text="Optional label text shown in the mobile CTA bar (desktop view).",
+    )
+
+    mobile_cta_label_compact = models.CharField(
+        max_length=40,
+        blank=True,
+        help_text="Optional short label for the mobile CTA bar (small screens).",
+    )
+
     mobile_cta_button_enabled = models.BooleanField(
         default=True,
         help_text="Show action button in mobile CTA bar.",
@@ -159,6 +242,24 @@ class HeaderNavigation(BaseSiteSetting):
         blank=True,
         use_json_field=True,
         help_text="Link destination for mobile CTA button (optional, max 1).",
+    )
+
+    # =========================================================================
+    # Desktop Sticky CTA Fields
+    # =========================================================================
+
+    desktop_sticky_cta_enabled = models.BooleanField(
+        default=False,
+        help_text="Enable the desktop sticky CTA site-wide.",
+    )
+
+    desktop_sticky_cta_snippet = models.ForeignKey(
+        DesktopStickyCTASnippet,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Desktop sticky CTA snippet to use by default.",
     )
 
     # =========================================================================
@@ -185,11 +286,20 @@ class HeaderNavigation(BaseSiteSetting):
             [
                 FieldPanel("mobile_cta_enabled"),
                 FieldPanel("mobile_cta_phone_enabled"),
+                FieldPanel("mobile_cta_label"),
+                FieldPanel("mobile_cta_label_compact"),
                 FieldPanel("mobile_cta_button_enabled"),
                 FieldPanel("mobile_cta_button_text"),
                 FieldPanel("mobile_cta_button_link"),
             ],
             heading="Mobile Sticky CTA",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("desktop_sticky_cta_enabled"),
+                FieldPanel("desktop_sticky_cta_snippet"),
+            ],
+            heading="Desktop Sticky CTA",
         ),
     ]
 

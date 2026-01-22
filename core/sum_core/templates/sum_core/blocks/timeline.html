@@ -35,9 +35,9 @@
 
                             {% if item.image %}
                                 <figure class="mt-2">
-                                    {% image item.image fill-1200x720 class="w-full rounded-lg shadow-sm" alt=item.image_alt %}
-                                    {% if item.image_alt %}
-                                        <figcaption class="text-sm text-sage-label mt-2">{{ item.image_alt }}</figcaption>
+                                    {% image item.image fill-1200x720 class="w-full rounded-lg shadow-sm" alt=item.alt_text %}
+                                    {% if item.alt_text %}
+                                        <figcaption class="text-sm text-sage-label mt-2">{{ item.alt_text }}</figcaption>
                                     {% endif %}
                                 </figure>
                             {% endif %}

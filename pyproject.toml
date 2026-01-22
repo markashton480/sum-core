@@ -3,11 +3,14 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sum-core"
-version = "0.6.0"
+name = "sum-platform"
+version = "0.7.1-dev"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
+
+[tool.sum_platform]
+version = "0.7.1-dev"
 
 [tool.setuptools]
 package-dir = {"" = "core"}
@@ -28,11 +31,12 @@ dev = [
     "black>=23.0.0",
     "isort>=5.12.0",
     "ruff>=0.1.0",
+    "playwright>=1.41.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-playwright>=0.4.0",
     "responses>=0.25.0",
-    "mypy>=1.5.0",
+    "pyrefly>=0.46.0",
     "pre-commit>=3.4.0",
 ]
 
@@ -101,13 +105,10 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "--verbose",
-    "--cov=.",
-    "--cov-report=term-missing",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--ignore=tests/e2e",
+    "-m",
+    "not e2e",
 ]
-pythonpath = ["core", "core/sum_core/test_project", "cli"]
+pythonpath = [".", "core", "core/sum_core/test_project", "cli"]
 DJANGO_SETTINGS_MODULE = "sum_core.test_project.test_project.settings"
 markers = [
     "unit: Unit tests",

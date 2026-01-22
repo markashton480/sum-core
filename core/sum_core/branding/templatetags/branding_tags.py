@@ -242,6 +242,9 @@ def branding_fonts(context: dict[str, Any]) -> SafeString:
     In production, the output is cached per site and invalidated on settings changes.
     """
 
+    if getattr(settings, "VISUAL_TEST", False):
+        return mark_safe("")
+
     site_settings = get_site_settings(context)
     cache_key = f"branding_fonts:{site_settings.site_id}"
 

@@ -1,0 +1,25 @@
+{% load wagtailcore_tags %}
+<section class="content-block-wrapper">
+  <div class="container">
+    <div class="content-block content-block--cta">
+      {% if self.eyebrow %}
+        <span class="page-meta">{{ self.eyebrow }}</span>
+      {% endif %}
+      <div class="content-block__title">
+        {{ self.heading|richtext }}
+      </div>
+      <div class="rich-text">
+        {{ self.body|richtext }}
+      </div>
+      {% if self.buttons %}
+        <div class="content-block__actions">
+          {% for button in self.buttons %}
+            <a href="{{ button.link.href }}" {{ button.link.attrs_str }} class="btn {% if button.style == 'primary' %}btn-primary{% else %}btn-outline{% endif %}">
+              {{ button.label }}
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

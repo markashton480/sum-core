@@ -1,6 +1,6 @@
 {% load wagtailcore_tags %}
 
-<section class="section faq-section" data-faq-block data-allow-multiple="{{ self.allow_multiple_open|yesno:'true,false' }}">
+<section class="section faq-section" data-faq-block data-allow-multiple="{{ self.allow_multiple_open|yesno:'true,false' }}"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
     <div class="container">
         <div class="faq-layout">
             <!-- Left Column: Sticky Header -->
@@ -8,11 +8,11 @@
                 {% if self.eyebrow %}
                     <span class="block-eyebrow">{{ self.eyebrow }}</span>
                 {% endif %}
-                
+
                 <div class="block-heading">
                     {{ self.heading|richtext }}
                 </div>
-                
+
                 {% if self.intro %}
                     <div class="process-intro">
                         {{ self.intro|richtext }}
@@ -45,7 +45,5 @@
 </section>
 
 {% if faq_schema_json %}
-    <script type="application/ld+json">
-        {{ faq_schema_json|safe }}
-    </script>
+{{ faq_schema_json|json_script:"faq-schema" }}
 {% endif %}

@@ -1,0 +1,13 @@
+<div>
+  {% if page.last_updated %}
+    <span>
+      Last Updated:
+      <time datetime="{{ page.last_updated|date:'Y-m-d' }}">
+        {{ page.last_updated|date:"F Y" }}
+      </time>
+    </span>
+  {% endif %}
+  <button type="button" onclick="window.print()">
+    Print Document
+  </button>
+</div>

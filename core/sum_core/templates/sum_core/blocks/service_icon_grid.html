@@ -1,0 +1,19 @@
+{% load wagtailcore_tags %}
+
+<section class="section service-icon-grid"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+    <div class="container">
+        <div class="service-icon-grid__items">
+            {% for item in self.items %}
+                <div class="service-icon-grid__item">
+                    <div class="service-icon-grid__icon">
+                        {{ item.icon_svg|safe }}
+                    </div>
+                    <h3 class="service-icon-grid__title">{{ item.title }}</h3>
+                    <div class="service-icon-grid__description">
+                        {{ item.description|richtext }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

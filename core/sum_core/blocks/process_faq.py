@@ -9,6 +9,7 @@ Dependencies: Wagtail blocks, Django utilities, json.
 import json
 
 from django.utils.html import strip_tags
+from sum_core.blocks.links import UniversalLinkBlock
 from wagtail import blocks
 
 
@@ -52,6 +53,15 @@ class ProcessStepsBlock(blocks.StructBlock):
         help_text="Optional short supporting text.",
     )
     steps = blocks.ListBlock(ProcessStepBlock(), min_num=3, max_num=8)
+    cta_label = blocks.CharBlock(
+        required=False,
+        max_length=80,
+        help_text="Optional call-to-action label shown below the steps.",
+    )
+    cta_link = UniversalLinkBlock(
+        required=False,
+        help_text="Optional call-to-action link.",
+    )
 
     class Meta:
         icon = "list-ol"

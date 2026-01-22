@@ -1,26 +1,58 @@
-{# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
+{# sum_core fallback template for HomePage with template-owned hero. #}
 {% extends "theme/base.html" %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags chrome_tags %}
+
+{% block main_class %}pt-0{% endblock %}
 
 {% block content %}
-  {% if not page.has_hero_block %}
-    <section class="section section--hero">
-      <div class="container">
-        <h1 class="heading-xl">
-          {{ page.title }}
-        </h1>
-        {% if page.intro %}
-          <div class="text-body">
-            {{ page.intro|richtext }}
+  {# Template-owned hero section #}
+  {% if page.hero_image %}
+    <section class="hero hero--image">
+      {% image page.hero_image fill-1920x1080 as hero_img %}
+      <div class="hero__background" style="background-image: url('{{ hero_img.url }}');">
+        <div class="hero__overlay hero__overlay--{{ page.hero_overlay_opacity|default:'medium' }}"></div>
+      </div>
+      <div class="hero__content">
+        {% if page.hero_status %}
+          <p class="hero__status">{{ page.hero_status }}</p>
+        {% endif %}
+        <h1 class="hero__headline">{{ page.hero_headline|richtext }}</h1>
+        {% if page.hero_subheadline %}
+          <p class="hero__subheadline">{{ page.hero_subheadline }}</p>
+        {% endif %}
+        {% if page.hero_ctas.all %}
+          <div class="hero__ctas">
+            {% for cta in page.hero_ctas.all %}
+              <a href="{{ cta.url }}" class="btn btn--{{ cta.style|default:'primary' }}"
+                 {% if cta.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                {{ cta.label }}
+              </a>
+            {% endfor %}
           </div>
         {% endif %}
+      </div>
+      {% if page.hero_floating_card_label and page.hero_floating_card_value %}
+        <div class="hero__floating-card">
+          <span class="hero__floating-card-label">{{ page.hero_floating_card_label }}</span>
+          <span class="hero__floating-card-value">{{ page.hero_floating_card_value }}</span>
+        </div>
+      {% endif %}
+    </section>
+  {% else %}
+    {# Fallback if no hero image set #}
+    <section class="section section--hero">
+      <div class="container">
+        <h1 class="heading-xl">{{ page.title }}</h1>
       </div>
     </section>
   {% endif %}
 
+  {# Body content - filter out any legacy hero blocks #}
   {% if page.body %}
     {% for block in page.body %}
-      {% include_block block %}
+      {% if not block|is_header_block %}
+        {% include_block block %}
+      {% endif %}
     {% endfor %}
   {% endif %}
 {% endblock %}

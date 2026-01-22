@@ -1,8 +1,8 @@
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags chrome_tags %}
 <header class="page-header page-header--center">
   <div class="container">
     {% if page and page.get_breadcrumbs %}
-      {% with breadcrumbs=page.get_breadcrumbs %}
+      {% breadcrumbs_for_display page as breadcrumbs %}
         {% if breadcrumbs %}
           <nav class="breadcrumbs" aria-label="Breadcrumb">
             <ol class="breadcrumbs__list">
@@ -20,7 +20,6 @@
             </ol>
           </nav>
         {% endif %}
-      {% endwith %}
     {% endif %}
     {% if self.eyebrow %}
       <span class="page-meta">{{ self.eyebrow }}</span>

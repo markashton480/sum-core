@@ -12,6 +12,7 @@ A Django/Wagtail foundation for launching lead-focused websites for home improve
 - **Analytics**: GA4/GTM integration with lead tracking dashboard
 - **Email & Webhooks**: Lead notifications via SMTP and Zapier integration
 - **Observability**: Health checks, Sentry integration, and structured logging
+- **Visual Regression Testing**: Automated screenshot comparison to detect visual changes (see [Visual Testing Guide](docs/dev/VISUAL-TESTING.md))
 
 ## Installation
 
@@ -115,9 +116,16 @@ python manage.py runserver
 
 ## Documentation
 
+Start here by role:
+- **Platform overview**: [docs/HANDBOOK.md](docs/HANDBOOK.md)
+- **Developers/contributors**: [docs/dev/DEV-README.md](docs/dev/DEV-README.md)
+- **Operators/DevOps**: [docs/ROUTER.md](docs/ROUTER.md)
+
 - **[Platform Handbook](docs/HANDBOOK.md)**: Complete guide to the platform
 - **[Wiring Guide](docs/dev/WIRING-INVENTORY.md)**: How to integrate SUM Core into your project
 - **[Block Reference](docs/dev/blocks-reference.md)**: Available StreamField blocks
+- **[Testing Guide](docs/dev/TESTING.md)**: Testing strategy and visual regression testing
+- **[Visual Testing Guide](docs/dev/VISUAL-TESTING.md)**: Automated screenshot comparison workflow
 - **Design assets**: `docs/dev/design/` (HTML mockups and references)
 
 ## Environment Configuration

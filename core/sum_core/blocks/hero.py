@@ -6,13 +6,16 @@ Family: Used by PageStreamBlock and page models (HomePage, future core pages)
 Dependencies: Wagtail blocks, sum_core.blocks.base, CSS design system
 """
 
+from sum_core.utils.links import validate_safe_link
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
 
 class HeroCTABlock(blocks.StructBlock):
     label = blocks.CharBlock(required=True, max_length=100)
-    url = blocks.URLBlock(required=True)
+    url = blocks.CharBlock(
+        required=True, max_length=255, validators=[validate_safe_link]
+    )
     style = blocks.ChoiceBlock(
         choices=[
             ("primary", "Primary"),
@@ -48,8 +51,8 @@ class BaseHeroBlock(blocks.StructBlock):
 
 class HeroImageBlock(BaseHeroBlock):
     image = ImageChooserBlock(required=True)
-    image_alt = blocks.CharBlock(
-        required=True, max_length=150, help_text="Alt text for accessibility"
+    alt_text = blocks.CharBlock(
+        required=True, max_length=255, help_text="Alt text for accessibility"
     )
     overlay_opacity = blocks.ChoiceBlock(
         choices=[

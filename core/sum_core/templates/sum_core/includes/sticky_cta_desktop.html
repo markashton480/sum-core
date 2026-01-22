@@ -1,0 +1,20 @@
+{% load navigation_tags chrome_tags %}
+{% desktop_sticky_cta as cta %}
+{% sticky_cta_section_id page as section_id %}
+
+{% if cta.enabled and cta.button_text and cta.button_href != "#" %}
+    <div class="desktop-sticky-cta" id="desktopStickyCta" aria-label="Quick actions"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+        <div class="desktop-sticky-cta__inner">
+            {% if cta.label %}
+                <span class="desktop-sticky-cta__label">{{ cta.label }}</span>
+            {% endif %}
+            <a
+                href="{{ cta.button_href }}"
+                class="desktop-sticky-cta__button btn btn-primary"
+                {% for k, v in cta.button_attrs.items %} {{ k }}="{{ v|escape }}"{% endfor %}
+            >
+                {{ cta.button_text }}
+            </a>
+        </div>
+    </div>
+{% endif %}

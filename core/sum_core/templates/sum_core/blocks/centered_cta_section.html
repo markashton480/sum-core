@@ -1,0 +1,25 @@
+{% load wagtailcore_tags %}
+
+<section class="section centered-cta-section"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+    <div class="container centered-cta-section__inner">
+        {% if self.eyebrow %}
+            <span class="centered-cta-section__eyebrow">{{ self.eyebrow }}</span>
+        {% endif %}
+
+        <div class="centered-cta-section__heading">
+            {{ self.heading|richtext }}
+        </div>
+
+        {% if self.cta_link %}
+            <div class="centered-cta-section__cta">
+                <a href="{{ self.cta_link.href }}" {{ self.cta_link.attrs_str }}>
+                    {% if self.cta_label %}
+                        {{ self.cta_label }}
+                    {% else %}
+                        {{ self.cta_link.text }}
+                    {% endif %}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>

@@ -1,140 +1,162 @@
+/**
+ * Name: Core Main JS
+ * Path: core/sum_core/static/sum_core/js/main.js
+ * Purpose: Minimal JavaScript for reveal animations used by core block templates.
+ * Family: SUM Platform – Core Utilities
+ * Dependencies: None (vanilla JS)
+ *
+ * Note: Theme-specific behavior (header scroll, mobile menu, FAQ accordion, etc.)
+ * is handled by theme JS files (e.g., theme_a/js/main.js).
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Intersection Observer for Scroll Animations
+    // Add 'js' class for CSS progressive enhancement detection
+    document.documentElement.classList.add('js');
+
+    // Intersection Observer for Scroll Animations
+    // Adds 'is-in-view' class to elements when they enter the viewport.
+    // CSS handles the actual animation (see utilities.css).
     const observerOptions = {
         root: null,
         rootMargin: '0px',
         threshold: 0.15
     };
 
-    const observer = new IntersectionObserver((entries, observer) => {
+    const observer = new IntersectionObserver((entries, obs) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('is-in-view');
-                observer.unobserve(entry.target); // Only animate once
+                obs.unobserve(entry.target); // Only animate once
             }
         });
     }, observerOptions);
 
-    // Observe groups and individual reveal elements if they are not children of a group (or just all of them)
-    // The CSS handles nested reveals if the parent has is-in-view
-    const revealElements = document.querySelectorAll('.reveal-group, .reveal-text, .reveal-img-wrapper, .observe-me');
+    // Observe reveal elements used in core block templates
+    const revealElements = document.querySelectorAll('.reveal-group, .reveal-text, .observe-me');
     revealElements.forEach(el => {
-        // Avoid double observation if an element has multiple reveal classes
         observer.observe(el);
     });
 
+    // Counter animations (enhancement only)
+    // Used by stats blocks to animate numbers on scroll
+    const counterElements = document.querySelectorAll('[data-counter-target]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // 2. Before/After Slider Logic
-    const sliderContainer = document.getElementById('compare-slider');
-    if (sliderContainer) {
-        const sliderRange = sliderContainer.querySelector('.slider-range');
-        const foreground = sliderContainer.querySelector('.img-foreground');
-        const handle = sliderContainer.querySelector('.slider-handle');
+    if (counterElements.length > 0 && 'IntersectionObserver' in window) {
+        const counterObserver = new IntersectionObserver((entries, observerInstance) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
 
-        if (sliderRange && foreground && handle) {
-            sliderRange.addEventListener('input', (e) => {
-                const value = e.target.value + "%";
-                foreground.style.width = value;
-                handle.style.left = value;
+                const counter = entry.target;
+                const target = parseFloat(counter.dataset.counterTarget || '');
+
+                if (!Number.isFinite(target)) {
+                    observerInstance.unobserve(counter);
+                    return;
+                }
+
+                const suffix = counter.dataset.counterSuffix || '';
+                const startValue = parseFloat(counter.dataset.counterStart || '0');
+                const duration = parseInt(counter.dataset.counterDuration || '2000', 10);
+
+                if (reduceMotion || duration <= 0) {
+                    counter.textContent = `${target}${suffix}`;
+                    observerInstance.unobserve(counter);
+                    return;
+                }
+
+                const startTime = performance.now();
+
+                const step = (now) => {
+                    const progress = Math.min((now - startTime) / duration, 1);
+                    const currentValue = Math.round(startValue + (target - startValue) * progress);
+                    counter.textContent = `${currentValue}${suffix}`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        counter.textContent = `${target}${suffix}`;
+                    }
+                };
+
+                requestAnimationFrame(step);
+                observerInstance.unobserve(counter);
             });
-        }
+        }, { threshold: 0.5 });
+
+        counterElements.forEach(el => counterObserver.observe(el));
     }
 
+    // Sticky CTA reveal (mobile + desktop)
+    const stickyCtaElements = document.querySelectorAll('.sticky-cta');
+    const desktopStickyCtaElements = document.querySelectorAll('.desktop-sticky-cta');
+    const desktopStickyCtaWireframe = document.getElementById('sticky-cta');
+    const heroSentinel = document.getElementById('hero-sentinel');
 
-    // 3. Header Scroll Effect & Sticky CTA
-    const header = document.querySelector('.header');
-    const stickyCta = document.getElementById('stickyCta');
+    const hasStickyCtas =
+        stickyCtaElements.length > 0 ||
+        desktopStickyCtaElements.length > 0 ||
+        Boolean(desktopStickyCtaWireframe);
 
-    const handleScroll = () => {
-        const scrollY = window.scrollY;
+    if (hasStickyCtas) {
+        const rootStyles = window.getComputedStyle(document.documentElement);
+        const parseThreshold = (value, fallback) => {
+            const parsed = parseInt(value, 10);
+            return Number.isFinite(parsed) ? parsed : fallback;
+        };
+        const mobileThreshold = parseThreshold(
+            rootStyles.getPropertyValue('--sticky-cta-scroll-threshold').trim(),
+            160
+        );
+        const desktopThreshold = parseThreshold(
+            rootStyles.getPropertyValue('--desktop-sticky-cta-scroll-threshold').trim(),
+            mobileThreshold
+        );
 
-        // Header Glassmorphism
-        if (header) {
-            if (scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+        const toggleStickyCtas = () => {
+            const mobileVisible = window.scrollY > mobileThreshold;
+            const desktopVisible = window.scrollY > desktopThreshold;
+
+            stickyCtaElements.forEach(element => {
+                element.classList.toggle('visible', mobileVisible);
+            });
+            desktopStickyCtaElements.forEach(element => {
+                element.classList.toggle('visible', desktopVisible);
+            });
+
+            if (desktopStickyCtaWireframe && !heroSentinel) {
+                desktopStickyCtaWireframe.classList.toggle(
+                    'translate-y-full',
+                    !desktopVisible
+                );
             }
-        }
+        };
 
-        // Sticky CTA Reveal
-        if (stickyCta) {
-            if (scrollY > 400) {
-                stickyCta.classList.add('visible');
-            } else {
-                stickyCta.classList.remove('visible');
-            }
-        }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-
-    // 4. Smooth FAQ Accordion Logic
-    // Handles "Auto -> Pixel -> Auto" height transition for smooth animation
-    const toggleAccordion = (btn) => {
-        const item = btn.closest('.faq-item');
-        const answer = item.querySelector('.faq-answer');
-        const isOpen = item.getAttribute('aria-expanded') === 'true';
-        const section = item.closest('[data-faq-block]');
-        const allowMultiple = section ? section.getAttribute('data-allow-multiple') === 'true' : false;
-
-        // Close other items if not allowing multiple
-        if (!allowMultiple) {
-            section.querySelectorAll('.faq-item').forEach(other => {
-                if (other !== item && other.getAttribute('aria-expanded') === 'true') {
-                    const otherAnswer = other.querySelector('.faq-answer');
-                    // Force height to current pixel value so we can animate from it
-                    const currentHeight = otherAnswer.scrollHeight;
-                    otherAnswer.style.height = `${currentHeight}px`;
-
-                    // Force reflow
-                    otherAnswer.offsetHeight;
-
-                    // Animate to 0
-                    requestAnimationFrame(() => {
-                         otherAnswer.style.height = '0px';
+        if (
+            desktopStickyCtaWireframe &&
+            heroSentinel &&
+            'IntersectionObserver' in window
+        ) {
+            const heroObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        // Hide sticky CTA when hero is visible (intersecting)
+                        // Show sticky CTA when scrolled past hero (not intersecting)
+                        desktopStickyCtaWireframe.classList.toggle(
+                            'translate-y-full',
+                            entry.isIntersecting
+                        );
                     });
-
-                    other.setAttribute('aria-expanded', 'false');
-                }
-            });
+                },
+                { root: null, threshold: 0 }
+            );
+            heroObserver.observe(heroSentinel);
         }
 
-        if (isOpen) {
-            // CLOSE:
-            // 1. Set height to current scrollHeight (because it might be 'auto')
-            answer.style.height = `${answer.scrollHeight}px`;
-            // 2. Force reflow so browser registers the pixel height
-            answer.offsetHeight;
-            // 3. Animate to 0
-            requestAnimationFrame(() => {
-                answer.style.height = '0px';
-            });
-            item.setAttribute('aria-expanded', 'false');
-        } else {
-            // OPEN:
-            item.setAttribute('aria-expanded', 'true');
-            // 1. Set height to scrollHeight to start animation
-            const targetHeight = answer.scrollHeight;
-            answer.style.height = `${targetHeight}px`;
-
-            // 2. After transition, set to 'auto' so it adapts to window resizing
-            const setAuto = () => {
-                if (item.getAttribute('aria-expanded') === 'true') {
-                    answer.style.height = 'auto';
-                }
-                answer.removeEventListener('transitionend', setAuto);
-            };
-            answer.addEventListener('transitionend', setAuto);
-        }
-    };
-
-    // Attach listeners
-    document.querySelectorAll('.faq-toggle').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-             e.preventDefault(); // Prevent standard button behavior if any
-             toggleAccordion(btn);
-        });
-    });
+        // Always attach scroll listener and call initial toggle
+        toggleStickyCtas();
+        window.addEventListener('scroll', toggleStickyCtas, { passive: true });
+    }
 });

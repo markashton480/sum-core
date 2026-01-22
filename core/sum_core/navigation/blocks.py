@@ -19,6 +19,7 @@ Constraints:
 # Import UniversalLinkBlock from sum_core.blocks (shared primitive)
 from sum_core.blocks import UniversalLinkBlock
 from wagtail import blocks
+from wagtail.images.blocks import ImageChooserBlock
 
 # =============================================================================
 # SubSubmenuItemBlock
@@ -102,6 +103,11 @@ class MenuItemBlock(blocks.StructBlock):
         label: Display text for the menu item (max 50 chars)
         link: Universal link destination (page, URL, email, phone, or anchor)
         children: Optional list of submenu items (max 8)
+        featured_image: Optional featured image for mega menu (desktop only)
+        featured_label: Label above the featured title (e.g., "Featured")
+        featured_title: Title for the featured item
+        featured_link_text: CTA text for the featured item
+        featured_link: Link destination for the featured item
 
     Constraints:
         - Maximum 8 submenu items per menu item
@@ -123,6 +129,35 @@ class MenuItemBlock(blocks.StructBlock):
         required=False,
         max_num=8,
         help_text="Submenu items (optional, max 8 items).",
+    )
+
+    # Featured image section for mega menu (displayed in right column on desktop)
+    featured_image = ImageChooserBlock(
+        required=False,
+        help_text="Featured image for mega menu (displayed on desktop only).",
+    )
+
+    featured_label = blocks.CharBlock(
+        max_length=50,
+        required=False,
+        help_text="Label above the featured title (e.g., 'Featured').",
+    )
+
+    featured_title = blocks.CharBlock(
+        max_length=100,
+        required=False,
+        help_text="Title for the featured item.",
+    )
+
+    featured_link_text = blocks.CharBlock(
+        max_length=50,
+        required=False,
+        help_text="CTA text for the featured item (e.g., 'Explore Case Study').",
+    )
+
+    featured_link = UniversalLinkBlock(
+        required=False,
+        help_text="Link destination for the featured item.",
     )
 
     class Meta:

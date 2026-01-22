@@ -120,8 +120,8 @@ def _get_sites_for_page(page: Page) -> list[Site]:
         if root_page:
             # Find sites that have this root page
             return list(Site.objects.filter(root_page=root_page))
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Failed to get sites for page %s: %s", page, e)
 
     # Fallback: check all sites
     return []

@@ -1,39 +1,17 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
 {% extends "theme/base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags chrome_tags %}
 
 {% block content %}
-  {# Only show page header if no hero block present #}
-  {% if not page.has_hero_block %}
-    <section class="section">
-      <div class="container">
-        <header class="section__header">
-          <div class="section__heading">
-            <h1 class="heading-xl">{{ page.title }}</h1>
-          </div>
-
-          {# Short description below title #}
-          {% if page.short_description %}
-            <div class="section__intro">
-              <p class="text-lg">{{ page.short_description }}</p>
-            </div>
-          {% endif %}
-        </header>
-
-        {# Featured image if present and no hero block #}
-        {% if page.featured_image %}
-          <div class="service-featured-image">
-            {% image page.featured_image width-1200 %}
-          </div>
-        {% endif %}
-      </div>
-    </section>
-  {% endif %}
+  {% hero_context page headline=page.title subheadline=page.short_description as hero %}
+  {% include "sum_core/blocks/hero_gradient.html" with hero=hero %}
 
   {# Body StreamField content #}
   {% if page.body %}
     {% for block in page.body %}
-      {% include_block block %}
+      {% if not block|is_header_block %}
+        {% include_block block %}
+      {% endif %}
     {% endfor %}
   {% endif %}
 {% endblock %}

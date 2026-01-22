@@ -1,0 +1,60 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section value-proposition"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+    <div class="container">
+        <div class="value-proposition__grid">
+            <div class="value-proposition__content">
+                <div class="value-proposition__heading">{{ self.heading|richtext }}</div>
+                <div class="value-proposition__body">{{ self.body|richtext }}</div>
+
+                {% if self.primary_cta or self.secondary_cta %}
+                    <div class="value-proposition__actions">
+                        {% if self.primary_cta %}
+                            {% with link=self.primary_cta.link %}
+                                <a href="{{ link.href }}" {{ link.attrs_str }} class="btn btn--primary">
+                                    {{ self.primary_cta.label }}
+                                </a>
+                            {% endwith %}
+                        {% endif %}
+                        {% if self.secondary_cta %}
+                            {% with link=self.secondary_cta.link %}
+                                <a href="{{ link.href }}" {{ link.attrs_str }} class="btn btn--secondary">
+                                    {{ self.secondary_cta.label }}
+                                </a>
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if self.phone_label and self.phone_link %}
+                    <div class="value-proposition__phone">
+                        <span class="value-proposition__phone-label">{{ self.phone_label }}</span>
+                        <a href="{{ self.phone_link.href }}" {{ self.phone_link.attrs_str }}>
+                            {{ self.phone_link.text }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if self.stats %}
+                    <div class="value-proposition__stats">
+                        {% for stat in self.stats %}
+                            <div class="value-proposition__stat">
+                                <span class="value-proposition__stat-value">{{ stat.value }}</span>
+                                <span class="value-proposition__stat-label">{{ stat.label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if self.image %}
+                <div class="value-proposition__media">
+                    {% image self.image fill-900x1200 class="value-proposition__image" alt=self.alt_text|default:"" %}
+                    {% if self.image_quote %}
+                        <div class="value-proposition__quote">{{ self.image_quote }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>

@@ -6,13 +6,17 @@ Family: Used by StreamFields in pages.
 """
 
 from django.utils.text import slugify
+from sum_core.blocks.links import CtaLinkBlock
+from sum_core.utils.links import validate_safe_link
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
 
 class ButtonBlock(blocks.StructBlock):
     label = blocks.CharBlock(required=True)
-    link = blocks.URLBlock(required=False)
+    link = blocks.CharBlock(
+        required=False, max_length=255, validators=[validate_safe_link]
+    )
     page = blocks.PageChooserBlock(required=False)
     style = blocks.ChoiceBlock(
         choices=[
@@ -25,6 +29,7 @@ class ButtonBlock(blocks.StructBlock):
     class Meta:
         template = "sum_core/blocks/button.html"
         icon = "placeholder"
+        label = "Button"
 
 
 class HeroBlock(blocks.StructBlock):
@@ -55,6 +60,7 @@ class TrustItemBlock(blocks.StructBlock):
 
     class Meta:
         icon = "tick"
+        label = "Trust Item"
 
 
 class TrustStripBlock(blocks.StructBlock):
@@ -67,12 +73,13 @@ class TrustStripBlock(blocks.StructBlock):
 
 
 class FeatureBlock(blocks.StructBlock):
-    icon = blocks.CharBlock(required=True, help_text="Emoji or text icon")
+    icon = blocks.CharBlock(required=False, help_text="Emoji or text icon")
     title = blocks.CharBlock(required=True)
     description = blocks.TextBlock(required=True)
 
     class Meta:
         icon = "tick-inverse"
+        label = "Feature"
 
 
 class FeaturesListBlock(blocks.StructBlock):
@@ -103,7 +110,9 @@ class ComparisonBlock(blocks.StructBlock):
 
 class PortfolioItemBlock(blocks.StructBlock):
     image = ImageChooserBlock(required=True)
-    alt_text = blocks.CharBlock(required=True, help_text="Alt text for accessibility.")
+    alt_text = blocks.CharBlock(
+        required=True, max_length=255, help_text="Alt text for accessibility."
+    )
     title = blocks.CharBlock(required=True)
     category = blocks.CharBlock(
         required=False,
@@ -111,12 +120,17 @@ class PortfolioItemBlock(blocks.StructBlock):
         help_text="Optional filter label, e.g. Residential, Commercial.",
     )
     location = blocks.CharBlock(required=False, help_text="e.g. Kensington, London")
-    services = blocks.CharBlock(required=False, help_text="e.g. Solar • Battery")
+    services = blocks.CharBlock(
+        required=False, help_text="e.g. Design • Build • Install"
+    )
     constraint = blocks.CharBlock(max_length=100, required=False)
     material = blocks.CharBlock(max_length=100, required=False)
     outcome = blocks.CharBlock(max_length=100, required=False)
-    link_url = blocks.URLBlock(
-        required=False, help_text="Link to full project case study"
+    link_url = blocks.CharBlock(
+        required=False,
+        max_length=255,
+        validators=[validate_safe_link],
+        help_text="Link to full project case study",
     )
 
     class Meta:
@@ -132,7 +146,12 @@ class PortfolioBlock(blocks.StructBlock):
         help_text="Main heading. Use italics for accent styling.",
     )
     intro = blocks.TextBlock(required=False, help_text="Short lead text")
-    view_all_link = blocks.URLBlock(required=False, label="View All Link")
+    view_all_link = blocks.CharBlock(
+        required=False,
+        max_length=255,
+        validators=[validate_safe_link],
+        label="View All Link",
+    )
     view_all_label = blocks.CharBlock(
         required=False, max_length=50, label="View All Label"
     )
@@ -181,10 +200,16 @@ class TeamMemberItemBlock(blocks.StructBlock):
     photo = ImageChooserBlock(
         required=True, help_text="Team member headshot or portrait."
     )
-    alt_text = blocks.CharBlock(required=True, help_text="Alt text for accessibility.")
+    alt_text = blocks.CharBlock(
+        required=True, max_length=255, help_text="Alt text for accessibility."
+    )
     name = blocks.CharBlock(required=True, help_text="Full name.")
     role = blocks.CharBlock(required=False, help_text="Role or title.")
     bio = blocks.TextBlock(required=False, help_text="Short bio (1-2 sentences).")
+    overlay_quote = blocks.CharBlock(
+        required=False,
+        help_text="Optional short overlay quote displayed on the photo.",
+    )
 
     class Meta:
         icon = "user"
@@ -199,6 +224,16 @@ class TeamMemberBlock(blocks.StructBlock):
         required=False,
         features=["bold", "italic"],
         help_text="Section heading. Use italics for accent styling.",
+    )
+    badge_label = blocks.CharBlock(
+        required=False,
+        max_length=100,
+        help_text="Optional badge label, e.g. Combined Experience.",
+    )
+    badge_value = blocks.CharBlock(
+        required=False,
+        max_length=100,
+        help_text="Optional badge value, e.g. 142 Years.",
     )
     members = blocks.ListBlock(TeamMemberItemBlock(), min_num=1, max_num=12)
 
@@ -220,9 +255,10 @@ class TimelineItemBlock(blocks.StructBlock):
         help_text="Supporting copy for the milestone",
     )
     image = ImageChooserBlock(required=False, help_text="Optional supporting image")
-    image_alt = blocks.CharBlock(
-        required=False,
-        help_text="Alt text for the image. Provide when an image is set.",
+    alt_text = blocks.CharBlock(
+        required=True,
+        max_length=255,
+        help_text="Alt text for the image (required for accessibility).",
     )
 
     class Meta:
@@ -289,6 +325,74 @@ class ManifestoBlock(blocks.StructBlock):
         label = "Manifesto"
 
 
+class FounderLetterBlock(blocks.StructBlock):
+    """
+    Personal founder letter section with portrait, quote heading, and signature.
+    """
+
+    image = ImageChooserBlock(required=True, help_text="Founder portrait.")
+    alt_text = blocks.CharBlock(
+        required=True, max_length=255, help_text="Alt text for the image."
+    )
+    image_name = blocks.CharBlock(required=True, help_text="Name shown on image badge.")
+    image_role = blocks.CharBlock(required=True, help_text="Role shown on image badge.")
+    quote_heading = blocks.RichTextBlock(
+        required=True,
+        features=["italic", "bold"],
+        help_text="Large quote-style heading.",
+    )
+    body = blocks.RichTextBlock(
+        required=True,
+        features=["bold", "italic", "link", "ol", "ul"],
+        help_text="Founder letter body content.",
+    )
+    signature_name = blocks.CharBlock(
+        required=False, help_text="Signature name shown beneath the letter."
+    )
+    signature_label = blocks.CharBlock(
+        required=False, help_text="Optional secondary label under the signature."
+    )
+
+    class Meta:
+        template = "sum_core/blocks/founder_letter.html"
+        icon = "user"
+        label = "Founder Letter"
+
+
+class InPlainEnglishBlock(blocks.StructBlock):
+    """
+    Callout box for values, principles, or plain-language summaries.
+    """
+
+    label = blocks.CharBlock(
+        required=False,
+        max_length=100,
+        default="In Plain English",
+        help_text="Optional callout label.",
+    )
+    heading = blocks.CharBlock(required=False, help_text="Optional heading.")
+    body = blocks.RichTextBlock(
+        required=True,
+        features=["bold", "italic", "link"],
+        help_text="Callout body copy.",
+    )
+    icon = blocks.ChoiceBlock(
+        choices=[
+            ("info", "Info"),
+            ("quote", "Quote"),
+            ("none", "None"),
+        ],
+        default="info",
+        required=False,
+        help_text="Select the callout icon style.",
+    )
+
+    class Meta:
+        template = "sum_core/blocks/in_plain_english.html"
+        icon = "doc-full"
+        label = "In Plain English"
+
+
 # --- M2-008 New Content Blocks ---
 
 
@@ -338,10 +442,120 @@ class RichTextContentBlock(blocks.StructBlock):
         template = "sum_core/blocks/content_richtext.html"
 
 
+class LeadParagraphBlock(blocks.StructBlock):
+    """
+    Lead paragraph for editorial content.
+    """
+
+    body = blocks.RichTextBlock(
+        features=["bold", "italic", "link"],
+        required=True,
+        help_text="Lead paragraph copy. Use italics to highlight opening phrases.",
+    )
+
+    class Meta:
+        icon = "pilcrow"
+        label = "Lead Paragraph"
+        template = "sum_core/blocks/lead_paragraph.html"
+
+
+class ArticleSectionBlock(blocks.StructBlock):
+    """
+    Editorial section with optional eyebrow/heading and body copy.
+    """
+
+    anchor = blocks.RegexBlock(
+        regex=r"^[a-z][a-z0-9-]*$",
+        required=False,
+        help_text=(
+            "Optional anchor ID used for in-page links (lowercase letters, "
+            "numbers, and hyphens only)."
+        ),
+    )
+
+    align = blocks.ChoiceBlock(
+        choices=[
+            ("left", "Left"),
+            ("center", "Center"),
+        ],
+        default="left",
+        required=False,
+    )
+
+    eyebrow = blocks.CharBlock(required=False, help_text="Optional eyebrow label.")
+
+    heading = blocks.RichTextBlock(
+        required=False,
+        features=["italic", "bold"],
+        help_text="Section heading. Use italics for accent styling.",
+    )
+
+    subheading = blocks.TextBlock(
+        required=False,
+        help_text="Optional subheading line under the main heading.",
+    )
+
+    subheading_secondary = blocks.TextBlock(
+        required=False,
+        help_text="Optional second subheading line.",
+    )
+
+    drop_cap = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Style the first paragraph with a drop cap.",
+    )
+
+    body = blocks.RichTextBlock(
+        features=["h3", "h4", "bold", "italic", "link", "ol", "ul", "hr"],
+        required=True,
+    )
+
+    class Meta:
+        icon = "doc-full-inverse"
+        label = "Article Section"
+        template = "sum_core/blocks/article_section.html"
+
+
+class NumberedStepItemBlock(blocks.StructBlock):
+    """
+    Single step for numbered protocol lists.
+    """
+
+    title = blocks.CharBlock(required=True)
+    description = blocks.TextBlock(required=True)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Step"
+
+
+class NumberedStepsBlock(blocks.StructBlock):
+    """
+    Numbered list of steps for editorial content.
+    """
+
+    steps = blocks.ListBlock(NumberedStepItemBlock(), min_num=1, max_num=8)
+
+    class Meta:
+        icon = "list-ol"
+        label = "Numbered Steps"
+        template = "sum_core/blocks/numbered_steps.html"
+
+
 class EditorialHeaderBlock(blocks.StructBlock):
     """
     A text-heavy header for editorial pages/blog posts.
     """
+
+    anchor = blocks.RegexBlock(
+        regex=r"^[a-z][a-z0-9-]*$",
+        required=False,
+        help_text=(
+            "Optional anchor ID used for in-page links (lowercase letters, "
+            "numbers, and hyphens only)."
+        ),
+    )
 
     align = blocks.ChoiceBlock(
         choices=[
@@ -430,7 +644,7 @@ class ContentButtonBlock(blocks.StructBlock):
     """
 
     label = blocks.CharBlock()
-    url = blocks.URLBlock()
+    url = blocks.CharBlock(max_length=255, validators=[validate_safe_link])
     style = blocks.ChoiceBlock(
         choices=[
             ("primary", "Primary"),
@@ -464,6 +678,30 @@ class ButtonGroupBlock(blocks.StructBlock):
         icon = "snippet"
         label = "Button Group"
         template = "sum_core/blocks/content_buttons.html"
+
+
+class CallToActionBlock(blocks.StructBlock):
+    """
+    Reusable editorial CTA with heading, body, and buttons.
+    """
+
+    eyebrow = blocks.CharBlock(required=False, help_text="Optional eyebrow label.")
+    heading = blocks.RichTextBlock(
+        required=True,
+        features=["italic", "bold"],
+        help_text="CTA heading. Use italics for accent styling.",
+    )
+    body = blocks.RichTextBlock(
+        required=True,
+        features=["bold", "italic", "link"],
+        help_text="Supporting CTA copy.",
+    )
+    buttons = blocks.ListBlock(CtaLinkBlock(), min_num=1, max_num=2)
+
+    class Meta:
+        icon = "pick"
+        label = "Call To Action"
+        template = "sum_core/blocks/call_to_action.html"
 
 
 class SpacerBlock(blocks.StructBlock):
@@ -540,9 +778,38 @@ class TableOfContentsBlock(blocks.StructBlock):
         template = "sum_core/blocks/table_of_contents.html"
 
 
+class LegalSectionRichTextBlock(blocks.StructBlock):
+    """
+    Rich text content inside a legal section.
+    """
+
+    body = blocks.RichTextBlock(
+        required=True,
+        features=["h3", "h4", "bold", "italic", "link", "ol", "ul"],
+        help_text="Section content. Use H3/H4 for nested headings; avoid H1/H2.",
+    )
+
+    class Meta:
+        icon = "doc-full"
+        label = "Rich Text"
+
+
+class LegalSectionContentBlock(blocks.StreamBlock):
+    """
+    Structured content items inside a legal section.
+    """
+
+    rich_text = LegalSectionRichTextBlock()
+    in_plain_english = InPlainEnglishBlock()
+
+    class Meta:
+        icon = "doc-full"
+        label = "Legal Section Content"
+
+
 class LegalSectionBlock(blocks.StructBlock):
     """
-    Anchored legal section with heading + rich text body.
+    Anchored legal section with heading and structured content.
     """
 
     anchor = blocks.RegexBlock(
@@ -554,10 +821,9 @@ class LegalSectionBlock(blocks.StructBlock):
         help_text="Anchor ID used for in-page links (lowercase letters, numbers, hyphens only).",
     )
     heading = blocks.CharBlock(required=True, help_text="Section heading.")
-    body = blocks.RichTextBlock(
+    content = LegalSectionContentBlock(
         required=True,
-        features=["h3", "h4", "bold", "italic", "link", "ol", "ul"],
-        help_text="Section content. Use H3/H4 for nested headings; avoid H1/H2.",
+        help_text="Add rich text and callouts for this section.",
     )
 
     class Meta:

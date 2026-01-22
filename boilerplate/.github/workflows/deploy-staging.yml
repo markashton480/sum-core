@@ -1,0 +1,115 @@
+# Name: deploy-staging.yml
+# Path: boilerplate/.github/workflows/deploy-staging.yml
+# Purpose: Deploy to staging on push to main.
+#
+# Required secrets:
+# - STAGING_SSH_KEY: SSH private key for deploy user
+# - STAGING_HOST: staging host/IP
+# - STAGING_USER: SSH username
+# - STAGING_PATH: site root (/srv/sum/<site-slug>)
+# - STAGING_URL: staging URL (reserved for health checks in BPCI-04)
+
+name: Deploy Staging
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      STAGING_HOST: ${{ secrets.STAGING_HOST }}
+      STAGING_USER: ${{ secrets.STAGING_USER }}
+      STAGING_PATH: ${{ secrets.STAGING_PATH }}
+      STAGING_URL: ${{ secrets.STAGING_URL }}
+    steps:
+      - name: Validate required secrets
+        run: |
+          set -euo pipefail
+          for name in STAGING_HOST STAGING_USER STAGING_PATH STAGING_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not set"
+              exit 1
+            fi
+          done
+
+      - name: Validate SSH key secret
+        if: ${{ secrets.STAGING_SSH_KEY == '' }}
+        run: |
+          echo "::error::STAGING_SSH_KEY is not set"
+          exit 1
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+      - name: Add staging host to known_hosts
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H "$STAGING_HOST" > ~/.ssh/known_hosts
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "::error::ssh-keyscan produced no host keys for $STAGING_HOST"
+            exit 1
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Derive site slug
+        id: slug
+        run: |
+          set -euo pipefail
+          SITE_SLUG=$(basename "$STAGING_PATH")
+          echo "site_slug=$SITE_SLUG" >> "$GITHUB_OUTPUT"
+          echo "Derived site slug: $SITE_SLUG"
+
+      # Rollback:
+      # 1) SSH to the server.
+      # 2) /srv/sum/bin/deploy.sh --site-slug <slug> --ref <previous-tag>
+      - name: Deploy to staging
+        env:
+          SITE_SLUG: ${{ steps.slug.outputs.site_slug }}
+        run: |
+          set -euo pipefail
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "${STAGING_USER}@${STAGING_HOST}" \
+            "/srv/sum/bin/deploy.sh --site-slug \"$SITE_SLUG\" --ref \"$GITHUB_SHA\""
+
+      - name: Health check (blocking)
+        run: |
+          set -euo pipefail
+          BASE_URL="${STAGING_URL%/}"
+          for attempt in 1 2 3; do
+            echo "Health check attempt $attempt..."
+            if curl --fail --show-error --silent --location --max-redirs 0 --max-time 60 \
+              "$BASE_URL/health/" >/dev/null; then
+              echo "Health check OK"
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Health check failed, retrying in 10s..."
+              sleep 10
+            fi
+          done
+          echo "::error::Health check failed after 3 attempts"
+          exit 1
+
+      - name: Sitemap check (non-blocking)
+        run: |
+          set -euo pipefail
+          BASE_URL="${STAGING_URL%/}"
+          if curl --fail --show-error --silent --location --max-redirs 0 --max-time 60 \
+            "$BASE_URL/sitemap.xml" >/dev/null; then
+            echo "Sitemap check OK"
+          else
+            echo "::warning::Sitemap check failed (non-blocking)"
+          fi

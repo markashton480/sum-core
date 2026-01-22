@@ -191,17 +191,9 @@ class Command(BaseCommand):
             home.body = self._build_starter_home_stream(
                 images=images, contact_page=contact
             )
-            home.intro = (
-                "<p>This is a seeded starter homepage for SUM Platform. "
-                "Replace the placeholder copy with your client messaging.</p>"
-            )
         else:
             home.title = "Theme Showroom"
             home.body = self._build_home_stream(images=images, contact_page=contact)
-            home.intro = (
-                "<p>This is a seeded theme showroom for SUM Platform. "
-                "Swap themes with <code>sum init ... --theme</code> and re-run this command.</p>"
-            )
         home.save_revision().publish()
 
         if showroom is not None:
@@ -438,9 +430,7 @@ class Command(BaseCommand):
         # Strict retrieval by slug - do not grab unrelated homepages
         home = home_page_model.objects.filter(slug=slugs.home).first()
         if not home:
-            home = home_page_model(
-                title="Theme Showroom", slug=slugs.home, intro="", body=None
-            )
+            home = home_page_model(title="Theme Showroom", slug=slugs.home, body=None)
             root.add_child(instance=home)
             home.save_revision().publish()
 
@@ -1151,13 +1141,12 @@ class Command(BaseCommand):
         return stream_block.to_python(
             [
                 {
-                    "type": "hero_gradient",
+                    "type": "content",
                     "value": {
-                        "headline": "<p>Our <em>Services</em></p>",
-                        "subheadline": "Professional trades for every requirement.",
-                        "ctas": [],
-                        "status": "Available",
-                        "gradient_style": "secondary",
+                        "body": (
+                            "<h2>Our <em>Services</em></h2>"
+                            "<p>Professional trades for every requirement.</p>"
+                        ),
                     },
                 },
             ]
@@ -1345,7 +1334,9 @@ class Command(BaseCommand):
                     "value": {
                         "anchor": section["anchor"],
                         "heading": section["heading"],
-                        "body": section["body"],
+                        "content": [
+                            {"type": "rich_text", "value": {"body": section["body"]}},
+                        ],
                     },
                 }
             )
@@ -1360,7 +1351,7 @@ class Command(BaseCommand):
                 {
                     "anchor": section["anchor"],
                     "heading": section["heading"],
-                    "body": section["body"],
+                    "content": [("rich_text", {"body": section["body"]})],
                 },
             )
             for section in sections
@@ -1386,7 +1377,7 @@ class Command(BaseCommand):
         """
         if hasattr(page, "sections"):
             page.sections = self._build_legal_sections(sections)
-            page.search_description = intro
+            page.hero_intro = intro
         else:
             page.body = self._build_legal_stream(
                 heading=heading,

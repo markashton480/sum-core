@@ -1,26 +1,47 @@
 {% load wagtailcore_tags %}
-<section class="section hero hero--gradient hero--gradient-{{ self.gradient_style }}">
+{% with hero=hero|default:self %}
+<section
+    class="section hero hero--gradient hero--gradient-{{ hero.gradient_style }}"
+    {% if hero.section_id %}data-section-id="{{ hero.section_id }}"{% endif %}
+>
     <div class="container hero-grid">
         <div class="hero-content reveal-group">
-            {% if self.status %}
+            {% if hero.breadcrumbs %}
+                <nav aria-label="Breadcrumb" class="hero-breadcrumbs reveal-text">
+                    <ol>
+                        {% for crumb in hero.breadcrumbs %}
+                            <li>
+                                {% if crumb.is_current %}
+                                    <span aria-current="page">{{ crumb.title }}</span>
+                                {% elif crumb.url %}
+                                    <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+                                {% else %}
+                                    <span>{{ crumb.title }}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </nav>
+            {% endif %}
+            {% if hero.status %}
                 <div class="hero-status reveal-text">
-                    <span class="status-dot"></span> {{ self.status }}
+                    <span class="status-dot"></span> {{ hero.status }}
                 </div>
             {% endif %}
-            
+
             <div class="reveal-text delay-100 hero-headline-wrapper">
-                {{ self.headline|richtext }}
+                {{ hero.headline|richtext }}
             </div>
-            
-            {% if self.subheadline %}
+
+            {% if hero.subheadline %}
                 <div class="hero-desc reveal-text delay-200">
-                    {{ self.subheadline }}
+                    {{ hero.subheadline }}
                 </div>
             {% endif %}
-            
-            {% if self.ctas %}
+
+            {% if hero.ctas %}
                 <div class="hero-actions reveal-text delay-300">
-                    {% for cta in self.ctas %}
+                    {% for cta in hero.ctas %}
                         <a href="{{ cta.url }}" class="btn {% if cta.style == 'primary' %}btn-primary{% elif cta.style == 'secondary' %}btn-outline{% else %}btn-outline{% endif %}"
                            {% if cta.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
                             {{ cta.label }}
@@ -29,5 +50,9 @@
                 </div>
             {% endif %}
         </div>
+        {% if hero.extra_template %}
+            {% include hero.extra_template %}
+        {% endif %}
     </div>
 </section>
+{% endwith %}

@@ -6,6 +6,7 @@ Family: SUM Platform – StreamField Blocks
 Dependencies: Wagtail core blocks, PageStreamBlock, templates in sum_core/blocks
 """
 
+from sum_core.blocks.links import UniversalLinkBlock
 from wagtail.blocks import (
     BooleanBlock,
     CharBlock,
@@ -24,6 +25,20 @@ class ContactFormBlock(StructBlock):
     )
     heading = RichTextBlock(required=True, help_text="Section heading")
     intro = RichTextBlock(required=False, help_text="Optional introductory copy")
+    phone_label = CharBlock(
+        required=False,
+        max_length=100,
+        help_text="Optional phone CTA label (e.g. 'Prefer to call?').",
+    )
+    phone_link = UniversalLinkBlock(
+        required=False,
+        help_text="Optional phone link (use link type 'phone').",
+    )
+    form_definition = SnippetChooserBlock(
+        "sum_core_forms.FormDefinition",
+        required=False,
+        help_text="Optional dynamic form definition to render.",
+    )
     success_message = TextBlock(
         required=False, default="Thanks, we'll be in touch shortly."
     )
@@ -94,3 +109,51 @@ class DynamicFormBlock(StructBlock):
         icon = "form"
         template = "sum_core/blocks/dynamic_form_block.html"
         label = "Dynamic Form"
+
+
+class LeadMagnetBlock(StructBlock):
+    eyebrow = CharBlock(
+        required=False,
+        max_length=100,
+        help_text="Small label above the heading (e.g. 'Free Resource').",
+    )
+    heading = RichTextBlock(
+        required=True,
+        features=["bold", "italic"],
+        help_text="Lead magnet heading.",
+    )
+    description = RichTextBlock(
+        required=False,
+        features=["bold", "italic", "link"],
+        help_text="Optional supporting copy.",
+    )
+    form_definition = SnippetChooserBlock(
+        "sum_core_forms.FormDefinition",
+        required=False,
+        help_text="Optional dynamic form definition. If empty, render email-only.",
+    )
+    email_label = CharBlock(
+        required=False,
+        max_length=100,
+        help_text="Optional email field label or placeholder.",
+    )
+    submit_label = CharBlock(
+        required=False,
+        max_length=80,
+        help_text="Optional submit button label.",
+    )
+    success_message = TextBlock(
+        required=False,
+        help_text="Optional success message after submission.",
+    )
+    variant = ChoiceBlock(
+        choices=[("inline", "Inline"), ("sidebar", "Sidebar")],
+        default="inline",
+        required=False,
+        help_text="Layout variant for the lead magnet.",
+    )
+
+    class Meta:
+        icon = "form"
+        template = "sum_core/blocks/lead_magnet.html"
+        label = "Lead Magnet"

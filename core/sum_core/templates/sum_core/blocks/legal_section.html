@@ -3,7 +3,15 @@
   <div class="container container--narrow">
     <h2 class="legal-section__heading">{{ self.heading }}</h2>
     <div class="legal-section__body">
-      {{ self.body|richtext }}
+      {% for item in self.content %}
+        {% if item.block_type == "rich_text" %}
+          <div class="legal-section__richtext">
+            {{ item.value.body|richtext }}
+          </div>
+        {% else %}
+          {% include_block item %}
+        {% endif %}
+      {% endfor %}
     </div>
   </div>
 </section>

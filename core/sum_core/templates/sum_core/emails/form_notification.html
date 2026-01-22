@@ -31,6 +31,7 @@
     <h2>Submission Info</h2>
     <div class="field"><span class="label">Form:</span> {{ form_definition.name }} ({{ form_definition.slug }})</div>
     <div class="field"><span class="label">Submitted At:</span> {{ lead.submitted_at|date:"N j, Y, P" }}</div>
+    <div class="field"><span class="label">View in Admin:</span> <a href="/admin/leads/lead/{{ lead.id }}/">/admin/leads/lead/{{ lead.id }}/</a></div>
 
     {% if lead.page_url or lead.landing_page_url or lead.referrer_url or lead.utm_source or lead.utm_medium or lead.utm_campaign or lead.utm_term or lead.utm_content %}
     <h2>Attribution</h2>

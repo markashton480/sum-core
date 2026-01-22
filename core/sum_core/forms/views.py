@@ -122,9 +122,15 @@ class FormSubmissionView(View):
         # Create Lead (must happen before any side effects)
         try:
             lead = self._create_lead(data, site)
-        except ValueError as e:
+        except ValueError:
+            logger.warning("Lead creation failed for static form", exc_info=True)
             return JsonResponse(
-                {"success": False, "errors": {"__all__": [str(e)]}},
+                {
+                    "success": False,
+                    "errors": {
+                        "__all__": ["Unable to process submission. Please try again."]
+                    },
+                },
                 status=400,
             )
 
@@ -207,11 +213,17 @@ class FormSubmissionView(View):
                 form_data=form_data or None,
                 attribution=attribution,
             )
-        except ValueError as e:
+        except ValueError:
             # Clean up any uploaded files since lead creation failed
             self._cleanup_uploaded_files(form_data)
+            logger.warning("Lead creation failed for dynamic form", exc_info=True)
             return JsonResponse(
-                {"success": False, "errors": {"__all__": [str(e)]}},
+                {
+                    "success": False,
+                    "errors": {
+                        "__all__": ["Unable to process submission. Please try again."]
+                    },
+                },
                 status=400,
             )
 

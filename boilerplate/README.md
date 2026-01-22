@@ -156,6 +156,28 @@ pytest --cov=.
 
 The boilerplate includes a minimal integration test (`test_health.py`) that verifies sum_core wiring. This test should continue to pass after copying and renaming.
 
+## CI/CD Workflows
+
+The boilerplate includes three GitHub Actions workflows:
+
+### CI (`.github/workflows/ci.yml`)
+
+Runs on every PR and push to `main`. Executes the test suite to ensure code quality.
+
+### Staging Deploy (`.github/workflows/deploy-staging.yml`)
+
+Automatically deploys to staging on every push to `main`. Includes health checks.
+
+### Production Deploy (`.github/workflows/deploy-production.yml`)
+
+Deploys on GitHub release publication. Requires manual approval via GitHub environment protection.
+
+### Setup
+
+These workflows require GitHub secrets configuration. See the setup guide:
+
+**[docs/ops-pack/client-cicd-setup.md](https://github.com/markashton480/sum-platform/blob/develop/docs/ops-pack/client-cicd-setup.md)**
+
 ## Production Deployment
 
 1. Set `DJANGO_SETTINGS_MODULE=project_name.settings.production`

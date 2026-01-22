@@ -148,8 +148,8 @@ def _increment_rate_limit_counter(cache_key: str) -> int | None:
             pass
 
         return new_count
-    except Exception:
-        logger.warning("Rate limit counter update failed", exc_info=True)
+    except Exception as e:
+        logger.debug("Rate limit counter update failed for key '%s': %s", cache_key, e)
         return None
 
 
@@ -324,4 +324,4 @@ def get_client_ip(request: HttpRequest) -> str:
 
     Handles X-Forwarded-For header for proxied requests.
     """
-    return cast(str, request_get_client_ip(request))
+    return request_get_client_ip(request)

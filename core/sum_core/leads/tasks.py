@@ -17,10 +17,12 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
+from sum_core.forms.tasks import _validate_webhook_url
 from sum_core.ops.sentry import set_sentry_context
 
 if TYPE_CHECKING:
     from sum_core.leads.models import Lead
+    from wagtail.models import Site
 
 logger = logging.getLogger(__name__)
 
@@ -30,16 +32,36 @@ RETRY_BACKOFF = 60  # Base backoff in seconds (60, 120, 240)
 WEBHOOK_TIMEOUT = 10  # seconds
 
 
-def build_lead_notification_context(lead: Lead) -> dict:
+def _ensure_absolute_url(url: str | None, base_url: str) -> str:
+    """Ensure URL is absolute by prepending base_url if needed."""
+    if not url:
+        return ""
+    url = url.strip()
+    if url.startswith(("http://", "https://")):
+        return url
+    # Ensure leading slash
+    if not url.startswith("/"):
+        url = "/" + url
+    return f"{base_url.rstrip('/')}{url}"
+
+
+def build_lead_notification_context(lead: Lead, site: Site | None = None) -> dict:
     """
     Build template context for lead notification email.
 
     Args:
         lead: The Lead instance to build context for.
+        site: Optional Wagtail Site instance for URL normalization.
 
     Returns:
         Dictionary with all context variables for email templates.
     """
+    # Construct base_url from site if available
+    base_url = ""
+    if site:
+        protocol = "https" if getattr(site, "is_default_site", False) else "http"
+        base_url = f"{protocol}://{site.hostname}"
+
     return {
         "lead_id": lead.id,
         "name": lead.name,
@@ -48,8 +70,9 @@ def build_lead_notification_context(lead: Lead) -> dict:
         "message": lead.message,
         "form_type": lead.form_type,
         "submitted_at": lead.submitted_at,
-        "page_url": lead.page_url,
-        "referrer_url": lead.referrer_url,
+        "page_url": _ensure_absolute_url(lead.page_url, base_url),
+        "referrer_url": _ensure_absolute_url(lead.referrer_url, base_url),
+        "admin_url": f"/admin/leads/lead/{lead.id}/",
         "lead_source": lead.lead_source,
         "lead_source_display": (
             lead.get_lead_source_display() if lead.lead_source else ""
@@ -60,7 +83,7 @@ def build_lead_notification_context(lead: Lead) -> dict:
         "utm_campaign": lead.utm_campaign,
         "utm_term": lead.utm_term,
         "utm_content": lead.utm_content,
-        "landing_page_url": lead.landing_page_url,
+        "landing_page_url": _ensure_absolute_url(lead.landing_page_url, base_url),
         "site_name": getattr(settings, "WAGTAIL_SITE_NAME", ""),
     }
 
@@ -191,8 +214,16 @@ def send_lead_notification(
         )
         return
 
+    # Get site for URL normalization (if available)
+    site = None
+    if site_id:
+        try:
+            site = Site.objects.get(id=site_id)
+        except Site.DoesNotExist:
+            pass
+
     # Build email context and render templates
-    context = build_lead_notification_context(lead)
+    context = build_lead_notification_context(lead, site=site)
 
     # Prepare email configuration (defaults)
     from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@example.com")
@@ -200,9 +231,8 @@ def send_lead_notification(
     subject_prefix = ""
 
     # Apply SiteSettings branding if available
-    if site_id:
+    if site:
         try:
-            site = Site.objects.get(id=site_id)
             site_settings = SiteSettings.for_site(site)
 
             if site_settings.notification_from_email:
@@ -337,6 +367,22 @@ def send_lead_webhook(self, lead_id: int, request_id: str | None = None) -> None
     set_sentry_context(request_id=request_id, lead_id=lead_id, task="send_lead_webhook")
 
     webhook_url = getattr(settings, "ZAPIER_WEBHOOK_URL", "")
+
+    # Validate webhook URL for SSRF protection
+    if webhook_url:
+        url_valid, url_error = _validate_webhook_url(webhook_url)
+        if not url_valid:
+            logger.warning(
+                "Lead webhook URL validation failed",
+                extra={
+                    "lead_id": lead_id,
+                    "request_id": request_id or "-",
+                    "error": url_error,
+                },
+            )
+            # Continue to "no webhook configured" handling
+            webhook_url = ""
+
     attempt_count = 0
 
     try:
@@ -671,6 +717,31 @@ def send_zapier_webhook(
         return
 
     if site is None or site_settings is None:
+        return
+
+    # Validate webhook URL before sending (SSRF protection)
+    is_valid, validation_error = _validate_webhook_url(site_settings.zapier_webhook_url)
+    if not is_valid:
+        error_message = f"Invalid webhook URL: {validation_error}"
+        with transaction.atomic():
+            lead = Lead.objects.select_for_update(nowait=False).get(id=lead_id)
+            lead.zapier_status = ZapierStatus.FAILED
+            lead.zapier_last_error = error_message[:500]
+            lead.save(
+                update_fields=[
+                    "zapier_status",
+                    "zapier_last_error",
+                ]
+            )
+        logger.error(
+            "Lead Zapier webhook URL validation failed",
+            extra={
+                "lead_id": lead_id,
+                "site_id": site_id,
+                "request_id": request_id or "-",
+                "validation_error": validation_error,
+            },
+        )
         return
 
     # Build payload and send request

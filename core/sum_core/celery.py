@@ -8,7 +8,11 @@ Dependencies: Celery, Django settings.
 
 from __future__ import annotations
 
+import logging
+
 from celery import Celery
+
+logger = logging.getLogger(__name__)
 
 # Note: DJANGO_SETTINGS_MODULE must be configured by the client project before
 # importing this module. This is typically done in the client's celery.py or
@@ -30,4 +34,4 @@ app.autodiscover_tasks()
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
     """Debug task for testing Celery connectivity."""
-    print(f"Request: {self.request!r}")
+    logger.debug("Request: %r", self.request)

@@ -9,11 +9,13 @@ Tags:
     - header_nav: Returns header menu context with active detection
     - footer_nav: Returns footer links, social, business info, and copyright
     - sticky_cta: Returns mobile sticky CTA bar configuration
+    - desktop_sticky_cta: Returns desktop sticky CTA configuration
 """
 
 from __future__ import annotations
 
 import copy
+import logging
 import re
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
@@ -25,6 +27,7 @@ from django.utils import timezone
 from sum_core.navigation.cache import get_nav_cache_key
 from sum_core.navigation.models import FooterNavigation
 from sum_core.navigation.services import (
+    get_effective_desktop_sticky_cta,
     get_effective_footer_settings,
     get_effective_header_settings,
 )
@@ -33,6 +36,8 @@ from wagtail.models import Page, Site
 
 if TYPE_CHECKING:
     from django.http import HttpRequest
+
+logger = logging.getLogger(__name__)
 
 register = template.Library()
 
@@ -79,17 +84,17 @@ def _cache_get_or_build(
             # Return type is dict[str, Any], assert it explicitly for mypy
             result: dict[str, Any] = cached
             return result
-    except Exception:
+    except Exception as e:
         # Cache backend failed, continue to build
-        pass
+        logger.debug("Cache read failed for key '%s': %s", cache_key, e)
 
     result = builder()
 
     try:
         cache.set(cache_key, result, timeout=_get_cache_ttl())
-    except Exception:
+    except Exception as e:
         # Cache write failed, just return the result
-        pass
+        logger.debug("Cache write failed for key '%s': %s", cache_key, e)
 
     return result
 
@@ -157,6 +162,8 @@ def _extract_link_data(link_value: Any) -> dict[str, Any]:
             href = getattr(page, "url", "#")
     elif link_type == "url":
         href = link_value.get("url", "#") if hasattr(link_value, "get") else "#"
+    elif link_type == "path":
+        href = link_value.get("path", "#") if hasattr(link_value, "get") else "#"
     elif link_type == "email":
         email = link_value.get("email", "") if hasattr(link_value, "get") else ""
         href = f"mailto:{email}" if email else "#"
@@ -181,6 +188,8 @@ def _extract_link_data(link_value: Any) -> dict[str, Any]:
                 text = getattr(page, "title", "Link") if page else "Link"
             elif link_type == "url":
                 text = link_value.get("url", "Link") or "Link"
+            elif link_type == "path":
+                text = link_value.get("path", "Link") or "Link"
             elif link_type == "email":
                 text = link_value.get("email", "Email") or "Email"
             elif link_type == "phone":
@@ -536,6 +545,16 @@ def _build_menu_item_base(item_block: Any) -> dict[str, Any]:
     children_base = _build_children_base(children_blocks)
     has_children = bool(children_blocks)
 
+    # Extract featured image fields for mega menu
+    featured_image = value.get("featured_image")
+    featured_label = value.get("featured_label", "")
+    featured_title = value.get("featured_title", "")
+    featured_link_text = value.get("featured_link_text", "")
+    featured_link_value = value.get("featured_link")
+    featured_link_data = (
+        _extract_link_data(featured_link_value) if featured_link_value else None
+    )
+
     return {
         "label": label,
         "href": link_data["href"],
@@ -545,6 +564,12 @@ def _build_menu_item_base(item_block: Any) -> dict[str, Any]:
         "attrs_str": link_data["attrs_str"],
         "has_children": has_children,
         "children_base": children_base,
+        # Featured image fields for mega menu
+        "featured_image": featured_image,
+        "featured_label": featured_label,
+        "featured_title": featured_title,
+        "featured_link_text": featured_link_text,
+        "featured_link": featured_link_data,
         # For active detection (not displayed in template)
         "_page_pk": linked_page_pk,
         "_link_type": link_type,
@@ -731,6 +756,12 @@ def _apply_item_active_state(
         "is_active": is_active,
         "has_children": item_base.get("has_children", False),
         "children": children,
+        # Featured image fields for mega menu
+        "featured_image": item_base.get("featured_image"),
+        "featured_label": item_base.get("featured_label", ""),
+        "featured_title": item_base.get("featured_title", ""),
+        "featured_link_text": item_base.get("featured_link_text", ""),
+        "featured_link": item_base.get("featured_link"),
     }
 
 
@@ -755,6 +786,8 @@ def sticky_cta(context: dict[str, Any]) -> dict[str, Any]:
         - button_text: str
         - button_href: str
         - button_attrs: dict
+        - label: str
+        - compact_label: str
 
     Usage:
         {% load navigation_tags %}
@@ -790,9 +823,48 @@ def sticky_cta(context: dict[str, Any]) -> dict[str, Any]:
             "button_text": header_settings.mobile_cta_button.text,
             "button_href": button_link_data["href"] if button_link_data else "#",
             "button_attrs": button_link_data["attrs"] if button_link_data else {},
+            "label": header_settings.mobile_cta_label,
+            "compact_label": header_settings.mobile_cta_label_compact,
         }
 
     return _cache_get_or_build(cache_key, build)
+
+
+@register.simple_tag(takes_context=True)
+def desktop_sticky_cta(context: dict[str, Any]) -> dict[str, Any]:
+    """
+    Return desktop sticky CTA context dict.
+
+    Context keys:
+        - enabled: bool
+        - label: str
+        - button_text: str
+        - button_href: str
+        - button_attrs: dict
+    """
+    request = context.get("request")
+    if request is None:
+        return {}
+
+    site = Site.find_for_request(request)
+    if site is None:
+        return {}
+
+    page = _get_current_page(context)
+    resolved = get_effective_desktop_sticky_cta(site, page=page)
+    snippet = resolved.snippet
+    if not resolved.enabled or snippet is None:
+        return {"enabled": False}
+
+    button_link_data = _extract_cta_link(snippet.button_link)
+
+    return {
+        "enabled": True,
+        "label": snippet.label or "",
+        "button_text": snippet.button_text or "",
+        "button_href": button_link_data["href"] if button_link_data else "#",
+        "button_attrs": button_link_data["attrs"] if button_link_data else {},
+    }
 
 
 @register.simple_tag(takes_context=True)
@@ -894,10 +966,16 @@ def footer_nav(context: dict[str, Any]) -> dict[str, Any]:
     copyright_data = result.setdefault("copyright", {})
     raw_text = str(copyright_data.get("raw") or "")
     copyright_data["raw"] = raw_text
+    if getattr(settings, "VISUAL_TEST", False):
+        frozen_year = getattr(settings, "VISUAL_TEST_FROZEN_YEAR", None)
+        year = frozen_year if isinstance(frozen_year, int) else timezone.now().year
+    else:
+        year = timezone.now().year
+
     copyright_data["rendered"] = _render_footer_copyright(
         raw_text,
         result.get("business", {}).get("company_name", ""),
-        timezone.now().year,
+        year,
     )
 
     return result

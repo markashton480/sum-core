@@ -12,7 +12,7 @@ import csv
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from io import StringIO
-from typing import Any, cast
+from typing import Any
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.db.models import QuerySet
@@ -230,4 +230,4 @@ def get_client_ip(request: HttpRequest) -> str:
 
     Handles X-Forwarded-For header for proxied requests.
     """
-    return cast(str, request_get_client_ip(request))
+    return request_get_client_ip(request)

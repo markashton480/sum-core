@@ -1,0 +1,28 @@
+{% load wagtailcore_tags richtext_tags %}
+{% with heading_text=self.heading|striptags %}
+  {% with anchor=self.anchor|default:heading_text|slugify %}
+    <section class="content-block-wrapper">
+      <div class="container container--narrow">
+        <div class="content-block content-block--article-section {% if self.align == 'center' %}text-center{% endif %}">
+          {% if self.eyebrow %}
+            <span class="page-meta">{{ self.eyebrow }}</span>
+          {% endif %}
+          {% if self.heading %}
+            <h2 class="content-block__title"{% if anchor %} id="{{ anchor }}"{% endif %}>
+              {{ self.heading|richtext_inline }}
+            </h2>
+          {% endif %}
+          {% if self.subheading %}
+            <p class="content-block__subheading">{{ self.subheading }}</p>
+          {% endif %}
+          {% if self.subheading_secondary %}
+            <p class="content-block__subheading">{{ self.subheading_secondary }}</p>
+          {% endif %}
+          <div class="rich-text observe-me{% if self.drop_cap %} rich-text--dropcap{% endif %}">
+            {{ self.body|richtext }}
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endwith %}
+{% endwith %}

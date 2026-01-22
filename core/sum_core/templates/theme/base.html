@@ -1,10 +1,14 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
 {% load static wagtailcore_tags branding_tags wagtailimages_tags analytics_tags seo_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+      document.documentElement.classList.remove('no-js');
+      document.documentElement.classList.add('js');
+    </script>
     {% get_site_settings as site_settings %}
     {% wagtail_site as current_site %}
     {% analytics_head %}
@@ -50,6 +54,9 @@
 
     {% include "theme/includes/footer.html" %}
 
+    <!-- Sticky CTA (Desktop) -->
+    {% include "theme/includes/sticky_cta_desktop.html" %}
+
     <!-- Sticky CTA (Mobile) -->
     {% include "theme/includes/sticky_cta.html" %}
 
@@ -59,8 +66,8 @@
       <script src="{% static 'sum_core/js/analytics_loader.js' %}" defer></script>
     {% endif %}
     <script src="{% static 'sum_core/js/event_tracking.js' %}" defer></script>
-    <script src="{% static 'sum_core/js/main.js' %}"></script>
-    <script src="{% static 'sum_core/js/navigation.js' %}"></script>
+    <script src="{% static 'sum_core/js/forms.js' %}"></script>
+    <script src="{% static 'sum_core/js/main.js' %}" defer></script>
     {% block extra_body %}{% endblock %}
   </body>
 </html>

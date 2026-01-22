@@ -1,55 +1,10 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
 {% extends "theme/base.html" %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags chrome_tags %}
 
 {% block content %}
-  <section class="section">
-    <div class="container">
-      {% if page.get_breadcrumbs %}
-        {% with breadcrumbs=page.get_breadcrumbs %}
-          {% if breadcrumbs %}
-            <nav aria-label="Breadcrumb">
-              <ol>
-                {% for crumb in breadcrumbs %}
-                  <li>
-                    {% if crumb.is_current %}
-                      <span aria-current="page">{{ crumb.title }}</span>
-                    {% elif crumb.url %}
-                      <a href="{{ crumb.url }}">{{ crumb.title }}</a>
-                    {% else %}
-                      <span>{{ crumb.title }}</span>
-                    {% endif %}
-                  </li>
-                {% endfor %}
-              </ol>
-            </nav>
-          {% endif %}
-        {% endwith %}
-      {% endif %}
-
-      <header class="section__header">
-        <div class="section__heading">
-          <h1 class="heading-xl">{{ page.title }}</h1>
-        </div>
-        {% if page.search_description %}
-          <p>{{ page.search_description }}</p>
-        {% endif %}
-        <div>
-          {% if page.last_updated %}
-            <span>
-              Last Updated:
-              <time datetime="{{ page.last_updated|date:'Y-m-d' }}">
-                {{ page.last_updated|date:"F Y" }}
-              </time>
-            </span>
-          {% endif %}
-          <button type="button" onclick="window.print()">
-            Print Document
-          </button>
-        </div>
-      </header>
-    </div>
-  </section>
+  {% hero_context page headline=page.title subheadline=page.hero_intro extra_template="sum_core/includes/hero_extras/legal_meta.html" as hero %}
+  {% include "sum_core/blocks/hero_gradient.html" with hero=hero %}
 
   {% if page.sections %}
     <section class="section">
@@ -100,7 +55,15 @@
               <article id="{{ section_id }}">
                 <h2>{{ section.value.heading }}</h2>
                 <div class="prose">
-                  {{ section.value.body|richtext }}
+                  {% for item in section.value.content %}
+                    {% if item.block_type == "rich_text" %}
+                      <div>
+                        {{ item.value.body|richtext }}
+                      </div>
+                    {% else %}
+                      {% include_block item %}
+                    {% endif %}
+                  {% endfor %}
                 </div>
               </article>
             {% endwith %}

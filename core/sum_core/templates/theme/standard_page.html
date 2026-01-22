@@ -1,23 +1,17 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
 {% extends "theme/base.html" %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags chrome_tags %}
 
 {% block content %}
-  {% if not page.has_hero_block %}
-    <section class="section">
-      <div class="container">
-        <header class="section__header">
-          <div class="section__heading">
-            <h1 class="heading-xl">{{ page.title }}</h1>
-          </div>
-        </header>
-      </div>
-    </section>
-  {% endif %}
+  {% firstof page.hero_intro page.search_description as hero_intro %}
+  {% hero_context page headline=page.title subheadline=hero_intro as hero %}
+  {% include "sum_core/blocks/hero_gradient.html" with hero=hero %}
 
   {% if page.body %}
     {% for block in page.body %}
-      {% include_block block %}
+      {% if not block|is_header_block %}
+        {% include_block block %}
+      {% endif %}
     {% endfor %}
   {% endif %}
 {% endblock %}

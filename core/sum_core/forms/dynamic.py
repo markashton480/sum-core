@@ -482,7 +482,13 @@ class DynamicFormGenerator:
         choices = []
         for choice in choices_value:
             value = getattr(choice, "value", choice)
-            choices.append((value["value"], value["label"]))
+            if not isinstance(value, dict):
+                continue
+            option_value = value.get("value")
+            label = value.get("label")
+            if option_value is None or label is None:
+                continue
+            choices.append((option_value, label))
         return choices
 
     def _normalize_extensions(self, raw_extensions: str) -> list[str]:
