@@ -104,7 +104,7 @@ class ServiceIndexPage(
         # Get all live, public ServicePage children
         services = []
         if self.show_service_grid:
-            services = self.get_children().live().public().specific().type(ServicePage)
+            services = self.get_children().live().public().type(ServicePage)
 
         context["services"] = services
         return context

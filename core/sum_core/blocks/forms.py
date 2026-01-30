@@ -14,7 +14,6 @@ from wagtail.blocks import (
     RichTextBlock,
     StructBlock,
     TextBlock,
-    URLBlock,
 )
 from wagtail.snippets.blocks import SnippetChooserBlock
 
@@ -93,9 +92,9 @@ class DynamicFormBlock(StructBlock):
         max_length=100,
         help_text="Override default CTA button text (for modal/sidebar styles)",
     )
-    success_redirect_url = URLBlock(
+    success_redirect = UniversalLinkBlock(
         required=False,
-        help_text="Optional redirect after submission (defaults to same page with message)",
+        help_text="Optional redirect after submission (use 'page' or 'path' for internal links)",
     )
 
     def get_context(self, value, parent_context=None):

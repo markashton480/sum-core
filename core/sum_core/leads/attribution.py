@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.core.cache import cache
+
 if TYPE_CHECKING:
     from sum_core.leads.models import LeadSourceRule
 
@@ -80,11 +82,14 @@ def _match_lead_source_rules(
     or None if no rules match.
     """
     # Import here to avoid circular import
-    from sum_core.leads.models import LeadSourceRule
+    from sum_core.leads.models import LEAD_SOURCE_RULE_CACHE_KEY, LeadSourceRule
 
-    rules: list[LeadSourceRule] = list(
-        LeadSourceRule.objects.filter(is_active=True).order_by("priority", "id")
-    )
+    rules: list[LeadSourceRule] | None = cache.get(LEAD_SOURCE_RULE_CACHE_KEY)
+    if rules is None:
+        rules = list(
+            LeadSourceRule.objects.filter(is_active=True).order_by("priority", "id")
+        )
+        cache.set(LEAD_SOURCE_RULE_CACHE_KEY, rules, timeout=300)
 
     for rule in rules:
         if rule.matches(

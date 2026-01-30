@@ -335,6 +335,7 @@ class SiteSettings(BaseSiteSetting):
         cache.delete(f"branding_fonts:{self.site_id}")
 
     def save(self, *args: Any, **kwargs: Any) -> None:
+        self._invalidate_branding_cache()
         super().save(*args, **kwargs)
         self._invalidate_branding_cache()
 

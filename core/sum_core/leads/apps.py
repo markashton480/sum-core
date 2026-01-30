@@ -22,4 +22,6 @@ class LeadsConfig(AppConfig):
     def ready(self) -> None:
         """Import Wagtail admin hooks when app is ready."""
         # Import wagtail_admin to register hooks
+        # Import signals to connect signal handlers
+        from sum_core.leads import signals  # noqa: F401
         from sum_core.leads import wagtail_admin  # noqa: F401

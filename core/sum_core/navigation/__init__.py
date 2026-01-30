@@ -27,5 +27,3 @@ Usage:
 Note: Direct imports from sum_core.navigation are not provided to avoid
 circular import issues during Django app loading.
 """
-
-default_app_config = "sum_core.navigation.apps.NavigationConfig"

@@ -1,0 +1,54 @@
+{% load i18n %}
+
+<section class="panel summary">
+    <h2 class="title">{% trans "SEO Overview" %}</h2>
+    <div class="panel-content">
+        {% if worst_pages or orphan_count > 0 or content_gaps_count > 0 %}
+            <div class="seo-metrics" style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
+                <div class="metric">
+                    <h3>{% trans "Orphan Pages" %}</h3>
+                    <p class="value" style="font-size: 2rem; font-weight: bold; color: #ea580c;">
+                        {{ orphan_count }}
+                    </p>
+                    <p class="help-text" style="font-size: 0.875rem; color: #666;">
+                        {% trans "Pages with no incoming links" %}
+                    </p>
+                </div>
+
+                <div class="metric">
+                    <h3>{% trans "Content Gaps" %}</h3>
+                    <p class="value" style="font-size: 2rem; font-weight: bold; color: #2563eb;">
+                        {{ content_gaps_count }}
+                    </p>
+                    <p class="help-text" style="font-size: 0.875rem; color: #666;">
+                        {% trans "Active content gap recommendations" %}
+                    </p>
+                </div>
+            </div>
+
+            {% if worst_pages %}
+                <div class="worst-pages">
+                    <h3>{% trans "Pages Needing Attention" %}</h3>
+                    <ul class="listing" style="margin-top: 0.5rem;">
+                        {% for analysis in worst_pages %}
+                            <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb;">
+                                <span class="page-title">
+                                    <a href="/admin/pages/{{ analysis.page.id }}/edit/">
+                                        {{ analysis.page.title }}
+                                    </a>
+                                </span>
+                                <span class="score" style="font-weight: 600; {% if analysis.health_score < 50 %}color: #dc2626;{% elif analysis.health_score < 80 %}color: #ea580c;{% else %}color: #16a34a;{% endif %}">
+                                    {{ analysis.health_score }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% else %}
+            <p style="color: #666; font-style: italic;">
+                {% trans "No SEO data available yet. Run SEO analysis to see insights." %}
+            </p>
+        {% endif %}
+    </div>
+</section>

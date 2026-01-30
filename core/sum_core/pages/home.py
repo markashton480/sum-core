@@ -19,7 +19,13 @@ from sum_core.pages.mixins import (
     SeoFieldsMixin,
 )
 from sum_core.utils.links import validate_safe_link
-from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
+from wagtail.admin.panels import (
+    FieldPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    ObjectList,
+    TabbedInterface,
+)
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Orderable, Page
 
@@ -126,6 +132,15 @@ class HomePage(
         Page.settings_panels + DesktopStickyCTAMixin.desktop_sticky_cta_panels
     )
 
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(promote_panels, heading="Promote"),
+            ObjectList(settings_panels, heading="Settings"),
+            ObjectList(SeoFieldsMixin.seo_analysis_panels, heading="SEO"),
+        ]
+    )
+
     # HomePage can only be created under the root page
     parent_page_types: list[str] = ["wagtailcore.Page"]
 
@@ -153,6 +168,8 @@ class HomePage(
     def clean(self) -> None:
         """Validate that only one HomePage exists in the database."""
         super().clean()
+        # NOTE: This validation is best-effort only and is not atomic. Concurrent
+        # HomePage creations can still race; keep enforcement conservative here.
         if HomePage.objects.exclude(pk=self.pk).exists():
             raise ValidationError(
                 {"title": "Only one HomePage is allowed in the database."}

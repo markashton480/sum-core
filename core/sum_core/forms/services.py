@@ -137,6 +137,11 @@ def _increment_rate_limit_counter(cache_key: str) -> int | None:
         try:
             new_count = cast(int, cache.incr(cache_key))
         except (ValueError, NotImplementedError):
+            # NOTE: Some cache backends don't support atomic incr. When that
+            # happens we fall back to get/set, which is not atomic and can
+            # undercount under high concurrency. This is acceptable for now
+            # because the rate limit is a soft control; use Redis for atomic
+            # increments if strict enforcement is needed.
             current_count = cast(int, cache.get(cache_key, 0))
             new_count = current_count + 1
             cache.set(cache_key, new_count, timeout=RATE_LIMIT_WINDOW_SECONDS)

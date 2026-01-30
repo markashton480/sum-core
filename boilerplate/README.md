@@ -84,6 +84,44 @@ See `.env.example` for all configurable values. Critical production requirements
 - `DJANGO_DB_*` - **Required**: PostgreSQL connection details
 - `REDIS_URL` - Recommended: For cache and Celery
 
+### Email Configuration
+
+Email is required for lead notifications (alerting you when forms are submitted) and auto-reply confirmations to visitors. By default, emails are printed to the console in development.
+
+**We recommend [Resend](https://resend.com) for production email delivery.**
+
+#### Setup Steps
+
+1. **Create a Resend account** at https://resend.com
+2. **Add and verify your domain** in the Resend dashboard
+3. **Generate an API key** from Settings → API Keys
+4. **Update your `.env`** with these values:
+
+```bash
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.resend.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=resend
+EMAIL_HOST_PASSWORD=re_YOUR_API_KEY_HERE
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=noreply@yourdomain.com
+
+# Where lead notifications are sent (required)
+LEAD_NOTIFICATION_EMAIL=leads@yourdomain.com
+```
+
+#### What Gets Sent
+
+| Email Type | Trigger | Recipient |
+|------------|---------|-----------|
+| Lead Notification | Form submission | `LEAD_NOTIFICATION_EMAIL` |
+| Form Admin Notification | Dynamic form submission | Per-form configured recipients |
+| Auto-Reply | Form submission (if enabled) | Form submitter |
+
+#### Customization
+
+Per-site email branding (sender name, from address, reply-to) can be configured in **Wagtail Admin → Settings → Site Settings → Email Notifications**.
+
 ## Project Structure
 
 ```

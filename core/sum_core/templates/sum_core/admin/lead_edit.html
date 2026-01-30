@@ -1,0 +1,53 @@
+{% extends "wagtailadmin/generic/edit.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style>
+        /*
+         * Polish the Edit Lead View
+         * Focus on spacing and panel consistency.
+         */
+
+        .nice-padding {
+            padding-top: 2rem;
+        }
+
+        /* Ensure panels look like cards */
+        .editor-view .w-panel {
+            background-color: var(--w-color-surface-field);
+            border: 1px solid var(--w-color-border-furniture);
+            border-radius: 5px;
+            box-shadow: 0 1px 2px var(--w-color-box-shadow-md);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .editor-view .w-panel__header {
+            background-color: var(--w-color-surface-header);
+            border-bottom: 1px solid var(--w-color-border-furniture);
+            padding: 1rem 1.25rem;
+            margin: 0;
+        }
+
+        .editor-view .w-panel__content {
+            padding: 1.5rem;
+        }
+
+        .editor-view .w-panel__heading {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--w-color-text-label);
+        }
+
+        /* Fix for the timeline panel specifically */
+        .activity-timeline-panel {
+            margin-top: 0;
+        }
+
+        /* Spacing for field rows */
+        .w-field__wrapper {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+{% endblock %}

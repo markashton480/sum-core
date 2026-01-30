@@ -5,5 +5,3 @@ Purpose: Site-scoped form configuration and submission handling with spam protec
 Family: Forms, Leads, Attribution, Spam Protection.
 Dependencies: Django, Wagtail Sites, sum_core.leads.
 """
-
-default_app_config = "sum_core.forms.apps.FormsConfig"

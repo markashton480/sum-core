@@ -16,7 +16,8 @@
         {% if page.hero_status %}
           <p class="hero__status">{{ page.hero_status }}</p>
         {% endif %}
-        <h1 class="hero__headline">{{ page.hero_headline|richtext }}</h1>
+        <h1 class="hero__eyebrow">{{ page.get_seo_h1 }}</h1>
+        <h2 class="hero__headline">{{ page.hero_headline|richtext }}</h2>
         {% if page.hero_subheadline %}
           <p class="hero__subheadline">{{ page.hero_subheadline }}</p>
         {% endif %}
@@ -42,7 +43,8 @@
     {# Fallback if no hero image set #}
     <section class="section section--hero">
       <div class="container">
-        <h1 class="heading-xl">{{ page.title }}</h1>
+        <h1 class="hero__eyebrow">{{ page.get_seo_h1 }}</h1>
+        <h2 class="heading-xl">{{ page.title }}</h2>
       </div>
     </section>
   {% endif %}

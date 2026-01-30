@@ -146,6 +146,7 @@ class BlogPromoSnippet(models.Model):
             )
         if not self.is_active:
             return
+        # NOTE: Best-effort validation only; concurrent activations can race.
         existing = BlogPromoSnippet.objects.filter(is_active=True)
         if self.site_id:
             existing = existing.filter(site=self.site_id)
@@ -291,6 +292,7 @@ class BlogIndexPage(
     def clean(self) -> None:
         """Ensure only one BlogIndexPage exists per site."""
         super().clean()
+        # NOTE: Best-effort validation only; concurrent page creations can race.
 
         site = self.get_site()
         if site is None:

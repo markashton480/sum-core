@@ -1,0 +1,497 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags static %}
+
+{% block titletag %}Lead Analytics{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    /*
+     * Lead Analytics Dashboard Styling
+     * Uses Wagtail native CSS variables for consistency and theme support.
+     */
+
+    .lead-analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .lead-analytics-card {
+        background-color: var(--w-color-surface-field);
+        border: 1px solid var(--w-color-border-furniture);
+        border-radius: 5px;
+        box-shadow: 0 1px 2px var(--w-color-box-shadow-md);
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .lead-analytics-card__label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--w-color-text-meta);
+        margin-bottom: 0.5rem;
+    }
+
+    .lead-analytics-card__value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--w-color-primary);
+        line-height: 1;
+    }
+
+    .lead-analytics-card__value--success {
+        color: var(--w-color-positive-100);
+    }
+
+    /* Priority Grid */
+    .lead-analytics-priority-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .lead-analytics-priority-card {
+        padding: 1.25rem;
+        border-radius: 5px;
+        color: white;
+        text-align: center;
+        /* Fallback colors if specific vars aren't available, but try to use theme vars */
+    }
+
+    .lead-analytics-priority-card--high {
+        background-color: var(--w-color-positive-100);
+    }
+
+    .lead-analytics-priority-card--medium {
+        background-color: var(--w-color-warning-100);
+        color: var(--w-color-text-label); /* Ensure contrast on yellow/orange */
+    }
+
+    .lead-analytics-priority-card--low {
+        background-color: var(--w-color-critical-200);
+    }
+
+    .lead-analytics-priority-card__value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+    }
+
+    .lead-analytics-priority-card__label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        opacity: 0.9;
+    }
+
+    /* Sections */
+    .lead-analytics-section {
+        background-color: var(--w-color-surface-field);
+        border: 1px solid var(--w-color-border-furniture);
+        border-radius: 5px;
+        box-shadow: 0 1px 2px var(--w-color-box-shadow-md);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .lead-analytics-section__title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--w-color-text-label);
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--w-color-border-furniture);
+    }
+
+    /* Breakdown Grid */
+    .lead-analytics-breakdown-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .lead-analytics-breakdown-card {
+        text-align: center;
+        padding: 1rem;
+        background-color: var(--w-color-surface-page);
+        border-radius: 4px;
+    }
+
+    .lead-analytics-breakdown-card__value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--w-color-text-label);
+        margin-bottom: 0.25rem;
+    }
+
+    .lead-analytics-breakdown-card__label {
+        font-size: 0.8rem;
+        color: var(--w-color-text-meta);
+    }
+
+    /* Charts */
+    .lead-analytics-charts-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+        .lead-analytics-charts-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .lead-analytics-chart-card {
+        background-color: var(--w-color-surface-field);
+        border: 1px solid var(--w-color-border-furniture);
+        border-radius: 5px;
+        box-shadow: 0 1px 2px var(--w-color-box-shadow-md);
+        padding: 1.5rem;
+    }
+
+    .lead-analytics-chart-card__title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--w-color-text-label);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+
+    .lead-analytics-chart-card--tall .chart-container {
+        height: 400px;
+    }
+
+    /* Tags/Lists */
+    .lead-analytics-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .lead-analytics-tag {
+        background-color: var(--w-color-surface-page);
+        border: 1px solid var(--w-color-border-furniture);
+        padding: 0.5rem 1rem;
+        border-radius: 99px;
+        font-size: 0.9rem;
+        color: var(--w-color-text-label);
+    }
+
+    /* List with Progress Bars */
+    .lead-analytics-list-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    @media (min-width: 1024px) {
+        .lead-analytics-list-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .lead-analytics-list-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .lead-analytics-list-item__info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--w-color-text-label);
+    }
+
+    .lead-analytics-list-item__count {
+        color: var(--w-color-text-meta);
+        font-weight: normal;
+    }
+
+    .lead-analytics-progress {
+        height: 0.5rem;
+        background-color: var(--w-color-surface-page);
+        border-radius: 99px;
+        overflow: hidden;
+        border: 1px solid var(--w-color-border-furniture);
+    }
+
+    .lead-analytics-progress__bar {
+        height: 100%;
+        background-color: var(--w-color-primary);
+        border-radius: 99px;
+    }
+
+    .lead-analytics-progress__bar--secondary {
+        background-color: var(--w-color-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="w-slim-header">
+    <div class="row">
+        <div class="left">
+            <div class="col">
+                <h1 class="w-header__title" id="header-title">
+                    {% icon name="group" classname="w-header__glyph" %}
+                    Lead Analytics Dashboard
+                </h1>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="nice-padding">
+    <!-- Metrics Cards -->
+    <div class="lead-analytics-grid">
+        <div class="lead-analytics-card">
+            <div class="lead-analytics-card__label">Total Leads</div>
+            <div class="lead-analytics-card__value">{{ total_leads }}</div>
+        </div>
+        <div class="lead-analytics-card">
+            <div class="lead-analytics-card__label">This Month</div>
+            <div class="lead-analytics-card__value">{{ monthly_leads }}</div>
+        </div>
+        <div class="lead-analytics-card">
+            <div class="lead-analytics-card__label">This Week</div>
+            <div class="lead-analytics-card__value">{{ weekly_leads }}</div>
+        </div>
+        <div class="lead-analytics-card">
+            <div class="lead-analytics-card__label">Avg Score</div>
+            <div class="lead-analytics-card__value">{{ average_score }}</div>
+        </div>
+        <div class="lead-analytics-card">
+            <div class="lead-analytics-card__label">Conversion Rate</div>
+            <div class="lead-analytics-card__value lead-analytics-card__value--success">{{ conversion_rate }}%</div>
+        </div>
+    </div>
+
+    <!-- Priority Breakdown -->
+    <div class="lead-analytics-priority-grid">
+        <div class="lead-analytics-priority-card lead-analytics-priority-card--high">
+            <div class="lead-analytics-priority-card__value">{{ high_priority_count }}</div>
+            <div class="lead-analytics-priority-card__label">High Priority ({{ score_high_threshold }}+)</div>
+        </div>
+        <div class="lead-analytics-priority-card lead-analytics-priority-card--medium">
+            <div class="lead-analytics-priority-card__value">{{ medium_priority_count }}</div>
+            <div class="lead-analytics-priority-card__label">Medium Priority ({{ score_medium_threshold }}-{{ score_high_threshold|add:"-1" }})</div>
+        </div>
+        <div class="lead-analytics-priority-card lead-analytics-priority-card--low">
+            <div class="lead-analytics-priority-card__value">{{ low_priority_count }}</div>
+            <div class="lead-analytics-priority-card__label">Low Priority (&lt;{{ score_medium_threshold }})</div>
+        </div>
+    </div>
+
+    <!-- Score Breakdown Section -->
+    <div class="lead-analytics-section">
+        <h2 class="lead-analytics-section__title">Average Score Breakdown</h2>
+        <div class="lead-analytics-breakdown-grid">
+            <div class="lead-analytics-breakdown-card">
+                <div class="lead-analytics-breakdown-card__value">{{ score_breakdown.data_completeness }}/30</div>
+                <div class="lead-analytics-breakdown-card__label">Data Completeness</div>
+            </div>
+            <div class="lead-analytics-breakdown-card">
+                <div class="lead-analytics-breakdown-card__value">{{ score_breakdown.source_quality }}/30</div>
+                <div class="lead-analytics-breakdown-card__label">Source Quality</div>
+            </div>
+            <div class="lead-analytics-breakdown-card">
+                <div class="lead-analytics-breakdown-card__value">{{ score_breakdown.attribution_quality }}/20</div>
+                <div class="lead-analytics-breakdown-card__label">Attribution Quality</div>
+            </div>
+            <div class="lead-analytics-breakdown-card">
+                <div class="lead-analytics-breakdown-card__value">{{ score_breakdown.engagement_signals }}/20</div>
+                <div class="lead-analytics-breakdown-card__label">Engagement Signals</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Distribution -->
+    <div class="lead-analytics-section">
+        <h2 class="lead-analytics-section__title">Status Distribution</h2>
+        <div class="lead-analytics-list-grid">
+            {% for item in status_distribution %}
+            <div class="lead-analytics-list-item">
+                <div class="lead-analytics-list-item__info">
+                    <span class="lead-analytics-list-item__label">{{ item.status|title }}</span>
+                    <span class="lead-analytics-list-item__count">{{ item.count }}</span>
+                </div>
+                <div class="lead-analytics-progress">
+                    <div class="lead-analytics-progress__bar" style="width: {{ item.percentage }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Source Distribution -->
+    <div class="lead-analytics-section">
+        <h2 class="lead-analytics-section__title">Lead Sources</h2>
+        <div class="lead-analytics-list-grid">
+            {% for item in source_distribution %}
+            <div class="lead-analytics-list-item">
+                <div class="lead-analytics-list-item__info">
+                    <span class="lead-analytics-list-item__label">{{ item.lead_source|default:"Unknown"|title }}</span>
+                    <span class="lead-analytics-list-item__count">{{ item.count }}</span>
+                </div>
+                <div class="lead-analytics-progress">
+                    <div class="lead-analytics-progress__bar lead-analytics-progress__bar--secondary" style="width: {{ item.percentage }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+    <!-- Charts Section -->
+    <div class="lead-analytics-charts-grid">
+        <!-- Score Distribution Chart -->
+        <div class="lead-analytics-chart-card">
+            <h2 class="lead-analytics-chart-card__title">Score Distribution</h2>
+            <div class="chart-container">
+                <canvas id="scoreDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Status Distribution Chart -->
+        <div class="lead-analytics-chart-card">
+            <h2 class="lead-analytics-chart-card__title">Status Breakdown</h2>
+            <div class="chart-container">
+                <canvas id="statusDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Series Chart (Full Width) -->
+    <div class="lead-analytics-chart-card lead-analytics-chart-card--tall">
+        <h2 class="lead-analytics-chart-card__title">Lead Volume (Last 30 Days)</h2>
+        <div class="chart-container">
+            <canvas id="timeSeriesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+<!-- Chart.js CDN (pinned version 4.4.1) with local fallback -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous" onerror="this.onerror=null; this.src='{% static 'sum_core/js/vendor/chart.umd.min.js' %}'"></script>
+
+{{ chart_data|json_script:"chart-data" }}
+
+<script>
+    // Chart data from Django context
+    const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+
+    // Score Distribution Chart (Doughnut)
+    const scoreCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    new Chart(scoreCtx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.score_distribution.labels,
+            datasets: [{
+                data: chartData.score_distribution.data,
+                backgroundColor: chartData.score_distribution.backgroundColor,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Status Distribution Chart (Bar)
+    const statusLabels = [];
+    const statusData = [];
+    {% for item in status_distribution %}
+    statusLabels.push('{{ item.status|escapejs }}');
+    statusData.push({{ item.count }});
+    {% endfor %}
+
+    const statusCtx = document.getElementById('statusDistributionChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'bar',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                label: 'Leads',
+                data: statusData,
+                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                borderColor: 'rgb(59, 130, 246)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Time Series Chart (Line)
+    const timeSeriesCtx = document.getElementById('timeSeriesChart').getContext('2d');
+    new Chart(timeSeriesCtx, {
+        type: 'line',
+        data: chartData.time_series,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -14,6 +14,7 @@ from sum_core.blocks.links import CtaLinkBlock, UniversalLinkBlock
 from sum_core.blocks.process_faq import ProcessStepBlock
 from sum_core.blocks.trust import TrustStripItemBlock
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
 
 
@@ -149,9 +150,9 @@ class ServiceCardsBlock(blocks.StructBlock):
         help_text="Optional supporting image tile within the grid layout.",
     )
     alt_text = blocks.CharBlock(
-        required=True,
+        required=False,
         max_length=255,
-        help_text="Alt text for the supporting image (required for accessibility).",
+        help_text="Alt text for the supporting image (required if image is set).",
     )
     view_all_link = UniversalLinkBlock(required=False, label="View All Link")
     view_all_label = blocks.CharBlock(
@@ -175,10 +176,23 @@ class ServiceCardsBlock(blocks.StructBlock):
         cards = cleaned.get("cards") or []
         featured_count = sum(1 for card in cards if card.get("is_featured"))
         if featured_count > 1:
-            raise blocks.ValidationError(
-                "Only one featured service card is allowed per block.",
-                field_errors={"cards": "Only one featured service card is allowed."},
+            raise StructBlockValidationError(
+                block_errors={
+                    "cards": ValidationError(
+                        "Only one featured service card is allowed."
+                    )
+                }
             )
+        supporting_image = cleaned.get("supporting_image")
+        alt_text = (cleaned.get("alt_text") or "").strip()
+        if supporting_image and not alt_text:
+            raise StructBlockValidationError(
+                block_errors={
+                    "alt_text": ValidationError("Alt text is required with an image.")
+                }
+            )
+        if not supporting_image:
+            cleaned["alt_text"] = ""
         return cleaned
 
 
@@ -212,9 +226,9 @@ class ServiceDetailBlock(blocks.StructBlock):
         help_text="Optional supporting image. Leave blank for text-only layout.",
     )
     alt_text = blocks.CharBlock(
-        required=True,
+        required=False,
         max_length=255,
-        help_text="Alt text for the image (required for accessibility).",
+        help_text="Alt text for the image (required if image is set).",
     )
     layout = blocks.ChoiceBlock(
         choices=(
@@ -241,6 +255,20 @@ class ServiceDetailBlock(blocks.StructBlock):
         icon = "placeholder"
         label = "Service detail"
         help_text = "Highlight a single service with image, copy, and bullets."
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        image = cleaned.get("image")
+        alt_text = (cleaned.get("alt_text") or "").strip()
+        if image and not alt_text:
+            raise StructBlockValidationError(
+                block_errors={
+                    "alt_text": ValidationError("Alt text is required with an image.")
+                }
+            )
+        if not image:
+            cleaned["alt_text"] = ""
+        return cleaned
 
 
 class ServiceIconGridItemBlock(blocks.StructBlock):
@@ -352,9 +380,9 @@ class ValuePropositionBlock(blocks.StructBlock):
     )
     image = ImageChooserBlock(required=False)
     alt_text = blocks.CharBlock(
-        required=True,
+        required=False,
         max_length=255,
-        help_text="Alt text for the image (required for accessibility).",
+        help_text="Alt text for the image (required if image is set).",
     )
     image_quote = blocks.CharBlock(required=False, max_length=200)
 
@@ -363,6 +391,20 @@ class ValuePropositionBlock(blocks.StructBlock):
         icon = "placeholder"
         label = "Value proposition"
         help_text = "Value proposition section with CTA cluster and stats."
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        image = cleaned.get("image")
+        alt_text = (cleaned.get("alt_text") or "").strip()
+        if image and not alt_text:
+            raise blocks.StructBlockValidationError(
+                block_errors={
+                    "alt_text": ValidationError("Alt text is required with an image.")
+                },
+            )
+        if not image:
+            cleaned["alt_text"] = ""
+        return cleaned
 
 
 class ProcessTimelineBlock(blocks.StructBlock):

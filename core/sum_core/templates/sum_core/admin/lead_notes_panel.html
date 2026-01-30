@@ -1,0 +1,103 @@
+<style>
+    .notes-panel {
+        margin-top: 2rem;
+    }
+
+    .notes-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .note-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .note-item:last-child {
+        border-bottom: none;
+    }
+
+    .note-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .note-author {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .note-content {
+        white-space: pre-wrap;
+        line-height: 1.5;
+    }
+
+    .add-note-form {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e5e5;
+    }
+
+    .add-note-form textarea {
+        width: 100%;
+        min-height: 100px;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="w-panel notes-panel">
+    <h2 class="w-panel__heading">
+        <svg class="icon icon-doc-full w-panel__icon" aria-hidden="true"><use href="#icon-doc-full"></use></svg>
+        Notes
+    </h2>
+
+    <div class="w-panel__content">
+        {% if notes %}
+            <ul class="notes-list">
+                {% for note in notes %}
+                    <li class="note-item">
+                        <div class="note-header">
+                            <span class="note-author">
+                                {% if note.author %}
+                                    {{ note.author.get_full_name|default:note.author.username }}
+                                {% else %}
+                                    System
+                                {% endif %}
+                            </span>
+                            <span class="note-timestamp">
+                                {{ note.created_at|date:"M j, Y, P" }}
+                            </span>
+                        </div>
+                        <div class="note-content">{{ note.content }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="help-block">No notes yet.</p>
+        {% endif %}
+
+        {% if add_note_url %}
+            <form action="{{ add_note_url }}" method="post" class="add-note-form">
+                {% csrf_token %}
+                <div class="w-field-wrapper">
+                    <label class="w-field__label" for="id_note_content">Add a note:</label>
+                    <div class="w-field w-field--char_field w-field--text_area">
+                        <div class="w-field__input">
+                            <textarea name="content" id="id_note_content" required placeholder="Type your note here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="button button-longrunning">Add Note</button>
+            </form>
+        {% else %}
+            <p class="help-block">Save the lead to add notes.</p>
+        {% endif %}
+    </div>
+</div>

@@ -37,8 +37,8 @@ from .content import (
     TeamMemberItemBlock,
     TimelineBlock,
     TimelineItemBlock,
-    TrustStripBlock,
 )
+from .content import TrustStripBlock as TextTrustStripBlock
 from .forms import (
     ContactFormBlock,
     DynamicFormBlock,
@@ -86,7 +86,7 @@ __all__ = [
     "HeroGradientBlock",
     "HeroCTABlock",
     "HeroBlock",
-    "TrustStripBlock",
+    "TextTrustStripBlock",
     "TrustStripLogosBlock",
     "TrustStripItemBlock",
     "FeaturesListBlock",

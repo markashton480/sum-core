@@ -8,15 +8,41 @@ Dependencies: Django forms, Wagtail admin forms, branding.theme_presets, brandin
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 
 from django import forms
+from django.core.exceptions import ValidationError
 from sum_core.branding.theme_presets import THEME_PRESETS, get_theme_preset_choices
 from wagtail.admin.forms.models import WagtailAdminModelForm
 from wagtail.images.widgets import AdminImageChooser
 
 if TYPE_CHECKING:
     from sum_core.branding.models import SiteSettings
+
+# Regex pattern for valid hex colors (e.g., #fff or #ffffff)
+HEX_COLOR_PATTERN = re.compile(r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
+
+# List of color fields that should be validated as hex colors
+COLOR_FIELDS = [
+    "primary_color",
+    "secondary_color",
+    "accent_color",
+    "background_color",
+    "text_color",
+    "surface_color",
+    "surface_elevated_color",
+    "text_light_color",
+]
+
+
+def validate_hex_color(value: str) -> None:
+    """Validate that a value is a valid hex color."""
+    if value and not HEX_COLOR_PATTERN.match(value):
+        raise ValidationError(
+            "Enter a valid hex color (e.g. #fff or #ffffff).",
+            code="invalid_hex_color",
+        )
 
 
 class SiteSettingsAdminForm(WagtailAdminModelForm):
@@ -56,6 +82,18 @@ class SiteSettingsAdminForm(WagtailAdminModelForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["theme_preset"].choices = get_theme_preset_choices()
+
+    def clean(self) -> dict[str, Any]:
+        """Validate hex color fields."""
+        cleaned_data = super().clean()
+        for field_name in COLOR_FIELDS:
+            value = cleaned_data.get(field_name, "")
+            if value:
+                try:
+                    validate_hex_color(value)
+                except ValidationError as e:
+                    self.add_error(field_name, e)
+        return cleaned_data
 
     def save(self, commit: bool = True) -> SiteSettings:
         """Apply theme preset values if one was selected, then save."""

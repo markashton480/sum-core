@@ -30,7 +30,7 @@ A Django/Wagtail foundation for launching lead-focused websites for home improve
 Install from the public repository:
 
 ```bash
-pip install "sum_core @ git+https://github.com/markashton480/sum-core.git@v0.6.0"
+pip install "sum_core @ git+https://github.com/markashton480/sum-core.git@v0.7.0"
 ```
 
 For the latest development version:

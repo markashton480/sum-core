@@ -1,0 +1,164 @@
+/* admin.lead-analytics.css - Lead Analytics Dashboard Styles */
+
+/* Metrics grid */
+.lead-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Metric card */
+.lead-analytics-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lead-analytics-card__label {
+    color: #6b7280;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.lead-analytics-card__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.lead-analytics-card__value--success {
+    color: #16a34a;
+}
+
+/* Priority breakdown */
+.lead-analytics-priority-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.lead-analytics-priority-card {
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.lead-analytics-priority-card--high {
+    background: #16a34a;
+}
+
+.lead-analytics-priority-card--medium {
+    background: #ea580c;
+}
+
+.lead-analytics-priority-card--low {
+    background: #dc2626;
+}
+
+.lead-analytics-priority-card__value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.lead-analytics-priority-card__label {
+    font-size: 0.875rem;
+}
+
+/* Score breakdown */
+.lead-analytics-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.lead-analytics-breakdown-card {
+    text-align: center;
+    padding: 1rem;
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.lead-analytics-breakdown-card__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.lead-analytics-breakdown-card__value--data {
+    color: #3b82f6;
+}
+
+.lead-analytics-breakdown-card__value--source {
+    color: #8b5cf6;
+}
+
+.lead-analytics-breakdown-card__value--attribution {
+    color: #06b6d4;
+}
+
+.lead-analytics-breakdown-card__value--engagement {
+    color: #f59e0b;
+}
+
+.lead-analytics-breakdown-card__label {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Distribution sections */
+.lead-analytics-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.lead-analytics-section__title {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.lead-analytics-tags {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.lead-analytics-tag {
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+/* Charts grid */
+.lead-analytics-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.lead-analytics-chart-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lead-analytics-chart-card__title {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.lead-analytics-chart-card--full-width {
+    margin-top: 2rem;
+}
+
+.lead-analytics-chart-card--tall .chart-container {
+    height: 400px;
+}

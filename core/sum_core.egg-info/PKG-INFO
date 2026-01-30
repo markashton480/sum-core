@@ -13,8 +13,6 @@ Requires-Dist: python-magic<1.0,>=0.4.27
 Provides-Extra: dev
 Requires-Dist: psycopg[binary]<4,>=3.2; extra == "dev"
 Requires-Dist: PyYAML<7.0,>=6.0; extra == "dev"
-Requires-Dist: playwright>=1.41.0; extra == "dev"
-Requires-Dist: pytest-playwright>=0.4.0; extra == "dev"
 Requires-Dist: pytest; extra == "dev"
 Requires-Dist: pytest-django; extra == "dev"
 Requires-Dist: pytest-cov; extra == "dev"

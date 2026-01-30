@@ -91,8 +91,24 @@ def get_lead_analytics(site: Site, days: int = 30) -> dict:
             by_source[label] = 0
         by_source[label] += item["count"]
 
+    # Prepare final status list with percentages for progress bars
+    status_distribution = []
+    for label, count in by_status.items():
+        percentage = round((count / total_leads) * 100, 1) if total_leads > 0 else 0
+        status_distribution.append(
+            {"label": label, "count": count, "percentage": percentage}
+        )
+
+    # Prepare final source list with percentages
+    source_distribution = []
+    for label, count in by_source.items():
+        percentage = round((count / total_leads) * 100, 1) if total_leads > 0 else 0
+        source_distribution.append(
+            {"label": label, "count": count, "percentage": percentage}
+        )
+
     return {
         "total": total_leads,
-        "by_status": by_status,
-        "by_source": by_source,
+        "by_status": status_distribution,
+        "by_source": source_distribution,
     }

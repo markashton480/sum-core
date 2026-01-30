@@ -8,8 +8,17 @@ Dependencies: Django ORM, Wagtail Page model.
 
 from __future__ import annotations
 
+from django.conf import settings
+from django.core.cache import cache
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+from django.utils import timezone
 from wagtail.models import Page
+
+SCORE_SKIP_FIELDS = {"email_status", "webhook_status", "zapier_status"}
+LEAD_SOURCE_RULE_CACHE_KEY = "lead_source_rules:active"
 
 
 class LeadSource(models.TextChoices):
@@ -149,6 +158,29 @@ class Lead(models.Model):
         default=Status.NEW,
     )
     is_archived: models.BooleanField = models.BooleanField(default=False)
+
+    # Lead assignment
+    assigned_to: models.ForeignKey = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="assigned_leads",
+        help_text="User assigned to handle this lead.",
+    )
+
+    # Lead scoring
+    score: models.IntegerField = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        db_index=True,
+        help_text="Lead priority score (0-100)",
+    )
+    score_updated_at: models.DateTimeField = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When score was last calculated",
+    )
 
     # Email notification status
     email_status: models.CharField = models.CharField(
@@ -298,6 +330,27 @@ class Lead(models.Model):
             ("export_lead", "Can export leads to CSV"),
         ]
 
+    def save(self, *args, **kwargs):
+        """Override save to calculate score before saving."""
+        from .scoring import calculate_lead_score
+
+        # Skip score recalculation if only updating specific fields
+        update_fields = kwargs.get("update_fields")
+        should_recalculate = update_fields is None or not set(update_fields).issubset(
+            SCORE_SKIP_FIELDS
+        )
+        if should_recalculate:
+            self.score = calculate_lead_score(self)
+            self.score_updated_at = timezone.now()
+            if update_fields is not None:
+                update_fields = list(update_fields)
+                for field in ("score", "score_updated_at"):
+                    if field not in update_fields:
+                        update_fields.append(field)
+                kwargs["update_fields"] = update_fields
+
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
         return f"{self.name} <{self.email}> ({self.form_type})"
 
@@ -391,3 +444,99 @@ class LeadSourceRule(models.Model):
             return False
 
         return True
+
+
+@receiver(post_save, sender=LeadSourceRule)
+@receiver(post_delete, sender=LeadSourceRule)
+def _clear_lead_source_rule_cache(*_args, **_kwargs) -> None:
+    cache.delete(LEAD_SOURCE_RULE_CACHE_KEY)
+
+
+class LeadNote(models.Model):
+    """Timestamped note attached to a lead for audit trail."""
+
+    lead: models.ForeignKey = models.ForeignKey(
+        Lead,
+        on_delete=models.CASCADE,
+        related_name="notes",
+    )
+    author: models.ForeignKey = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="lead_notes",
+    )
+    content: models.TextField = models.TextField(
+        help_text="Note content (plain text).",
+    )
+    created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Lead Note"
+        verbose_name_plural = "Lead Notes"
+        indexes = [
+            models.Index(fields=["lead", "-created_at"]),
+        ]
+
+    def __str__(self) -> str:
+        author_name = self.author.get_full_name() if self.author else "Unknown"
+        return f"Note by {author_name} on {self.created_at:%Y-%m-%d}"
+
+
+class ActivityType(models.TextChoices):
+    """Types of tracked activities on leads."""
+
+    STATUS_CHANGE = "status_change", "Status Changed"
+    ASSIGNMENT_CHANGE = "assignment_change", "Assignment Changed"
+    NOTE_ADDED = "note_added", "Note Added"
+    CREATED = "created", "Lead Created"
+
+
+class LeadActivity(models.Model):
+    """Audit trail for all changes to a lead."""
+
+    lead: models.ForeignKey = models.ForeignKey(
+        Lead,
+        on_delete=models.CASCADE,
+        related_name="activities",
+    )
+    actor: models.ForeignKey = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="lead_activities",
+        help_text="User who performed the action (null for system actions).",
+    )
+    action_type: models.CharField = models.CharField(
+        max_length=30,
+        choices=ActivityType.choices,
+    )
+    old_value: models.JSONField = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Previous value (JSON for flexibility).",
+    )
+    new_value: models.JSONField = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="New value (JSON for flexibility).",
+    )
+    description: models.CharField = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Human-readable description of the activity.",
+    )
+    created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Lead Activity"
+        verbose_name_plural = "Lead Activities"
+        indexes = [
+            models.Index(fields=["lead", "-created_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.get_action_type_display()} on Lead #{self.lead_id}"

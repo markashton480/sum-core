@@ -1,0 +1,24 @@
+
+/* Override styles for Wagtail admin */
+body.wagtail-admin .editor-view main.content-wrapper {
+    /* Add padding to prevent footer overlap on long forms */
+    padding-bottom: 120px;
+}
+
+body.wagtail-admin main.content-wrapper form {
+    padding-bottom: 100px;
+}
+
+/* Fix for Save button overlapping content in small viewports or long forms */
+.footer .actions {
+    position: relative;
+    z-index: 50; /* Ensure it stays above other content but doesn't trap focus/clicks incorrectly */
+    background: white; /* Ensure background is opaque */
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Ensure form fields have enough spacing at the bottom */
+.tab-content {
+    margin-bottom: 5rem;
+}

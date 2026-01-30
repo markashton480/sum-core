@@ -9,6 +9,7 @@ Dependencies: Django template system, Wagtail Site and SiteSettings, Django cach
 from __future__ import annotations
 
 import colorsys
+import unicodedata
 from collections.abc import Callable
 from typing import Any
 from urllib.parse import quote_plus
@@ -27,6 +28,8 @@ register = template.Library()
 FONT_FALLBACK_STACK = (
     'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 )
+FONT_FORBIDDEN_CHARS = {"}", ";", "{", '"', "'"}
+MAX_FONT_NAME_LENGTH = 50
 
 
 @register.simple_tag(takes_context=True)
@@ -59,6 +62,8 @@ def get_site_settings(context: dict[str, Any]) -> SiteSettings:
 def _format_font_value(font_name: str) -> str:
     family = font_name.strip()
     if not family:
+        return ""
+    if any(char in family for char in FONT_FORBIDDEN_CHARS):
         return ""
     return f'"{family}", {FONT_FALLBACK_STACK}'
 
@@ -219,14 +224,26 @@ def branding_css(context: dict[str, Any]) -> SafeString:
     return _cacheable_response(cache_key, build)
 
 
+def _sanitize_font_name(font_name: str) -> str:
+    cleaned = font_name.strip()
+    if not cleaned:
+        return ""
+    if len(cleaned) > MAX_FONT_NAME_LENGTH:
+        return ""
+    cleaned = unicodedata.normalize("NFC", cleaned)
+    if any(char in cleaned for char in FONT_FORBIDDEN_CHARS):
+        return ""
+    return cleaned
+
+
 def _unique_fonts(site_settings: SiteSettings) -> list[str]:
     fonts = []
     for font in (site_settings.heading_font, site_settings.body_font):
-        cleaned = font.strip() if font else ""
+        cleaned = _sanitize_font_name(font or "")
         if cleaned and cleaned not in fonts:
             fonts.append(cleaned)
 
-    # If no fonts configured, fallback to the design system defaults
+    # If no valid fonts after sanitization, fallback to design system defaults
     if not fonts:
         return ["Fraunces", "Manrope"]
 

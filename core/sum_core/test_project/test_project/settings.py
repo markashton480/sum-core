@@ -111,6 +111,7 @@ INSTALLED_APPS: list[str] = [
     "sum_core.forms",
     "sum_core.analytics",
     "sum_core.seo",
+    "sum_core.seo_engine",
     "home",
 ]
 
@@ -134,9 +135,11 @@ MIDDLEWARE: list[str] = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
+
 ROOT_URLCONF: str = "test_project.urls"
 
 REPO_ROOT: Path = BASE_DIR.parent.parent.parent
+ACTIVE_THEME_SLUG: str = os.getenv("ACTIVE_THEME_SLUG", "theme_a")
 THEME_ACTIVE_TEMPLATES_DIR: Path = BASE_DIR / "theme" / "active" / "templates"
 
 # -----------------------------------------------------------------------------
@@ -153,8 +156,8 @@ THEME_ACTIVE_TEMPLATES_DIR: Path = BASE_DIR / "theme" / "active" / "templates"
 # -----------------------------------------------------------------------------
 THEME_TEMPLATES_CANDIDATES: list[Path] = [
     THEME_ACTIVE_TEMPLATES_DIR,
-    REPO_ROOT / "themes" / "theme_a" / "templates",
-    BASE_DIR.parent / "themes" / "theme_a" / "templates",
+    REPO_ROOT / "themes" / ACTIVE_THEME_SLUG / "templates",
+    BASE_DIR.parent / "themes" / ACTIVE_THEME_SLUG / "templates",
 ]
 THEME_TEMPLATE_DIRS: list[Path] = [
     candidate for candidate in THEME_TEMPLATES_CANDIDATES if candidate.exists()
@@ -291,8 +294,8 @@ STATIC_URL: str = "/static/"
 THEME_ACTIVE_STATIC_DIR: Path = BASE_DIR / "theme" / "active" / "static"
 THEME_STATIC_CANDIDATES: list[Path] = [
     THEME_ACTIVE_STATIC_DIR,
-    REPO_ROOT / "themes" / "theme_a" / "static",
-    BASE_DIR.parent / "themes" / "theme_a" / "static",
+    REPO_ROOT / "themes" / ACTIVE_THEME_SLUG / "static",
+    BASE_DIR.parent / "themes" / ACTIVE_THEME_SLUG / "static",
 ]
 THEME_STATIC_DIRS: list[Path] = [
     candidate for candidate in THEME_STATIC_CANDIDATES if candidate.exists()

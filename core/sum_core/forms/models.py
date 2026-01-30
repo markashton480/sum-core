@@ -16,8 +16,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import EmailValidator
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, IntegerField, OuterRef, Subquery, Value
-from django.db.models.functions import Coalesce
+from django.db.models import CharField, Count, IntegerField, OuterRef, Subquery, Value
+from django.db.models.functions import Cast, Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.decorators import method_decorator
@@ -306,12 +306,10 @@ class FormDefinition(models.Model):
 
         The cloned form starts inactive for safety.
         """
-        base_slug = f"{self.slug}-copy"
         for _ in range(5):
             cloned = FormDefinition(
                 site=self.site,
                 name=f"{self.name} (Copy)",
-                slug=self._build_unique_slug(base_slug),
                 fields=self.fields.raw_data if self.fields else [],
                 success_message=self.success_message,
                 is_active=False,
@@ -329,6 +327,13 @@ class FormDefinition(models.Model):
 
             try:
                 with transaction.atomic():
+                    list(
+                        FormDefinition.objects.select_for_update()
+                        .filter(site=self.site)
+                        .values_list("pk", flat=True)[:1]
+                    )
+                    base_slug = f"{self.slug}-copy"
+                    cloned.slug = self._build_unique_slug(base_slug)
                     cloned.full_clean()
                     cloned.save()
                 return cloned
@@ -382,7 +387,7 @@ class FormDefinition(models.Model):
         page_ids = (
             ReferenceIndex.objects.filter(
                 to_content_type_id=form_content_type_id,
-                to_object_id=self.pk,
+                to_object_id=str(self.pk),
                 base_content_type_id=page_content_type_id,
             )
             .values_list("object_id", flat=True)
@@ -405,7 +410,7 @@ class FormDefinition(models.Model):
         return int(
             ReferenceIndex.objects.filter(
                 to_content_type_id=form_content_type_id,
-                to_object_id=self.pk,
+                to_object_id=str(self.pk),
                 base_content_type_id=page_content_type_id,
             )
             .values("object_id")
@@ -503,7 +508,7 @@ class FormDefinitionViewSet(SnippetViewSet):
         usage_counts = (
             ReferenceIndex.objects.filter(
                 to_content_type_id=form_content_type_id,
-                to_object_id=OuterRef("pk"),
+                to_object_id=Cast(OuterRef("pk"), output_field=CharField()),
                 base_content_type_id=page_content_type_id,
             )
             .values("to_object_id")

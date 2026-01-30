@@ -18,6 +18,7 @@
           class="form premium-form js-async-form"
           data-form-type="{{ self.form_definition.slug }}"
           data-success-message="{{ self.form_definition.success_message|default:"Thank you for your submission!"|escapejs }}"
+          data-success-redirect="{{ self.success_redirect.href|default:""|escapejs }}"
           data-error-message="Something went wrong. Please try again."
           id="form-{{ self.form_definition.id }}-{{ block.id }}">
       {% csrf_token %}
@@ -187,6 +188,18 @@
       })
       .then(function(result) {
         if (result.data.success) {
+          var redirectUrl = form.dataset.successRedirect;
+          if (redirectUrl) {
+            try {
+              var resolvedUrl = new URL(redirectUrl, window.location.origin);
+              if (resolvedUrl.origin === window.location.origin) {
+                window.location.href = resolvedUrl.href;
+                return;
+              }
+            } catch (e) {
+              // Ignore invalid redirect targets and fall back to inline success.
+            }
+          }
           messagesDiv.className = 'form-messages form-messages--success';
           var successMsg = document.createElement('p');
           successMsg.className = 'form-success-msg';

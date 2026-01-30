@@ -6,6 +6,7 @@ Family: Used via PageStreamBlock on core pages (e.g., HomePage) and other templa
 Dependencies: Wagtail blocks, wagtail.images ImageChooserBlock, sum_core design tokens.
 """
 
+from django.core.exceptions import ValidationError
 from sum_core.blocks.links import CtaLinkBlock
 from sum_core.utils.links import validate_safe_link
 from wagtail import blocks
@@ -236,6 +237,25 @@ class ProvenancePlateBlock(blocks.StructBlock):
         icon = "doc-full"
         template = "sum_core/blocks/provenance_plate.html"
         label = "Provenance Plate"
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        cta_action = cleaned.get("cta_action")
+        errors = {}
+
+        if cta_action == "modal" and not cleaned.get("modal"):
+            errors["modal"] = ValidationError(
+                "Add modal details when CTA action is set to modal."
+            )
+
+        if cta_action == "link" and not cleaned.get("cta"):
+            errors["cta"] = ValidationError(
+                "Add a CTA link when CTA action is set to link."
+            )
+
+        if errors:
+            raise blocks.StructBlockValidationError(block_errors=errors)
+        return cleaned
 
 
 class FeaturedCaseStudyBlock(blocks.StructBlock):

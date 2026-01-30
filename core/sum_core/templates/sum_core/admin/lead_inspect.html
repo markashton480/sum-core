@@ -1,0 +1,579 @@
+{% extends "wagtailadmin/generic/inspect.html" %}
+{% load static wagtailadmin_tags i18n %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style>
+        /*
+         * Custom Lead Inspect Styling
+         * Bypassing purge-prone utility classes for guaranteed stability.
+         */
+
+        .lead-inspect-container {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 2rem;
+        }
+
+        /* Responsive Grid System */
+        .lead-inspect-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile default */
+            gap: 2rem;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .lead-inspect-grid {
+                grid-template-columns: 2fr 1fr; /* 2/3 and 1/3 split */
+                align-items: start;
+            }
+        }
+
+        /* Card Component */
+        .lead-card {
+            background-color: var(--w-color-surface-field);
+            border: 1px solid var(--w-color-border-furniture);
+            border-radius: 5px;
+            box-shadow: 0 1px 2px var(--w-color-box-shadow-md);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lead-card__header {
+            background-color: var(--w-color-surface-header);
+            border-bottom: 1px solid var(--w-color-border-furniture);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .lead-card__title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--w-color-text-label);
+            line-height: 1.2;
+        }
+
+        .lead-card__icon {
+            color: var(--w-color-primary);
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        @media (prefers-color-scheme: dark) {
+            .lead-card__icon {
+                color: var(--w-color-grey-400); /* Neutral icons in dark mode */
+            }
+        }
+
+        .lead-avatar {
+            width: 3rem;
+            height: 3rem;
+            background: var(--w-color-primary-50);
+            color: var(--w-color-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid var(--w-color-surface-menus);
+        }
+        @media (prefers-color-scheme: dark) {
+            .lead-avatar {
+                background: var(--w-color-primary-200);
+                color: var(--w-color-surface-page);
+                border-color: var(--w-color-grey-600);
+            }
+        }
+
+        .lead-card__content {
+            padding: 1.5rem;
+            color: var(--w-color-text-label);
+        }
+
+        /* Typography & Data Pairs */
+        .lead-data-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .lead-data-label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--w-color-text-meta);
+            margin-bottom: 0.35rem;
+            letter-spacing: 0.025em;
+        }
+
+        .lead-data-value {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--w-color-text-label);
+        }
+
+        .lead-data-value--strong {
+            font-weight: 600;
+        }
+
+        .lead-data-value a {
+            color: var(--w-color-text-link-default);
+            text-decoration: none;
+        }
+
+        .lead-data-value a:hover {
+            color: var(--w-color-text-link-hover);
+            text-decoration: underline;
+        }
+
+        /* Two-column data grid inside cards */
+        .lead-data-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .lead-data-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Activity Feed */
+        .lead-activity-feed {
+            position: relative;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--w-color-border-furniture);
+            margin-top: 0.5rem;
+        }
+
+        .lead-activity-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .lead-activity-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .lead-activity-dot {
+            position: absolute;
+            left: -1.95rem; /* Aligns dot on the line */
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--w-color-surface-page);
+            border: 2px solid var(--w-color-text-meta);
+        }
+
+        /* Dot Colors */
+        .lead-activity-dot.status { border-color: var(--w-color-secondary); background-color: var(--w-color-secondary); }
+        .lead-activity-dot.note { border-color: var(--w-color-info-100); background-color: var(--w-color-info-100); }
+
+        .lead-activity-header {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .lead-activity-meta {
+            font-size: 0.85rem;
+            color: var(--w-color-text-meta);
+        }
+
+        .lead-activity-note {
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
+            background-color: var(--w-color-surface-header);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--w-color-text-label);
+        }
+
+        /* Quick Actions & Forms */
+        .lead-quick-notes {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .lead-note-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--w-color-border-field-default);
+            border-radius: 4px;
+            background-color: var(--w-color-surface-field);
+            font-family: inherit;
+            color: var(--w-color-text-label);
+        }
+
+        .lead-note-form textarea:focus {
+            border-color: var(--w-color-primary);
+            outline: 2px solid var(--w-color-focus);
+        }
+
+        /* Status & Score Styles */
+        .lead-score-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .lead-score-val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--w-color-text-label); /* Native label color for best legibility */
+        }
+        @media (prefers-color-scheme: dark) {
+            .lead-score-val {
+                color: var(--w-color-grey-50); /* Ultra high contrast in dark mode */
+            }
+        }
+        progress {
+            flex-grow: 1;
+            height: 0.75rem;
+            border-radius: 99px;
+            overflow: hidden;
+            background-color: var(--w-color-surface-page);
+            border: 1px solid var(--w-color-border-furniture);
+        }
+        progress::-webkit-progress-bar { background-color: var(--w-color-surface-page); }
+        progress::-webkit-progress-value { background-color: var(--w-color-primary); }
+        progress::-moz-progress-bar { background-color: var(--w-color-primary); }
+
+        /* Message Block Quote */
+        .lead-message-quote {
+            border-left: 4px solid var(--w-color-primary-200);
+            padding-left: 1.25rem;
+            margin: 0;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--w-color-text-label);
+        }
+        @media (prefers-color-scheme: dark) {
+            .lead-message-quote {
+                border-left-color: var(--w-color-grey-400); /* Neutral quote border in dark mode */
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+            // Simple Toast Helper
+            const showToast = (message) => {
+                const toast = document.createElement('div');
+                toast.innerText = message;
+                toast.style.cssText = 'position: fixed; bottom: 2rem; right: 2rem; background: var(--w-color-surface-field); border: 1px solid var(--w-color-border-furniture); padding: 0.75rem 1.5rem; border-radius: 4px; box-shadow: var(--w-color-box-shadow-lg); z-index: 10000; animation: fadein 0.3s;';
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.5s';
+                    setTimeout(() => toast.remove(), 500);
+                }, 2000);
+            };
+
+            // Clipboard
+            const copyToClipboard = (text, btn) => {
+                const originalText = btn.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    btn.innerText = 'Copied';
+                    showToast('Copied to clipboard');
+                    setTimeout(() => btn.innerText = originalText, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            };
+
+            const copyButtons = document.querySelectorAll('.js-copy-btn');
+            copyButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    copyToClipboard(this.dataset.copyText, this);
+                });
+            });
+
+            // Quick Notes
+            document.querySelectorAll('.js-quick-note').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const textarea = document.querySelector('textarea[name="content"]');
+                    if (textarea) {
+                        textarea.value = this.dataset.content;
+                        textarea.focus();
+                    }
+                });
+            });
+
+            // Status/Assignment
+            const handleUpdate = (path, body) => {
+                fetch(path, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                    body: JSON.stringify(body)
+                }).then(r => r.json()).then(d => d.success && window.location.reload());
+            };
+
+            const statusSelect = document.getElementById('id_status_select');
+            if(statusSelect) {
+                statusSelect.addEventListener('change', function() {
+                    handleUpdate(`/admin/leads/lead/${this.dataset.leadId}/update-status/`, { status: this.value });
+                });
+            }
+
+            const assignSelect = document.getElementById('id_assignment_select');
+            if(assignSelect) {
+                assignSelect.addEventListener('change', function() {
+                    handleUpdate(`/admin/leads/lead/${this.dataset.leadId}/update-assignment/`, { assigned_to: this.value });
+                });
+            }
+        });
+    </script>
+    <style>
+        @keyframes fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    {% csrf_token %}
+
+    <div class="nice-padding lead-inspect-container">
+
+        <!-- Header -->
+        <header class="w-header w-mb-8 lead-header-card">
+            <div class="w-flex w-justify-between w-items-start">
+                <div class="w-flex w-items-center">
+                    <div class="w-mr-4 lead-avatar">
+                        {{ object.name|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h1 class="w-h1 w-m-0" title="{{ object.name }}">
+                            {{ object.name }}
+                        </h1>
+                        <div class="w-header__subtitle w-mt-1 w-text-meta lead-meta">
+                            Submitted {{ object.submitted_at|date:"M j, Y" }} &bull; Via {{ object.form_type|title|default:"Form" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="w-flex w-gap-2">
+                    <a href="{% url 'lead:edit' object.id %}" class="button button-secondary button-small">Edit Details</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <div class="lead-inspect-grid">
+
+            <!-- Main Column (Left/Top) -->
+            <div class="lead-column-main">
+
+                <!-- Inquiry Message Panel -->
+                <div class="lead-card message-block">
+                    <div class="lead-card__header">
+                        <h3 class="lead-card__title info-card-title">Inquiry Message</h3>
+                    </div>
+                    <div class="lead-card__content info-card-body">
+                        <div class="lead-message-quote">
+                            {% if object.message %}{{ object.message|linebreaksbr }}{% else %}<em>No message content provided.</em>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info Panel -->
+                <div class="lead-card info-card">
+                    <div class="lead-card__header">
+                        {% icon name="user" classname="lead-card__icon" %}
+                        <h3 class="lead-card__title info-card-title">Contact Information</h3>
+                    </div>
+                    <div class="lead-card__content info-card-body">
+                        <div class="lead-data-grid">
+                            <div class="lead-data-group">
+                                <span class="lead-data-label contact-label">Email Address</span>
+                                <div class="w-flex w-items-center w-gap-2">
+                                    <a href="mailto:{{ object.email }}" class="lead-data-value lead-data-value--strong">{{ object.email }}</a>
+                                    <button type="button" class="button button-small button-secondary js-copy-btn" data-copy-text="{{ object.email }}">Copy</button>
+                                </div>
+                            </div>
+                            {% if object.phone %}
+                            <div class="lead-data-group">
+                                <span class="lead-data-label contact-label">Phone Number</span>
+                                <div class="w-flex w-items-center w-gap-2">
+                                    <a href="tel:{{ object.phone }}" class="lead-data-value lead-data-value--strong">{{ object.phone }}</a>
+                                    <button type="button" class="button button-small button-secondary js-copy-btn" data-copy-text="{{ object.phone }}">Copy</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if form_data_items %}
+                        <div class="w-mt-6 w-pt-6 w-border-t w-border-furniture">
+                            <div class="lead-data-grid">
+                                {% for item in form_data_items %}
+                                    {% if 'postcode' in item.label|lower or 'address' in item.label|lower or 'city' in item.label|lower %}
+                                    <div class="lead-data-group w-mb-0">
+                                        <span class="lead-data-label contact-label">{{ item.label }}</span>
+                                        <div class="lead-data-value">{{ item.value }}</div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Notes & Updates Panel -->
+                <div class="lead-card info-card">
+                    <div class="lead-card__header">
+                        {% icon name="doc-full" classname="lead-card__icon" %}
+                        <h3 class="lead-card__title info-card-title">Notes & Updates</h3>
+                    </div>
+                    <div class="lead-card__content info-card-body">
+
+                        <!-- Quick Notes -->
+                        <div class="lead-quick-notes">
+                            <span class="lead-data-label w-mr-2 w-mb-0">Quick Note:</span>
+                            <button type="button" class="button button-small button-secondary js-quick-note" data-content="Attempted to call, no answer.">No Answer</button>
+                            <button type="button" class="button button-small button-secondary js-quick-note" data-content="Left voicemail.">Left Voicemail</button>
+                            <button type="button" class="button button-small button-secondary js-quick-note" data-content="Sent follow-up email.">Sent Email</button>
+                            <button type="button" class="button button-small button-secondary js-quick-note" data-content="Quote sent.">Quote Sent</button>
+                        </div>
+
+                        <!-- Note Form -->
+                        <form action="{% url 'lead_add_note' object.id %}" method="POST" class="lead-note-form w-mb-8">
+                            {% csrf_token %}
+                            <div class="w-mb-3">
+                                <textarea name="content" rows="2" placeholder="Add a note..." required></textarea>
+                            </div>
+                            <div class="w-text-right">
+                                <button type="submit" class="button button-small button-primary">Add Note</button>
+                            </div>
+                        </form>
+
+                        <!-- Activity Feed -->
+                        <div class="lead-activity-feed activity-feed">
+                            {% if activities %}
+                                <h3 class="w-sr-only info-card-title">History</h3>
+                                {% for activity in activities %}
+                                    <div class="lead-activity-item">
+                                        <div class="lead-activity-dot {% if activity.action_type == 'status_change' %}status{% elif activity.action_type == 'note_added' %}note{% endif %}"></div>
+                                        <div>
+                                            <div class="lead-activity-header">
+                                                <strong>
+                                                    {% if activity.action_type == 'status_change' %}Status changed to {{ activity.new_value.status|title }}
+                                                    {% elif activity.action_type == 'assignment_change' %}Assignment changed: Assigned to {{ activity.new_value.assigned_to|default:"Unassigned" }}
+                                                    {% elif activity.action_type == 'note_added' %}Note added
+                                                    {% else %}{{ activity.get_action_type_display }}{% endif %}
+                                                </strong>
+                                                <span class="lead-activity-meta"> &bull; {{ activity.created_at|timesince }} ago by {% if activity.actor %}{{ activity.actor.get_full_name|default:activity.actor.username }}{% else %}System{% endif %}</span>
+                                            </div>
+                                            {% if activity.action_type == 'note_added' and activity.new_value.note_preview %}
+                                                <div class="lead-activity-note">{{ activity.new_value.note_preview }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="lead-activity-meta" style="font-style: italic;">No activity recorded.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar Column (Right/Bottom) -->
+            <div class="lead-column-sidebar">
+
+                <!-- Lead Management Panel -->
+                <div class="lead-card info-card">
+                    <div class="lead-card__header">
+                        <h3 class="lead-card__title info-card-title">Lead Management</h3>
+                    </div>
+                    <div class="lead-card__content info-card-body">
+                        <div class="lead-data-group">
+                            <label class="lead-data-label control-label" for="id_status_select">Current Status</label>
+                            <select id="id_status_select" class="w-input w-w-full" data-lead-id="{{ object.id }}">
+                                {% for code, label in status_choices %}
+                                    <option value="{{ code }}" {% if object.status == code %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="lead-data-group">
+                            <label class="lead-data-label control-label" for="id_assignment_select">Assigned To</label>
+                            <select id="id_assignment_select" class="w-input w-w-full" data-lead-id="{{ object.id }}">
+                                <option value="unassigned">-- Unassigned --</option>
+                                {% for user in assignable_users %}
+                                    <option value="{{ user.id }}" {% if object.assigned_to_id == user.id %}selected{% endif %}>{{ user.get_full_name|default:user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="w-mt-6">
+                            <label class="lead-data-label control-label">Lead Score</label>
+                            <div class="lead-score-wrapper">
+                                <progress value="{{ object.score }}" max="100"></progress>
+                                <span class="lead-score-val">{{ object.score }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Previous History Panel -->
+                {% if previous_enquiries %}
+                <div class="lead-card info-card">
+                    <div class="lead-card__header">
+                        <h3 class="lead-card__title info-card-title">Previous History</h3>
+                    </div>
+                    <div class="lead-card__content info-card-body">
+                        <ul class="w-list-none w-p-0 w-m-0">
+                            {% for enquiry in previous_enquiries %}
+                            <li class="w-flex w-justify-between w-items-center w-mb-4 w-border-b w-border-dashed w-border-furniture w-pb-3">
+                                <div>
+                                    <div class="w-font-semibold w-text-label">{{ enquiry.submitted_at|date:"M j, Y" }}</div>
+                                    <div class="w-text-xs w-text-meta">Lead #{{ enquiry.id }}</div>
+                                </div>
+                                <a href="{% url 'lead:inspect' enquiry.id %}" class="button button-small button-secondary">View</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Form Data Panel (Extras) -->
+                {% if form_data_items %}
+                <div class="lead-card info-card">
+                    <div class="lead-card__header">
+                        <h3 class="lead-card__title info-card-title">Form Data</h3>
+                    </div>
+                    <div class="lead-card__content info-card-body">
+                        <table class="w-w-full w-border-collapse">
+                            <tbody>
+                                {% for item in form_data_items %}
+                                    {% if 'message' not in item.label|lower %}
+                                    <tr class="w-border-b w-border-furniture">
+                                        <td class="w-py-2 w-font-bold w-text-meta w-w-2/5 w-text-xs w-uppercase">{{ item.label }}</td>
+                                        <td class="w-py-2 w-text-label">{{ item.value }}</td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

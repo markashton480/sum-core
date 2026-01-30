@@ -11,22 +11,24 @@ from __future__ import annotations
 import logging
 import os
 import time
+from collections import OrderedDict
 from typing import Any
 
 from django import forms
 
 try:
     import magic
-
-    MAGIC_AVAILABLE = True
 except ImportError:
-    MAGIC_AVAILABLE = False
+    magic = None
+
+MAGIC_AVAILABLE = magic is not None
 
 logger = logging.getLogger(__name__)
 
 FORM_CLASS_CACHE_TTL_SECONDS = 3600
+FORM_CLASS_CACHE_MAXSIZE = 100
 # In-process cache: not shared across workers or persisted across restarts.
-_FORM_CLASS_CACHE: dict[str, tuple[float, type[forms.Form]]] = {}
+_FORM_CLASS_CACHE: OrderedDict[str, tuple[float, type[forms.Form]]] = OrderedDict()
 
 # MIME type mapping for common file extensions
 # Maps file extensions to expected MIME types for validation
@@ -138,6 +140,7 @@ def _validate_mime_type(uploaded_file, allowed_extensions: list[str]) -> str | N
 
         # Detect MIME type from file content
         try:
+            assert magic is not None
             detected_mime = magic.from_buffer(file_header, mime=True)
         except AttributeError as e:
             # The magic module does not provide from_buffer as expected
@@ -250,6 +253,7 @@ class DynamicFormGenerator:
             if cached:
                 cached_at, form_class = cached
                 if time.time() - cached_at < FORM_CLASS_CACHE_TTL_SECONDS:
+                    _FORM_CLASS_CACHE.move_to_end(cache_key)
                     return form_class
                 _FORM_CLASS_CACHE.pop(cache_key, None)
 
@@ -275,6 +279,8 @@ class DynamicFormGenerator:
         form_class = type(f"DynamicForm{suffix}", (forms.Form,), attrs)
 
         if cache_key:
+            if len(_FORM_CLASS_CACHE) >= FORM_CLASS_CACHE_MAXSIZE:
+                _FORM_CLASS_CACHE.popitem(last=False)
             _FORM_CLASS_CACHE[cache_key] = (time.time(), form_class)
 
         return form_class

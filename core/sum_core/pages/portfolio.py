@@ -127,7 +127,6 @@ class PortfolioIndexPage(
             CaseStudyPage.objects.child_of(self)
             .live()
             .public()
-            .specific()
             .order_by("-project_date", "-first_published_at")
         )
 

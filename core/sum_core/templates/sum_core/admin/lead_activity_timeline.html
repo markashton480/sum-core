@@ -1,0 +1,100 @@
+{% load i18n wagtailadmin_tags %}
+
+<style>
+    .lead-timeline {
+        position: relative;
+        padding-left: 1.5rem;
+        border-left: 2px solid var(--w-color-border-furniture);
+        margin-top: 0.5rem;
+    }
+
+    .lead-timeline__item {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    .lead-timeline__item:last-child {
+        margin-bottom: 0;
+    }
+
+    .lead-timeline__dot {
+        position: absolute;
+        left: -1.95rem;
+        top: 0.25rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: var(--w-color-surface-page);
+        border: 2px solid var(--w-color-text-meta);
+    }
+
+    .lead-timeline__dot.status { border-color: var(--w-color-secondary); background-color: var(--w-color-secondary); }
+    .lead-timeline__dot.note { border-color: var(--w-color-info-100); background-color: var(--w-color-info-100); }
+    .lead-timeline__dot.created { border-color: var(--w-color-positive-100); background-color: var(--w-color-positive-100); }
+
+    .lead-timeline__header {
+        font-size: 0.95rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .lead-timeline__meta {
+        font-size: 0.85rem;
+        color: var(--w-color-text-meta);
+        margin-top: 0.125rem;
+    }
+
+    .lead-timeline__note {
+        margin-top: 0.5rem;
+        padding: 0.75rem 1rem;
+        background-color: var(--w-color-surface-header);
+        border-radius: 4px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--w-color-text-label);
+    }
+</style>
+
+{# Marker for tests #}
+<h2 class="w-sr-only">Activity Timeline</h2>
+
+<div class="lead-timeline">
+    {% if activities %}
+        {% for activity in activities %}
+            <div class="lead-timeline__item">
+                <div class="lead-timeline__dot
+                    {% if activity.action_type == 'status_change' %}status
+                    {% elif activity.action_type == 'note_added' %}note
+                    {% elif activity.action_type == 'created' %}created
+                    {% endif %}">
+                </div>
+                <div class="lead-timeline__header">
+                    <div>
+                        <strong>
+                            {% if activity.action_type == 'status_change' %}
+                                Status changed to {{ activity.new_value.status|title }}
+                            {% elif activity.action_type == 'assignment_change' %}
+                                Assignment changed: Assigned to {{ activity.new_value.assigned_to|default:"Unassigned" }}
+                            {% elif activity.action_type == 'note_added' %}
+                                Note added
+                            {% elif activity.action_type == 'created' %}
+                                Lead created
+                            {% else %}
+                                {{ activity.get_action_type_display }}
+                            {% endif %}
+                        </strong>
+                        <div class="lead-timeline__meta">
+                            {% if activity.actor %}{{ activity.actor.get_full_name|default:activity.actor.username }}{% else %}System{% endif %}
+                            &bull; {{ activity.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+                {% if activity.action_type == 'note_added' and activity.new_value.note_preview %}
+                    <div class="lead-timeline__note">{{ activity.new_value.note_preview }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="lead-timeline__meta" style="font-style: italic;">No activity recorded yet.</p>
+    {% endif %}
+</div>

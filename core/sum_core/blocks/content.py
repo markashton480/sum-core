@@ -5,10 +5,12 @@ Purpose: Define StructBlocks for rich content sections (Hero, Features, Portfoli
 Family: Used by StreamFields in pages.
 """
 
+from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from sum_core.blocks.links import CtaLinkBlock
 from sum_core.utils.links import validate_safe_link
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
 
 
@@ -256,14 +258,28 @@ class TimelineItemBlock(blocks.StructBlock):
     )
     image = ImageChooserBlock(required=False, help_text="Optional supporting image")
     alt_text = blocks.CharBlock(
-        required=True,
+        required=False,
         max_length=255,
-        help_text="Alt text for the image (required for accessibility).",
+        help_text="Alt text for the image (required if image is set).",
     )
 
     class Meta:
         icon = "date"
         label = "Timeline Item"
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        image = cleaned.get("image")
+        alt_text = (cleaned.get("alt_text") or "").strip()
+        if image and not alt_text:
+            raise StructBlockValidationError(
+                block_errors={
+                    "alt_text": ValidationError("Alt text is required with an image.")
+                }
+            )
+        if not image:
+            cleaned["alt_text"] = ""
+        return cleaned
 
 
 class TimelineBlock(blocks.StructBlock):

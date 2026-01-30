@@ -13,6 +13,7 @@ from typing import Any
 from django.db import models
 from django.http import HttpRequest
 from sum_core.branding.models import SiteSettings
+from sum_core.seo_engine.panels import SEOAnalysisPanel
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.models import Page
 
@@ -43,6 +44,17 @@ class SeoFieldsMixin(models.Model):
         ),
     )
 
+    seo_h1 = models.CharField(
+        max_length=120,
+        blank=True,
+        verbose_name="SEO H1 Heading",
+        help_text=(
+            "The main heading for SEO purposes (appears as small eyebrow text). "
+            "Example: 'Expert Kitchen Fitters in Leeds'. "
+            "If left blank, the page title is used. Keep it concise and keyword-rich."
+        ),
+    )
+
     seo_noindex = models.BooleanField(
         default=False,
         help_text="If checked, this page will be hidden from search engines (noindex).",
@@ -54,17 +66,22 @@ class SeoFieldsMixin(models.Model):
         verbose_name="No-Follow",
     )
 
+    seo_analysis_panels = [
+        SEOAnalysisPanel(heading="SEO Analysis"),
+    ]
+
     seo_panels = [
         MultiFieldPanel(
             [
                 FieldPanel("slug"),
                 FieldPanel("seo_title"),
+                FieldPanel("seo_h1"),
                 FieldPanel("search_description"),
                 FieldPanel("seo_noindex"),
                 FieldPanel("seo_nofollow"),
             ],
             heading="SEO",
-        )
+        ),
     ]
     promote_panels = seo_panels + [FieldPanel("show_in_menus")]
 
@@ -118,6 +135,17 @@ class SeoFieldsMixin(models.Model):
         if request is None:
             return relative or ""
         return str(request.build_absolute_uri(relative or "/"))
+
+    def get_seo_h1(self) -> str:
+        """
+        Return the SEO H1 heading for the page.
+
+        Used as the semantic <h1> tag content for SEO purposes.
+        Falls back to page title if seo_h1 is not set.
+        """
+        if self.seo_h1:
+            return str(self.seo_h1)
+        return str(self.title)
 
 
 class OpenGraphMixin(models.Model):

@@ -73,5 +73,3 @@ __all__ = [
     "HomePage",
     "HomePageHeroCTA",
 ]
-
-default_app_config = "sum_core.pages.apps.PagesConfig"

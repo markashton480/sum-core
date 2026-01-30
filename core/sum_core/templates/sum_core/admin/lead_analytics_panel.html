@@ -1,40 +1,164 @@
-{% load i18n %}
+{% load i18n wagtailadmin_tags %}
 
-<section class="panel summary">
-    <h2 class="title">{% trans "Lead Summary (Last 30 Days)" %}</h2>
-    <div class="panel-content">
-        <p class="total-leads">
-            <strong>{% trans "Total Leads" %}:</strong> {{ total }}
-        </p>
+<style>
+    .analytics-card {
+        background-color: var(--w-color-surface-field);
+        border: 1px solid var(--w-color-border-furniture);
+        border-radius: 6px;
+        box-shadow: 0 1px 2px var(--w-color-box-shadow-md);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
 
-        <div class="lead-breakdown" style="display: flex; gap: 2rem; margin-top: 1rem;">
-            <div class="status-column">
-                <h3>{% trans "By Status" %}</h3>
-                <ul class="listing">
-                    {% for label, count in by_status.items %}
+    .analytics-card__header {
+        background-color: var(--w-color-surface-header);
+        border-bottom: 1px solid var(--w-color-border-furniture);
+        padding: 1rem 1.5rem;
+    }
+
+    .analytics-card__title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--w-color-text-label);
+    }
+
+    .analytics-card__content {
+        padding: 1.5rem;
+        color: var(--w-color-text-label);
+    }
+
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    @media (min-width: 640px) {
+        .analytics-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .analytics-stat-group {
+        margin-bottom: 1rem;
+    }
+
+    .analytics-stat-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--w-color-text-meta);
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid var(--w-color-border-furniture);
+        padding-bottom: 0.5rem;
+    }
+
+    .analytics-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .analytics-list li {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .analytics-list-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+    }
+
+    .analytics-list .label {
+        color: var(--w-color-text-label);
+        font-weight: 600;
+    }
+
+    .analytics-list .value {
+        color: var(--w-color-text-meta);
+    }
+
+    .analytics-progress {
+        height: 0.4rem;
+        background-color: var(--w-color-surface-page);
+        border-radius: 99px;
+        overflow: hidden;
+        border: 1px solid var(--w-color-border-furniture);
+    }
+    @media (prefers-color-scheme: dark) {
+        .analytics-progress {
+            background-color: var(--w-color-grey-600); /* Better track visibility in dark mode */
+        }
+    }
+
+    .analytics-progress-bar {
+        height: 100%;
+        background-color: var(--w-color-primary);
+        border-radius: 99px;
+    }
+
+    .analytics-total {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--w-color-primary);
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="analytics-card">
+    <div class="analytics-card__header">
+        <h2 class="analytics-card__title">
+            {% icon name="group" classname="w-w-4 w-h-4 w-mr-2 w-text-primary" %}
+            {% trans "Lead Summary (Last 30 Days)" %}
+        </h2>
+    </div>
+    <div class="analytics-card__content">
+        <div class="analytics-total">
+            {{ total }} <span style="font-size: 0.9rem; font-weight: normal; color: var(--w-color-text-meta);">{% trans "Total Leads" %}</span>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="analytics-stat-group">
+                <h3 class="analytics-stat-title">{% trans "By Status" %}</h3>
+                <ul class="analytics-list">
+                    {% for item in by_status %}
                         <li>
-                            <span class="label">{{ label }}:</span>
-                            <span class="value">{{ count }}</span>
+                            <div class="analytics-list-info">
+                                <span class="label">{{ item.label }}</span>
+                                <span class="value">{{ item.count }}</span>
+                            </div>
+                            <div class="analytics-progress">
+                                <div class="analytics-progress-bar" style="width: {{ item.percentage }}%"></div>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
 
-            <div class="source-column">
-                <h3>{% trans "By Source" %}</h3>
-                <ul class="listing">
-                    {% for label, count in by_source.items %}
+            <div class="analytics-stat-group">
+                <h3 class="analytics-stat-title">{% trans "By Source" %}</h3>
+                <ul class="analytics-list">
+                    {% for item in by_source %}
                         <li>
-                            <span class="label">{{ label }}:</span>
-                            <span class="value">{{ count }}</span>
+                            <div class="analytics-list-info">
+                                <span class="label">{{ item.label }}</span>
+                                <span class="value">{{ item.count }}</span>
+                            </div>
+                            <div class="analytics-progress">
+                                <div class="analytics-progress-bar" style="width: {{ item.percentage }}%; background-color: var(--w-color-secondary);"></div>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
 
-        <p class="help-text" style="margin-top: 1.5rem; font-style: italic; color: #666;">
+        <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--w-color-text-meta); font-style: italic; text-align: right;">
             {% trans "For detailed analytics, visit Google Analytics." %}
-        </p>
+        </div>
     </div>
-</section>
+</div>

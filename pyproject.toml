@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-platform"
-version = "0.7.1-dev"
+version = "0.8.0-dev"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
 
 [tool.sum_platform]
-version = "0.7.1-dev"
+version = "0.8.0-dev"
 
 [tool.setuptools]
 package-dir = {"" = "core"}
@@ -120,6 +120,10 @@ markers = [
     "legacy_only: Tests intended to run on sum_core 0.5.x",
     "loopsite: Loopsite-specific tests",
     "e2e: End-to-end tests using Playwright (slow, run separately)",
+    "e2e_admin: E2E tests for admin interface (theme-agnostic)",
+    "e2e_frontend: E2E tests for frontend (theme-aware)",
+    "e2e_js: E2E tests for JavaScript behavior",
+    "theme: Mark test as theme-specific (e.g., @pytest.mark.theme('theme_a'))",
 ]
 
 [tool.coverage.run]

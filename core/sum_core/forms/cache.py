@@ -9,7 +9,7 @@ Dependencies: django.core.cache, django.db.models.signals
 from __future__ import annotations
 
 from django.core.cache import cache
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 FORM_DEFINITION_CACHE_PREFIX = "form_definition"
@@ -56,12 +56,37 @@ def bump_form_definition_cache_version(site_id: int, form_definition_id: int) ->
         return "1"
 
 
+@receiver(pre_save, dispatch_uid="form_definition_cache_pre_save")
+def _on_form_definition_pre_save(sender, instance, **kwargs) -> None:
+    from sum_core.forms.models import FormDefinition
+
+    if sender is not FormDefinition or not instance.pk:
+        return
+
+    update_fields = kwargs.get("update_fields")
+    if (
+        update_fields is not None
+        and "site" not in update_fields
+        and "site_id" not in update_fields
+    ):
+        return
+
+    try:
+        old_instance = FormDefinition.objects.only("site_id").get(pk=instance.pk)
+        instance._old_site_id = old_instance.site_id
+    except FormDefinition.DoesNotExist:
+        instance._old_site_id = None
+
+
 @receiver(post_save, dispatch_uid="form_definition_cache_version_save")
 def _on_form_definition_save(sender, instance, **kwargs) -> None:
     from sum_core.forms.models import FormDefinition
 
     if sender is FormDefinition and instance.pk:
         bump_form_definition_cache_version(instance.site_id, instance.pk)
+        old_site_id = getattr(instance, "_old_site_id", None)
+        if old_site_id and old_site_id != instance.site_id:
+            bump_form_definition_cache_version(old_site_id, instance.pk)
 
 
 @receiver(post_delete, dispatch_uid="form_definition_cache_version_delete")

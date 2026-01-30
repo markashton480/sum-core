@@ -76,16 +76,16 @@ class SubmenuItemBlock(blocks.StructBlock):
         help_text="Link destination for this menu item.",
     )
 
-    class Meta:
-        icon = "indent"  # Changed icon to distinguish from simple link
-        label = "Submenu Item"
-
     children = blocks.ListBlock(
         SubSubmenuItemBlock(),
         required=False,
         max_num=8,
         help_text="Nested menu items (optional, max 8 items).",
     )
+
+    class Meta:
+        icon = "indent"  # Changed icon to distinguish from simple link
+        label = "Submenu Item"
 
 
 # =============================================================================

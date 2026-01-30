@@ -16,7 +16,7 @@ from sum_core.pages.mixins import (
     OpenGraphMixin,
     SeoFieldsMixin,
 )
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.fields import StreamField
 from wagtail.models import Page
 
@@ -51,6 +51,15 @@ class StandardPage(
     promote_panels = SeoFieldsMixin.promote_panels + OpenGraphMixin.open_graph_panels
     settings_panels = (
         Page.settings_panels + DesktopStickyCTAMixin.desktop_sticky_cta_panels
+    )
+
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(promote_panels, heading="Promote"),
+            ObjectList(settings_panels, heading="Settings"),
+            ObjectList(SeoFieldsMixin.seo_analysis_panels, heading="SEO"),
+        ]
     )
 
     # NOTE: parent_page_types is intentionally NOT set here.

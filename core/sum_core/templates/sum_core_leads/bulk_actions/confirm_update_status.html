@@ -1,0 +1,67 @@
+{% extends 'wagtailadmin/bulk_actions/confirmation/base.html' %}
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}
+    {% trans "Update Status" %} - {{ items|length|intcomma }} {{ model_opts.verbose_name_plural|capfirst }}
+{% endblock %}
+
+{% block header %}
+    {% trans "Update Status" as update_status_str %}
+    {% include "wagtailadmin/shared/header.html" with title=update_status_str subtitle=model_opts.verbose_name_plural|capfirst icon="mail" only %}
+{% endblock header %}
+
+{% block items_with_access %}
+    {% if items %}
+        {% if items|length == 1 %}
+            <p>{% trans "Select the new status for this lead:" %}</p>
+            <ul>
+                <li>{{ items.0.item }}</li>
+            </ul>
+        {% else %}
+            {% with count=items|length %}
+                <p>{% blocktrans trimmed count counter=count %}
+                    Select the new status to apply to {{ count }} lead:
+                {% plural %}
+                    Select the new status to apply to {{ count }} leads:
+                {% endblocktrans %}</p>
+            {% endwith %}
+            <ul>
+                {% for lead in items %}
+                    <li>{{ lead.item }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+{% endblock items_with_access %}
+
+{% block items_with_no_access %}
+    {% if items_with_no_access %}
+        {% if items_with_no_access|length == 1 %}
+            {% blocktrans with lead_name=model_opts.verbose_name trimmed asvar no_access_msg %}
+                You don't have permission to change this {{ lead_name }}
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans with lead_plural_name=model_opts.verbose_name_plural trimmed asvar no_access_msg %}
+                You don't have permission to change these {{ lead_plural_name }}
+            {% endblocktrans %}
+        {% endif %}
+        <div class="help-block help-warning">
+            <p>{{ no_access_msg }}</p>
+            <ul>
+                {% for lead in items_with_no_access %}
+                    <li>{{ lead.item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock items_with_no_access %}
+
+{% block form_section %}
+    {% if items %}
+        {% trans 'Update' as action_button_text %}
+        {% trans 'Cancel' as no_action_button_text %}
+        {% include 'wagtailadmin/bulk_actions/confirmation/form.html' %}
+    {% else %}
+        {% include 'wagtailadmin/bulk_actions/confirmation/go_back.html' %}
+    {% endif %}
+{% endblock form_section %}
