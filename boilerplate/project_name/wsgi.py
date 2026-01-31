@@ -4,6 +4,7 @@ WSGI application entry point.
 Replace 'project_name' with your actual project name after copying.
 For production, ensure DJANGO_SETTINGS_MODULE points to production settings.
 """
+
 from __future__ import annotations
 
 import os

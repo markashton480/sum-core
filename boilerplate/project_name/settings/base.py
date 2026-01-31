@@ -6,6 +6,7 @@ Environment-specific settings should be placed in local.py or production.py.
 
 Replace 'project_name' with your actual project name after copying.
 """
+
 from __future__ import annotations
 
 import json
@@ -149,11 +150,13 @@ INSTALLED_APPS: list[str] = [
     # SUM Core apps (the reusable platform package)
     "sum_core",
     "sum_core.pages",
+    "sum_core.banners",
     "sum_core.navigation",
     "sum_core.leads",
     "sum_core.forms",
     "sum_core.analytics",
     "sum_core.seo",
+    "sum_core.seo_engine",
     # Client home app (update after renaming project_name)
     "project_name.home",
 ]
@@ -281,7 +284,34 @@ DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
 # TODO: Update this to your site name
 WAGTAIL_SITE_NAME: str = "My Site"
+WAGTAIL_ENABLE_UPDATE_CHECK: str = "lts"
 WAGTAILADMIN_BASE_URL: str = os.getenv("WAGTAILADMIN_BASE_URL", "http://localhost:8001")
+
+# =============================================================================
+# Cache Configuration (used for rate limiting)
+# =============================================================================
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "sum-core-cache",
+    }
+}
+
+# =============================================================================
+# File Upload Limits
+# =============================================================================
+
+FILE_UPLOAD_MAX_MEMORY_SIZE: int = 52_428_800  # 50MB
+DATA_UPLOAD_MAX_MEMORY_SIZE: int = 52_428_800  # 50MB
+
+# =============================================================================
+# Django 6.0 Compatibility
+# =============================================================================
+
+# Silence Django 6.0 deprecation warning about URL scheme
+# Default scheme will change from 'http' to 'https' in Django 6.0
+FORMS_URLFIELD_ASSUME_HTTPS: bool = True
 
 # =============================================================================
 # Celery Configuration (defaults for development)

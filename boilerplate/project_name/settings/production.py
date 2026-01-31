@@ -4,6 +4,7 @@ Production settings.
 This file contains settings for production deployments.
 All sensitive values must be provided via environment variables.
 """
+
 from __future__ import annotations
 
 import os
@@ -20,7 +21,9 @@ from .base import *  # noqa: F401, F403
 DEBUG: bool = False
 
 # SECURITY: ALLOWED_HOSTS must be set in production
-ALLOWED_HOSTS: list[str] = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS: list[str] = [
+    host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()
+]
 
 # SECURITY: Enforce HTTPS
 SECURE_SSL_REDIRECT: bool = os.getenv("SECURE_SSL_REDIRECT", "True").lower() == "true"
@@ -34,6 +37,16 @@ X_FRAME_OPTIONS: str = "DENY"
 SECURE_HSTS_SECONDS: int = 31536000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS: bool = True
 SECURE_HSTS_PRELOAD: bool = True
+
+# SECURITY: CSRF trusted origins for reverse proxy deployments
+CSRF_TRUSTED_ORIGINS: list[str] = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+# SECURITY: Trust X-Forwarded-Proto header from reverse proxy (Caddy, nginx, AWS ALB)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # =============================================================================
 # Database - PostgreSQL for production

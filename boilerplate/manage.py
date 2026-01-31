@@ -4,6 +4,7 @@ Django management command entry point.
 
 Replace 'project_name' with your actual project name after copying.
 """
+
 from __future__ import annotations
 
 import os

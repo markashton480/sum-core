@@ -4,6 +4,7 @@ Django AppConfig for the client home app.
 Replace 'project_name' with your actual project name after copying.
 Both 'name' and 'label' must be updated.
 """
+
 from __future__ import annotations
 
 from django.apps import AppConfig
