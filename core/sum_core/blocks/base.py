@@ -143,6 +143,7 @@ class PageStreamBlock(StreamBlock):
             "ul",  # Ordered and unordered lists
         ],
         required=False,
+        template="sum_core/blocks/rich_text.html",
     )
 
     class Meta:

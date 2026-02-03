@@ -10,6 +10,11 @@ from __future__ import annotations
 import os
 import sys
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env file before Django initialization
+load_dotenv()
+
 
 def main() -> None:
     """Run administrative tasks."""

@@ -76,6 +76,9 @@ class Command(BaseCommand):
             slug="home",
             seo_title="Home",
             search_description="Welcome to our website",
+            hero_headline="<p>Welcome to Your New Site</p>",
+            hero_subheadline="Your professional website is ready to customize.",
+            hero_overlay_opacity="medium",
             body=self._get_default_content(preset),
         )
 
@@ -100,15 +103,6 @@ class Command(BaseCommand):
     def _get_default_content(self, preset: str | None) -> list[dict[str, Any]]:
         # Preset support is reserved for a future phase.
         return [
-            {
-                "type": "hero_gradient",
-                "value": {
-                    "headline": "<p>Welcome to Your New Site</p>",
-                    "subheadline": "Your professional website is ready to customize.",
-                    "ctas": [],
-                    "gradient_style": "primary",
-                },
-            },
             {
                 "type": "rich_text",
                 "value": (

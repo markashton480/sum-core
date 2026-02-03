@@ -9,6 +9,8 @@ python-magic<1.0,>=0.4.27
 [dev]
 psycopg[binary]<4,>=3.2
 PyYAML<7.0,>=6.0
+playwright>=1.41.0
+pytest-playwright>=0.4.0
 pytest
 pytest-django
 pytest-cov

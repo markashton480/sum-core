@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-core"
-version = "0.7.1"
+version = "0.7.2"
 description = "Shared core package for SUM client websites"
 requires-python = ">=3.12"
 dependencies = [
@@ -40,6 +40,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["sum_core*"]
+exclude = ["sum_core.test_project*"]
 
 [tool.setuptools.package-data]
 sum_core = [

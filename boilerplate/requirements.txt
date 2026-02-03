@@ -7,7 +7,7 @@
 # and uncomment the editable install:
 #   -e ../../core
 
-sum-core @ git+https://github.com/markashton480/sum-core.git@v0.7.1#subdirectory=core
+sum-core @ git+https://github.com/markashton480/sum-core.git@v0.7.2#subdirectory=core
 
 # PostgreSQL driver for production deployments
 psycopg[binary]>=3.2,<4
@@ -17,3 +17,9 @@ redis>=5,<6
 
 # WSGI server (used by typical systemd + Caddy deploy)
 gunicorn>=22,<24
+
+# Required by seeders for YAML content profiles
+pyyaml>=6,<7
+
+# Load environment variables from .env file
+python-dotenv>=1.0,<2

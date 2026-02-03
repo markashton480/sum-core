@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-platform"
-version = "0.8.1-dev"
+version = "0.9.0-dev"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
 
 [tool.sum_platform]
-version = "0.8.1-dev"
+version = "0.9.0-dev"
 
 [tool.setuptools]
 package-dir = {"" = "core"}
@@ -123,6 +123,8 @@ markers = [
     "e2e_admin: E2E tests for admin interface (theme-agnostic)",
     "e2e_frontend: E2E tests for frontend (theme-aware)",
     "e2e_js: E2E tests for JavaScript behavior",
+    "e2e_cli: E2E tests for CLI-generated projects (tests real CLI workflow)",
+    "cli_fast: Quick CLI tests (init --quick, canary) for fast feedback",
     "theme: Mark test as theme-specific (e.g., @pytest.mark.theme('theme_a'))",
 ]
 

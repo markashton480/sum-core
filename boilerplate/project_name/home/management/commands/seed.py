@@ -57,7 +57,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "profile",
             nargs="?",
-            help="Content profile to seed (e.g., sage-stone).",
+            help="Content profile to seed (e.g., starter, sage-stone).",
         )
         parser.add_argument(
             "--clear",

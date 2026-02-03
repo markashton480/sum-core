@@ -212,9 +212,7 @@ Deploys on GitHub release publication. Requires manual approval via GitHub envir
 
 ### Setup
 
-These workflows require GitHub secrets configuration. See the setup guide:
-
-**[docs/ops-pack/client-cicd-setup.md](https://github.com/markashton480/sum-platform/blob/develop/docs/ops-pack/client-cicd-setup.md)**
+These workflows require GitHub secrets configuration (SSH keys, server details, etc.).
 
 ## Production Deployment
 

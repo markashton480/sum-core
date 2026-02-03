@@ -188,13 +188,32 @@ class Command(BaseCommand):
 
         if profile == PROFILE_STARTER:
             home.title = "Starter Home"
+            # Set hero fields on HomePage model (used by theme template)
+            home.hero_headline = "<p>Build with <em>confidence</em></p>"
+            home.hero_subheadline = (
+                "Starter content to help you validate layouts and branding quickly."
+            )
+            home.hero_image_id = images.hero_id
+            home.hero_image_alt = "Starter hero placeholder image"
+            home.hero_overlay_opacity = "light"
             home.body = self._build_starter_home_stream(
                 images=images, contact_page=contact
             )
         else:
             home.title = "Theme Showroom"
+            # Set hero fields on HomePage model (used by theme template)
+            home.hero_headline = "<p>Theme <em>Showroom</em></p>"
+            home.hero_subheadline = (
+                "A seeded site tree with every block, ready for theme development."
+            )
+            home.hero_image_id = images.hero_id
+            home.hero_image_alt = "A placeholder hero image for theme showcase"
+            home.hero_overlay_opacity = "medium"
             home.body = self._build_home_stream(images=images, contact_page=contact)
         home.save_revision().publish()
+
+        # Add hero CTAs if the model supports them
+        self._seed_hero_ctas(home, profile, contact)
 
         if showroom is not None:
             showroom.body = self._build_showroom_stream(
@@ -646,37 +665,11 @@ class Command(BaseCommand):
     def _build_starter_home_stream(
         self, *, images: _Images, contact_page: StandardPage
     ) -> Any:
+        # NOTE: Hero is rendered from HomePage model fields (hero_headline, etc.)
+        # not from body StreamField blocks. Body contains content after the hero.
         stream_block = PageStreamBlock()
         return stream_block.to_python(
             [
-                {
-                    "type": "hero_image",
-                    "value": {
-                        "headline": "<p>Build with <em>confidence</em></p>",
-                        "subheadline": "Starter content to help you validate layouts and branding quickly.",
-                        "ctas": [
-                            {
-                                "label": "Get in touch",
-                                "url": "/contact/",
-                                "style": "primary",
-                                "open_in_new_tab": False,
-                            },
-                            {
-                                "label": "Browse services",
-                                "url": "/services/",
-                                "style": "secondary",
-                                "open_in_new_tab": False,
-                            },
-                        ],
-                        "status": "Starter",
-                        "image": images.hero_id,
-                        "image_alt": "Starter hero placeholder image",
-                        "overlay_opacity": "light",
-                        "layout": "full",
-                        "floating_card_label": "Local response time",
-                        "floating_card_value": "< 1 day",
-                    },
-                },
                 {
                     "type": "content",
                     "value": {
@@ -715,39 +708,11 @@ class Command(BaseCommand):
         )
 
     def _build_home_stream(self, *, images: _Images, contact_page: StandardPage) -> Any:
+        # NOTE: Hero is rendered from HomePage model fields (hero_headline, etc.)
+        # not from body StreamField blocks. Body contains content after the hero.
         stream_block = PageStreamBlock()
         return stream_block.to_python(
             [
-                {
-                    "type": "hero_image",
-                    "value": {
-                        "headline": "<p>Theme <em>Showroom</em></p>",
-                        "subheadline": "A seeded site tree with every block, ready for theme development.",
-                        "ctas": [
-                            {
-                                "label": "View the showroom",
-                                "url": "/showroom/",
-                                "style": "primary",
-                                "open_in_new_tab": False,
-                            },
-                            {
-                                "label": "Contact",
-                                # NOTE: Use stable paths rather than page.url because this block uses URLBlock.
-                                # page.url may be None for unpublished pages during seeding.
-                                "url": "/contact/",
-                                "style": "secondary",
-                                "open_in_new_tab": False,
-                            },
-                        ],
-                        "status": "SUM Platform",
-                        "image": images.hero_id,
-                        "image_alt": "A placeholder hero image for theme showcase",
-                        "overlay_opacity": "medium",
-                        "layout": "full",
-                        "floating_card_label": "Avg. response time",
-                        "floating_card_value": "< 2 hrs",
-                    },
-                },
                 {
                     "type": "trust_strip_logos",
                     "value": {
@@ -1389,6 +1354,45 @@ class Command(BaseCommand):
     # -----------------------------------------------------------------------------
     # Branding & Navigation
     # -----------------------------------------------------------------------------
+
+    def _seed_hero_ctas(self, home: Page, profile: str, contact: Page) -> None:
+        """Add hero CTAs to the homepage if the model supports them."""
+        # Check if the home page model has hero_ctas (InlinePanel relation)
+        if not hasattr(home, "hero_ctas"):
+            return
+
+        # Get the CTA model from the related manager
+        # This works because hero_ctas is a ParentalKey relation
+        cta_manager = home.hero_ctas
+
+        # Clear existing CTAs first
+        cta_manager.all().delete()
+
+        # Get the CTA model class
+        cta_model = cta_manager.model
+
+        if profile == PROFILE_STARTER:
+            ctas = [
+                {"label": "Get in touch", "url": "/contact/", "style": "primary"},
+                {"label": "Browse services", "url": "/services/", "style": "secondary"},
+            ]
+        else:
+            ctas = [
+                {"label": "View the showroom", "url": "/showroom/", "style": "primary"},
+                {"label": "Contact", "url": "/contact/", "style": "secondary"},
+            ]
+
+        for i, cta_data in enumerate(ctas):
+            cta_model.objects.create(
+                page=home,
+                sort_order=i,
+                label=cta_data["label"],
+                url=cta_data["url"],
+                style=cta_data["style"],
+            )
+
+        # Re-publish the page to include CTAs in the revision
+        home.save_revision().publish()
 
     def _seed_branding(
         self, *, site: Site, images: _Images, terms: Page, privacy: Page, cookies: Page

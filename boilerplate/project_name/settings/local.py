@@ -1,8 +1,8 @@
 """
 Local development settings.
 
-This file contains settings for local development only.
-Uses SQLite and in-memory services for simplicity.
+This file contains settings for local development and staging.
+Requires PostgreSQL - configure via environment variables in .env file.
 """
 
 from __future__ import annotations
@@ -36,13 +36,17 @@ CSRF_TRUSTED_ORIGINS: list[str] = [
 ]
 
 # =============================================================================
-# Database - SQLite for local development
+# Database - PostgreSQL (configured via environment variables)
 # =============================================================================
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",  # noqa: F405
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ["DJANGO_DB_NAME"],
+        "USER": os.environ["DJANGO_DB_USER"],
+        "PASSWORD": os.environ["DJANGO_DB_PASSWORD"],
+        "HOST": os.environ.get("DJANGO_DB_HOST", "localhost"),
+        "PORT": os.environ.get("DJANGO_DB_PORT", "5432"),
     }
 }
 
