@@ -12,6 +12,12 @@
           {% if self.intro %}
             <div class="section__intro text-lg">{{ self.intro|richtext }}</div>
           {% endif %}
+          {% if self.phone_label and self.phone_link.href and self.phone_link.href != "#" %}
+            <p class="section__phone-cta">
+              {{ self.phone_label }}
+              <a href="{{ self.phone_link.href }}" {{ self.phone_link.attrs_str }}>{{ self.phone_link.text }}</a>
+            </p>
+          {% endif %}
         </header>
       </div>
 
@@ -20,6 +26,7 @@
         {% with block_id=block.id %}
         <form action="/forms/submit/" method="post" novalidate class="form premium-form js-async-form" data-form-type="contact" id="contact-form{% if block_id %}-{{ block_id }}{% endif %}"
               data-success-message="{{ self.success_message|default:"Thanks, we'll be in touch shortly."|escapejs }}"
+              data-success-redirect="{{ self.success_redirect.href|default:""|escapejs }}"
               data-error-message="Something went wrong. Please try again.">
           {% csrf_token %}
 
@@ -136,6 +143,19 @@
       })
       .then(function(result) {
         if (result.data.success) {
+          // Check for redirect URL first
+          var redirectUrl = form.dataset.successRedirect;
+          if (redirectUrl) {
+            try {
+              var resolvedUrl = new URL(redirectUrl, window.location.origin);
+              if (resolvedUrl.origin === window.location.origin) {
+                window.location.href = resolvedUrl.href;
+                return;
+              }
+            } catch (e) {
+              // Ignore invalid redirect targets and fall back to inline success.
+            }
+          }
           // Success - show success message from data attribute (safe from XSS)
           messagesDiv.className = 'form-messages form-messages--success';
           var successMsg = document.createElement('p');

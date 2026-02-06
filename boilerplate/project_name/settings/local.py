@@ -21,6 +21,9 @@ from .base import *  # noqa: F401, F403
 DEBUG: bool = True
 ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "[::1]", "testserver"]
 
+# Allow Wagtail admin preview iframe to load pages from the same origin
+X_FRAME_OPTIONS: str = "SAMEORIGIN"
+
 # Support additional hosts via environment variable (e.g., for ngrok, custom domains)
 _allowed_hosts_extra = os.getenv("ALLOWED_HOSTS_EXTRA", "")
 if _allowed_hosts_extra:

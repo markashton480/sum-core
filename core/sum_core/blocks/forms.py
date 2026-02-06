@@ -41,6 +41,10 @@ class ContactFormBlock(StructBlock):
     success_message = TextBlock(
         required=False, default="Thanks, we'll be in touch shortly."
     )
+    success_redirect = UniversalLinkBlock(
+        required=False,
+        help_text="Optional redirect after submission (e.g. to a thank-you page).",
+    )
     submit_label = CharBlock(required=False, default="Send enquiry")
 
     class Meta:

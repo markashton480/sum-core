@@ -1,0 +1,41 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags i18n %}
+
+{% block titletag %}{{ page_title }}{% endblock %}
+{% block bodyclass %}trash-delete{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title=page_title icon="warning" %}
+
+    <div class="nice-padding">
+        <form action="{% url 'wagtail_trash_delete' page_id=page.pk %}" method="post">
+            {% csrf_token %}
+
+            <div class="w-panel w-panel--critical">
+                <div class="w-panel__content">
+                    <p>
+                        {% icon name="warning" %}
+                        <strong>This action cannot be undone.</strong>
+                    </p>
+                    <p>
+                        Are you sure you want to permanently delete <strong>"{{ page.title }}"</strong>?
+                    </p>
+                    {% if descendant_count > 0 %}
+                        <p>
+                            {% icon name="warning" %}
+                            This will also permanently delete <strong>{{ descendant_count }}</strong> child page{{ descendant_count|pluralize }}.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="w-mt-6">
+                <button type="submit" class="button no">
+                    {% icon name="bin" %}
+                    Yes, delete permanently
+                </button>
+                <a href="{% url 'wagtail_trash_index' %}" class="button button-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

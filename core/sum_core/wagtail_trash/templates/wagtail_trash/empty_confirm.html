@@ -1,0 +1,74 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags i18n %}
+
+{% block titletag %}{{ page_title }}{% endblock %}
+{% block bodyclass %}trash-empty{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title=page_title icon="bin" %}
+
+    <div class="nice-padding">
+        {% if total_count > 0 %}
+            <form action="{% url 'wagtail_trash_empty' %}" method="post">
+                {% csrf_token %}
+
+                <div class="w-panel w-panel--critical">
+                    <div class="w-panel__content">
+                        <p>
+                            {% icon name="warning" %}
+                            <strong>This action cannot be undone.</strong>
+                        </p>
+                        <p>
+                            The trash contains <strong>{{ total_count }}</strong> item{{ total_count|pluralize }}.
+                            {% if old_items_count > 0 %}
+                                <br>{{ old_items_count }} item{{ old_items_count|pluralize }} {{ old_items_count|pluralize:"is,are" }} older than 30 days.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-mt-6">
+                    <h3>Empty options</h3>
+
+                    <div class="w-field">
+                        <label class="w-field__label">
+                            <input type="radio" name="empty_option" value="all" checked>
+                            Delete all items ({{ total_count }})
+                        </label>
+                    </div>
+
+                    {% if old_items_count > 0 %}
+                        <div class="w-field">
+                            <label class="w-field__label">
+                                <input type="radio" name="empty_option" value="old" onclick="document.getElementById('older_than_days').value = '30';">
+                                Delete only items older than 30 days ({{ old_items_count }})
+                            </label>
+                        </div>
+                    {% endif %}
+
+                    <input type="hidden" name="older_than_days" id="older_than_days" value="">
+                </div>
+
+                <script>
+                    document.querySelector('form').addEventListener('submit', function(e) {
+                        var option = document.querySelector('input[name="empty_option"]:checked');
+                        if (option && option.value === 'all') {
+                            document.getElementById('older_than_days').value = '';
+                        }
+                    });
+                </script>
+
+                <div class="w-mt-6">
+                    <button type="submit" class="button no">
+                        {% icon name="bin" %}
+                        Empty Trash
+                    </button>
+                    <a href="{% url 'wagtail_trash_index' %}" class="button button-secondary">Cancel</a>
+                </div>
+            </form>
+        {% else %}
+            <p>Trash is already empty.</p>
+            <a href="{% url 'wagtail_trash_index' %}" class="button button-secondary">Back to Trash</a>
+        {% endif %}
+    </div>
+{% endblock %}

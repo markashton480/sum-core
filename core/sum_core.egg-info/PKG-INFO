@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: sum-core
-Version: 0.6.1
+Version: 0.7.3
 Summary: Shared core package for SUM client websites
 Requires-Python: >=3.12
 Requires-Dist: Django<5.3,>=5.2

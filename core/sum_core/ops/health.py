@@ -97,18 +97,53 @@ def check_celery() -> CheckResult:
         return CheckResult(status="fail", detail=str(e))
 
 
+def check_backup() -> CheckResult:
+    """Check if backups are recent (within 48 hours).
+
+    Reads the last backup timestamp from a marker file written by pgBackRest.
+    Returns ok if backups are not configured (backwards compatibility).
+    """
+    from pathlib import Path
+
+    # Check if backup monitoring is configured via BACKUP_STATUS_FILE env var
+    backup_status_file = os.environ.get("BACKUP_STATUS_FILE", "")
+    if not backup_status_file:
+        # No marker configured = backups not configured or legacy setup
+        return CheckResult(status="ok", detail="Not configured (skipped)")
+    backup_marker = Path(backup_status_file)
+
+    if not backup_marker.exists():
+        # No marker = backups not configured or legacy setup
+        return CheckResult(status="ok", detail="Not configured (skipped)")
+
+    try:
+        content = backup_marker.read_text().strip()
+        last_backup_ts = float(content)
+        age_hours = (time.time() - last_backup_ts) / 3600
+
+        if age_hours > 48:
+            return CheckResult(
+                status="fail", detail=f"Last backup {age_hours:.1f} hours ago (>48h)"
+            )
+
+        return CheckResult(status="ok")
+    except (ValueError, OSError) as e:
+        return CheckResult(status="fail", detail=f"Cannot read backup status: {e}")
+
+
 def get_health_status() -> dict[str, Any]:
     checks = {
         "db": check_db(),
         "cache": check_cache(),
         "celery": check_celery(),
+        "backup": check_backup(),
     }
 
     # Determine overall status.
     # NOTE: checks expose "ok"/"fail", while overall status uses the broader contract:
     # ok/degraded/unhealthy (see module docstring).
     critical_checks = ("db", "cache")
-    non_critical_checks = ("celery",)
+    non_critical_checks = ("celery", "backup")
 
     is_unhealthy = any(checks[name].status == "fail" for name in critical_checks)
     is_degraded = any(checks[name].status == "fail" for name in non_critical_checks)

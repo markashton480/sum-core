@@ -1,0 +1,99 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags i18n %}
+
+{% block titletag %}Trash{% endblock %}
+{% block bodyclass %}trash-index{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="Trash" icon="bin" %}
+
+    <div class="nice-padding">
+        {% if total_count > 0 %}
+            <div class="w-mb-4">
+                <p class="help-block">
+                    {{ total_count }} item{{ total_count|pluralize }} in trash
+                    {% if total_with_descendants > total_count %}
+                        ({{ total_with_descendants }} including children)
+                    {% endif %}
+                    {% if old_items_count > 0 %}
+                        &middot; {{ old_items_count }} older than 30 days
+                    {% endif %}
+                </p>
+                <a href="{% url 'wagtail_trash_empty' %}" class="button button-secondary button--icon">
+                    {% icon name="bin" %}
+                    Empty Trash
+                </a>
+            </div>
+
+            <table class="listing">
+                <thead>
+                    <tr>
+                        <th>Page</th>
+                        <th>Type</th>
+                        <th>Original Location</th>
+                        <th>Deleted</th>
+                        <th>By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in pages %}
+                        <tr>
+                            <td class="title">
+                                <h2>
+                                    {{ item.page.title }}
+                                    {% if item.descendant_count > 0 %}
+                                        <span class="w-status w-status--label">+{{ item.descendant_count }} child{{ item.descendant_count|pluralize:"ren" }}</span>
+                                    {% endif %}
+                                </h2>
+                            </td>
+                            <td>
+                                {{ item.page.specific_class.get_verbose_name }}
+                            </td>
+                            <td>
+                                {% if item.trash_info.original_parent %}
+                                    {{ item.trash_info.original_parent.title }}
+                                    {% if not item.can_restore %}
+                                        <span class="w-status w-status--critical">unavailable</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="w-status w-status--critical">unknown</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% blocktrans with time=item.trash_info.trashed_at|timesince %}{{ time }} ago{% endblocktrans %}
+                            </td>
+                            <td>
+                                {% if item.trash_info.trashed_by %}
+                                    {{ item.trash_info.trashed_by.get_username }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.can_restore %}
+                                    <a href="{% url 'wagtail_trash_restore' page_id=item.page.pk %}" class="button button-small button-secondary">
+                                        Restore
+                                    </a>
+                                {% else %}
+                                    <button class="button button-small button-secondary" disabled title="Original parent is no longer available">
+                                        Restore
+                                    </button>
+                                {% endif %}
+                                <a href="{% url 'wagtail_trash_delete' page_id=item.page.pk %}" class="button button-small no">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if page_obj.has_other_pages %}
+                {% include "wagtailadmin/shared/pagination_nav.html" with items=page_obj %}
+            {% endif %}
+        {% else %}
+            <p>Trash is empty.</p>
+        {% endif %}
+    </div>
+{% endblock %}

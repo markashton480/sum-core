@@ -31,7 +31,9 @@ SESSION_COOKIE_SECURE: bool = True
 CSRF_COOKIE_SECURE: bool = True
 SECURE_BROWSER_XSS_FILTER: bool = True
 SECURE_CONTENT_TYPE_NOSNIFF: bool = True
-X_FRAME_OPTIONS: str = "DENY"
+# SAMEORIGIN allows Wagtail admin preview iframe while still protecting against
+# cross-origin clickjacking attacks
+X_FRAME_OPTIONS: str = "SAMEORIGIN"
 
 # HSTS settings
 SECURE_HSTS_SECONDS: int = 31536000  # 1 year

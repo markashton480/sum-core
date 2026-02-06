@@ -1,4 +1,4 @@
-{% load branding_tags wagtailcore_tags navigation_tags %}
+{% load branding_tags wagtailcore_tags navigation_tags wagtailimages_tags %}
 {% get_site_settings as site_settings %}
 {% wagtail_site as current_site %}
 {% firstof site_settings.company_name current_site.site_name WAGTAIL_SITE_NAME as site_name %}
@@ -9,7 +9,11 @@
         <div class="footer__grid">
             {# Brand & Tagline Column #}
             <div class="footer__brand">
-                <h2 class="footer__brand-name">{{ site_name }}</h2>
+                {% if site_settings.footer_logo %}
+                    {% image site_settings.footer_logo height-48 class="footer__logo" alt=site_name %}
+                {% else %}
+                    <h2 class="footer__brand-name">{{ site_name }}</h2>
+                {% endif %}
                 {% if footer.tagline %}
                     <p class="footer__tagline">{{ footer.tagline }}</p>
                 {% endif %}

@@ -287,6 +287,10 @@ WAGTAIL_SITE_NAME: str = "My Site"
 WAGTAIL_ENABLE_UPDATE_CHECK: str = "lts"
 WAGTAILADMIN_BASE_URL: str = os.getenv("WAGTAILADMIN_BASE_URL", "http://localhost:8001")
 
+# Wagtail file upload limits (default is 10MB, increased to 50MB to match Django limits)
+WAGTAILIMAGES_MAX_UPLOAD_SIZE: int = 52_428_800  # 50MB
+WAGTAILDOCS_MAX_UPLOAD_SIZE: int = 52_428_800  # 50MB
+
 # =============================================================================
 # Cache Configuration (used for rate limiting)
 # =============================================================================

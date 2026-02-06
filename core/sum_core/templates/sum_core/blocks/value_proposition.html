@@ -26,7 +26,7 @@
                     </div>
                 {% endif %}
 
-                {% if self.phone_label and self.phone_link %}
+                {% if self.phone_label and self.phone_link.href and self.phone_link.href != "#" %}
                     <div class="value-proposition__phone">
                         <span class="value-proposition__phone-label">{{ self.phone_label }}</span>
                         <a href="{{ self.phone_link.href }}" {{ self.phone_link.attrs_str }}>

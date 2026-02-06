@@ -21,6 +21,10 @@ WAGTAIL_SITE_NAME: str = "SUM Test Project"
 WAGTAIL_ENABLE_UPDATE_CHECK = "lts"
 WAGTAILADMIN_BASE_URL: str = "http://localhost:8000"
 
+# Wagtail file upload limits (default is 10MB, increased to 50MB to match Django limits)
+WAGTAILIMAGES_MAX_UPLOAD_SIZE: int = 52_428_800  # 50MB
+WAGTAILDOCS_MAX_UPLOAD_SIZE: int = 52_428_800  # 50MB
+
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 # Detect test runs early so we can keep template resolution deterministic.
@@ -28,6 +32,14 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 # (and let tests explicitly install Theme A there), rather than auto-pointing at
 # any repo-local Theme A directories.
 RUNNING_TESTS = any("pytest" in arg for arg in sys.argv)
+
+# CI environment detection - GitHub Actions sets CI=true
+# Used to skip database validation for commands like makemigrations that don't need a real DB
+RUNNING_IN_CI = os.getenv("CI", "").lower() == "true"
+
+# Commands that don't require database connection (schema inspection only)
+_DB_OPTIONAL_COMMANDS = {"makemigrations", "showmigrations", "check", "diffsettings"}
+_SKIP_DB_VALIDATION = any(cmd in sys.argv for cmd in _DB_OPTIONAL_COMMANDS)
 
 ENV_FILE_PATH: Path | None = None
 
@@ -112,6 +124,7 @@ INSTALLED_APPS: list[str] = [
     "sum_core.analytics",
     "sum_core.seo",
     "sum_core.seo_engine",
+    "sum_core.wagtail_trash",
     "home",
 ]
 
@@ -135,6 +148,8 @@ MIDDLEWARE: list[str] = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
+# Allow Wagtail admin preview iframe to load pages from the same origin
+X_FRAME_OPTIONS: str = "SAMEORIGIN"
 
 ROOT_URLCONF: str = "test_project.urls"
 
@@ -239,12 +254,13 @@ def _validate_db_env() -> None:
 USE_POSTGRES_FOR_TESTS = os.getenv("SUM_TEST_DB", "sqlite").lower() == "postgres"
 
 # Development runs require Postgres - fail fast if not configured
-if not RUNNING_TESTS:
+# Skip validation for: tests, CI makemigrations, and other DB-optional commands
+if not RUNNING_TESTS and not _SKIP_DB_VALIDATION:
     _validate_db_env()
 
 # Database configuration: Postgres for dev, SQLite for tests (unless overridden)
-if RUNNING_TESTS and not USE_POSTGRES_FOR_TESTS:
-    # Tests use in-memory SQLite for speed
+if (RUNNING_TESTS and not USE_POSTGRES_FOR_TESTS) or _SKIP_DB_VALIDATION:
+    # Tests and DB-optional commands use in-memory SQLite for speed
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",

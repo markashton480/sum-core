@@ -30,7 +30,7 @@ A Django/Wagtail foundation for launching lead-focused websites for home improve
 Install from the public repository:
 
 ```bash
-pip install "sum_core @ git+https://github.com/markashton480/sum-core.git@v0.7.1"
+pip install "sum_core @ git+https://github.com/markashton480/sum-core.git@v0.7.2"
 ```
 
 For the latest development version:
@@ -148,12 +148,6 @@ LEAD_NOTIFICATION_EMAIL=leads@yoursite.com
 ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/...
 SENTRY_DSN=https://...
 ```
-
-## Example Projects
-
-- **[sum_client](clients/sum_client/)**: Reference implementation showing recommended project structure
-- **[showroom](clients/showroom/)**: Demonstration site with sample content
-
 
 ## License
 

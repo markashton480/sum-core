@@ -1,0 +1,65 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags i18n %}
+
+{% block titletag %}{{ page_title }}{% endblock %}
+{% block bodyclass %}trash-restore{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title=page_title icon="undo" %}
+
+    <div class="nice-padding">
+        <form action="{% url 'wagtail_trash_restore' page_id=page.pk %}" method="post">
+            {% csrf_token %}
+
+            <p>
+                Are you sure you want to restore <strong>"{{ page.title }}"</strong>?
+            </p>
+
+            {% if descendant_count > 0 %}
+                <p class="help-block">
+                    {% icon name="warning" %}
+                    This page has {{ descendant_count }} child page{{ descendant_count|pluralize }} that will also be restored.
+                </p>
+            {% endif %}
+
+            {% if can_restore %}
+                <p>
+                    The page will be restored to its original location under
+                    <strong>"{{ original_parent.title }}"</strong>.
+                </p>
+            {% else %}
+                <div class="w-panel w-panel--warning">
+                    <div class="w-panel__content">
+                        <p>
+                            {% icon name="warning" %}
+                            <strong>Original location unavailable.</strong>
+                            The original parent page no longer exists or has been moved to trash.
+                        </p>
+                        <p>
+                            Please select a new location for this page:
+                        </p>
+                        {# TODO: Add page chooser for selecting new parent #}
+                        <p class="help-block">
+                            <em>Page chooser not yet implemented. Please restore the parent page first, or contact an administrator.</em>
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="w-mt-6">
+                {% if can_restore %}
+                    <button type="submit" class="button">
+                        {% icon name="undo" %}
+                        Restore Page
+                    </button>
+                {% else %}
+                    <button type="submit" class="button" disabled title="Cannot restore without a valid parent">
+                        {% icon name="undo" %}
+                        Restore Page
+                    </button>
+                {% endif %}
+                <a href="{% url 'wagtail_trash_index' %}" class="button button-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
