@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-platform"
-version = "0.10.0-dev"
+version = "0.10.1-dev"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
 
 [tool.sum_platform]
-version = "0.10.0-dev"
+version = "0.10.1-dev"
 
 [tool.setuptools]
 package-dir = {"" = "core"}
@@ -169,7 +169,7 @@ explicit_package_bases = true
 exclude = [
     "/(build|dist|\\.eggs|\\.git|\\.hg|\\.mypy_cache|\\.tox|\\.venv|venv|_build|buck-out)/",
     "^boilerplate/",
-    "^cli/sum_cli/boilerplate/",
+    "^cli/sum/boilerplate/",
     "^clients/",
     "^sum-core-public/",
 ]

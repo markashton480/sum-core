@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
+from html import escape
 from html.parser import HTMLParser
 
 from sum_core.seo_engine.utils import extract_text_from_stream_field
@@ -157,21 +158,7 @@ class HealthAnalyzer:
 
     def _score_heading_structure(self) -> int:
         """Score heading structure and hierarchy."""
-        # Extract all HTML from body
-        html_content = self._extract_html_from_body()
-        if not html_content:
-            return 0
-
-        # Parse headings
-        parser = HeadingParser()
-        try:
-            parser.feed(html_content)
-        except Exception as e:
-            logger.warning("HTML parsing failed", extra={"error": str(e)})
-            # Handle malformed HTML gracefully
-            pass
-
-        headings = parser.headings
+        headings = self._extract_headings()
         if not headings:
             return 0
 
@@ -318,6 +305,27 @@ class HealthAnalyzer:
             self.page.body, extra_fields=extra_fields, include_html=True
         )
 
+    def _extract_headings(self) -> list[str]:
+        """Extract heading tags from body HTML plus template-rendered SEO H1."""
+        html_content = self._extract_html_from_body() or ""
+
+        # SEO H1 is rendered in templates, not StreamField body, so include it for analysis.
+        seo_h1 = getattr(self.page, "seo_h1", None) or ""
+
+        if seo_h1.strip():
+            html_content = f"<h1>{escape(seo_h1)}</h1>{html_content}"
+
+        if not html_content:
+            return []
+
+        parser = HeadingParser()
+        try:
+            parser.feed(html_content)
+        except Exception as e:
+            logger.warning("HTML parsing failed", extra={"error": str(e)})
+
+        return parser.headings
+
     def _generate_recommendations(self, breakdown: dict[str, int]) -> list[str]:
         """Generate actionable recommendations based on scores."""
         recommendations = []
@@ -355,27 +363,20 @@ class HealthAnalyzer:
                 )
 
         if breakdown["heading_structure"] < 70:
-            html_content = self._extract_html_from_body()
-            if html_content:
-                parser = HeadingParser()
-                try:
-                    parser.feed(html_content)
-                except Exception as e:
-                    logger.warning("HTML parsing failed", extra={"error": str(e)})
-                    pass
-                h1_count = parser.headings.count("h1")
-                if h1_count == 0:
-                    recommendations.append(
-                        "Add a single H1 heading to establish page topic."
-                    )
-                elif h1_count > 1:
-                    recommendations.append(
-                        "Use only one H1 heading per page for better SEO."
-                    )
-                else:
-                    recommendations.append(
-                        "Improve heading hierarchy (H1→H2→H3). Don't skip levels."
-                    )
+            headings = self._extract_headings()
+            h1_count = headings.count("h1")
+            if h1_count == 0:
+                recommendations.append(
+                    "Add a single H1 heading to establish page topic."
+                )
+            elif h1_count > 1:
+                recommendations.append(
+                    "Use only one H1 heading per page for better SEO."
+                )
+            else:
+                recommendations.append(
+                    "Improve heading hierarchy (H1→H2→H3). Don't skip levels."
+                )
 
         if breakdown["content_length"] < 70:
             recommendations.append(

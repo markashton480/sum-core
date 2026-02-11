@@ -1,259 +1,62 @@
-# SUM Client Boilerplate
+# SUM Platform — Project Boilerplate
 
-This directory is the **copy-ready template** for new SUM Platform client projects.
+This directory is the **project template** used by `sum-platform init`.
+You do not interact with it directly.
 
-## What This Is
+## For Operators
 
-A minimal, runnable Django/Wagtail project that consumes `sum_core` as its foundation. When you create a new client site, you copy this boilerplate to `/clients/<your-project-name>/` and customize it.
-
-## Quick Start
-
-### 1. Copy the Boilerplate
+To create a new site:
 
 ```bash
-# From the repo root:
-cp -r boilerplate clients/my_client
-cd clients/my_client
+pip install sum-cli
+sudo sum-platform init mysite --git-provider github --git-org my-org
 ```
 
-### 2. Rename the Project Module
+See the [CLI documentation](../cli/README.md) for the full command reference.
 
-Replace `project_name` with your actual project name throughout:
+## For CLI Developers
 
-```bash
-# Rename the directory
-mv project_name my_client
+### What happens during `init`
 
-# Update all references (Linux/macOS):
-find . -type f \( -name "*.py" -o -name "*.txt" -o -name "pytest.ini" \) \
-  -exec sed -i 's/project_name/my_client/g' {} +
+When an operator runs `sum-platform init <name>`, the CLI:
 
-# Verify no stale references remain:
-grep -r "project_name" .
-```
+1. Copies this boilerplate into `/srv/sum/<name>/app/`.
+2. Renames the `project_name/` package to the site slug and replaces
+   all `project_name` references in every file.
+3. Rewrites `requirements.txt` to pin `sum-core` (or editable install
+   with `--dev`).
+4. Generates `.env` from `.env.example` with production credentials.
+5. Selects CI workflows (`.github/` or `.gitea/`) per `--git-provider`.
+6. Copies the chosen theme into `theme/active/` with a lockfile at
+   `.sum/theme.json`.
+7. Copies seeders and the content profile for the `seed` command.
+8. Creates a virtualenv, installs deps, migrates, seeds, creates a
+   superuser, collects static files, and configures systemd + Caddy.
 
-### 3. Set Up Your Environment
+Entry points: `cli/sum/commands/init.py` and `cli/sum/setup/scaffold.py`.
 
-```bash
-# From the client project directory:
-cp .env.example .env
-# Edit .env with your local/production values
-
-# Create virtual environment (or use the repo-level one):
-python -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies:
-pip install -r requirements.txt
-```
-
-### 4. Run Migrations & Start
-
-```bash
-# Run migrations:
-python manage.py migrate
-
-# Create a superuser:
-python manage.py createsuperuser
-
-# Start the development server:
-python manage.py runserver 8001
-```
-
-Visit:
-
-- **Site**: http://localhost:8001/
-- **Admin**: http://localhost:8001/admin/
-
-## What Must Be Changed Per Client
-
-| File / Location                 | What to Change                                  |
-| ------------------------------- | ----------------------------------------------- |
-| `project_name/` directory       | Rename to your project name                     |
-| `project_name/settings/base.py` | Update `WAGTAIL_SITE_NAME`                      |
-| `project_name/home/apps.py`     | Update `name` and `label` to match              |
-| `manage.py`                     | Already uses `DJANGO_SETTINGS_MODULE` correctly |
-| `.env`                          | Configure for your environment                  |
-
-### Environment Variables
-
-See `.env.example` for all configurable values. Critical production requirements:
-
-- `DJANGO_SECRET_KEY` - **Required**: Generate a unique secret key
-- `ALLOWED_HOSTS` - **Required**: Comma-separated list of domains
-- `DJANGO_DB_*` - **Required**: PostgreSQL connection details
-- `REDIS_URL` - Recommended: For cache and Celery
-
-### Email Configuration
-
-Email is required for lead notifications (alerting you when forms are submitted) and auto-reply confirmations to visitors. By default, emails are printed to the console in development.
-
-**We recommend [Resend](https://resend.com) for production email delivery.**
-
-#### Setup Steps
-
-1. **Create a Resend account** at https://resend.com
-2. **Add and verify your domain** in the Resend dashboard
-3. **Generate an API key** from Settings → API Keys
-4. **Update your `.env`** with these values:
-
-```bash
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.resend.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=resend
-EMAIL_HOST_PASSWORD=re_YOUR_API_KEY_HERE
-EMAIL_USE_TLS=True
-DEFAULT_FROM_EMAIL=noreply@yourdomain.com
-
-# Where lead notifications are sent (required)
-LEAD_NOTIFICATION_EMAIL=leads@yourdomain.com
-```
-
-#### What Gets Sent
-
-| Email Type | Trigger | Recipient |
-|------------|---------|-----------|
-| Lead Notification | Form submission | `LEAD_NOTIFICATION_EMAIL` |
-| Form Admin Notification | Dynamic form submission | Per-form configured recipients |
-| Auto-Reply | Form submission (if enabled) | Form submitter |
-
-#### Customization
-
-Per-site email branding (sender name, from address, reply-to) can be configured in **Wagtail Admin → Settings → Site Settings → Email Notifications**.
-
-## Project Structure
+### Template files
 
 ```
-my_client/
-├── manage.py               # Django management command
-├── pytest.ini              # Test configuration
-├── requirements.txt        # Dependencies (includes sum_core)
-├── .env.example            # Environment variable template
-│
-├── project_name/           # Your Django project package
-│   ├── __init__.py
-│   ├── urls.py             # URL configuration (includes sum_core routes)
-│   ├── wsgi.py             # WSGI entry point
-│   │
-│   ├── settings/           # Environment-split settings
-│   │   ├── __init__.py
-│   │   ├── base.py         # Shared settings
-│   │   ├── local.py        # Local development
-│   │   └── production.py   # Production deployment
-│   │
-│   └── home/               # Client-specific home app
-│       ├── __init__.py
-│       ├── apps.py
-│       ├── models.py       # HomePage model using sum_core features
-│       └── migrations/
-│
-├── templates/
-│   └── overrides/          # Override sum_core templates here
-│       └── .gitkeep
-│
-├── static/
-│   └── client/             # Client-specific static files
-│       └── .gitkeep
-│
-└── tests/
-    ├── __init__.py
-    └── test_health.py      # Integration test for sum_core wiring
+boilerplate/
+├── manage.py                 # Django management entry point
+├── pytest.ini                # Test runner configuration
+├── requirements.txt          # Dependencies (sum-core pinned by version)
+├── .env.example              # Environment variable template
+├── .gitignore
+├── project_name/             # Django project package (renamed during init)
+│   ├── settings/             # base / local / production settings
+│   ├── home/                 # Home app with models, migrations, seed commands
+│   ├── urls.py
+│   └── wsgi.py
+├── templates/overrides/      # Client template overrides
+├── static/client/            # Client static assets
+├── tests/                    # Integration tests
+└── .github/workflows/        # CI and deploy workflows
 ```
 
-## Template & Static Overrides
+### Placeholders
 
-### Templates
-
-Place template overrides in `templates/overrides/`. To override a sum_core template:
-
-```
-templates/overrides/sum_core/home_page.html
-```
-
-The override path mirrors sum_core's template path.
-
-### Static Files
-
-Place client-specific assets in `static/client/`:
-
-```
-static/client/css/custom.css
-static/client/images/logo.png
-```
-
-## Testing
-
-```bash
-# Run tests:
-pytest
-
-# With coverage:
-pytest --cov=.
-```
-
-The boilerplate includes a minimal integration test (`test_health.py`) that verifies sum_core wiring. This test should continue to pass after copying and renaming.
-
-## CI/CD Workflows
-
-The boilerplate includes three GitHub Actions workflows:
-
-### CI (`.github/workflows/ci.yml`)
-
-Runs on every PR and push to `main`. Executes the test suite to ensure code quality.
-
-### Staging Deploy (`.github/workflows/deploy-staging.yml`)
-
-Automatically deploys to staging on every push to `main`. Includes health checks.
-
-### Production Deploy (`.github/workflows/deploy-production.yml`)
-
-Deploys on GitHub release publication. Requires manual approval via GitHub environment protection.
-
-### Setup
-
-These workflows require GitHub secrets configuration (SSH keys, server details, etc.).
-
-## Production Deployment
-
-1. Set `DJANGO_SETTINGS_MODULE=project_name.settings.production`
-2. Ensure all required environment variables are set (see `.env.example`)
-3. Run `python manage.py collectstatic`
-4. Deploy with gunicorn: `gunicorn project_name.wsgi:application`
-
-## Dependencies
-
-This project depends on `sum_core` from the SUM Platform monorepo.
-
-### Default Mode: Git Tag Pinning
-
-By default, `requirements.txt` references a specific git tag of `sum_core`:
-
-```
-sum-core @ git+https://github.com/markashton480/sum-core.git@SUM_CORE_GIT_REF#subdirectory=core
-```
-
-**Before deploying**, replace `SUM_CORE_GIT_REF` with the actual version tag (e.g., `v0.1.0`).
-
-### Monorepo Development Mode
-
-If you're developing within the SUM Platform monorepo and want to make changes to `sum_core` alongside your client project:
-
-1. Edit `requirements.txt`:
-
-   ```bash
-   # Comment out the git install line
-   # sum-core @ git+https://...
-
-   # Uncomment the editable install
-   -e ../../core
-   ```
-
-2. Reinstall dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-Now changes to `/core/sum_core/` will be immediately reflected in your client project.
-
-**Important**: Do not commit the editable install to your client project repository. It's for local development only.
+| Token | Replaced with |
+|-------|---------------|
+| `project_name` | Site slug as a valid Python package name (e.g. `acme`) |

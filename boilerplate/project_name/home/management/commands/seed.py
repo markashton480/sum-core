@@ -4,7 +4,6 @@ Seed the test project using YAML content profiles.
 Usage:
     python manage.py seed starter          # Clean production-ready content
     python manage.py seed starter --clear  # Clear existing content first
-    python manage.py seed sage-stone       # Full demo content
     python manage.py seed starter --dry-run
 
 The content directory is auto-detected by walking up the directory tree,
@@ -57,7 +56,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "profile",
             nargs="?",
-            help="Content profile to seed (e.g., starter, sage-stone).",
+            help="Content profile to seed (e.g., starter).",
         )
         parser.add_argument(
             "--clear",
@@ -103,14 +102,11 @@ class Command(BaseCommand):
     def _default_profile(self, orchestrator: SeedOrchestrator) -> str | None:
         """Return a sensible default profile, if one can be inferred.
 
-        The test project ships with sample profiles. ``starter`` is the clean
-        production-ready default; ``sage-stone`` is a full demo profile.
+        ``starter`` is the clean production-ready default.
         """
         profiles = orchestrator.list_profiles()
         if "starter" in profiles:
             return "starter"
-        if "sage-stone" in profiles:
-            return "sage-stone"
         if len(profiles) == 1:
             return profiles[0]
         return None
