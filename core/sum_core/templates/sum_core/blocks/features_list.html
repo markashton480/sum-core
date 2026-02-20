@@ -1,0 +1,24 @@
+<section class="section features">
+  <div class="container">
+    <header class="section__header">
+      <h2 class="section__heading">{{ self.heading }}</h2>
+      {% if self.intro %}
+      <p class="section__intro">{{ self.intro }}</p>
+      {% endif %}
+    </header>
+
+    {% if self.features %}
+    <ul class="features__grid">
+      {% for item in self.features %}
+      <li class="features__item">
+        {% if item.icon %}
+        <span class="features__icon" aria-hidden="true">{{ item.icon }}</span>
+        {% endif %}
+        <h3 class="features__title">{{ item.title }}</h3>
+        <p class="features__description">{{ item.description }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</section>

@@ -135,6 +135,26 @@ class ServiceCardsBlock(blocks.StructBlock):
         help_text="Section heading. Use Italic for accent color.",
     )
     intro = blocks.TextBlock(required=False, help_text="Short supporting paragraph.")
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="muted",
+        required=False,
+        help_text="Visual tone for section background and heading treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
     variant = blocks.ChoiceBlock(
         choices=[
             ("featured_grid", "Featured grid"),
@@ -423,6 +443,26 @@ class ProcessTimelineBlock(blocks.StructBlock):
         features=["bold", "italic", "link"],
         help_text="Optional short supporting text.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for section background and contrast.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
     steps = blocks.ListBlock(
         ProcessStepBlock(),
         min_num=2,
@@ -443,17 +483,17 @@ class ProcessTimelineBlock(blocks.StructBlock):
         """
         Compute timeline context including highlight_index for visual emphasis.
 
-        Highlight algorithm: For timelines with fewer than 3 steps, highlight the first.
-        For 3+ steps, highlight the middle step (rounded up) for visual balance.
+        Highlight algorithm: for <=2 steps, highlight the first (1-based index).
+        For 3+ steps, highlight the middle step rounded up (1-based index).
         """
         context = super().get_context(value, parent_context=parent_context)
         steps = value.get("steps") or []
         steps_count = len(steps)
         context["steps_count"] = steps_count
-        if steps_count < 3:
-            context["highlight_index"] = 0
+        if steps_count <= 2:
+            context["highlight_index"] = 1
         else:
-            context["highlight_index"] = (steps_count + 1) // 2
+            context["highlight_index"] = (steps_count // 2) + 1
         return context
 
     class Meta:

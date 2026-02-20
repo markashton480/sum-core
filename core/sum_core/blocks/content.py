@@ -712,6 +712,26 @@ class CallToActionBlock(blocks.StructBlock):
         features=["bold", "italic", "link"],
         help_text="Supporting CTA copy.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="dark",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
     buttons = blocks.ListBlock(CtaLinkBlock(), min_num=1, max_num=2)
 
     class Meta:

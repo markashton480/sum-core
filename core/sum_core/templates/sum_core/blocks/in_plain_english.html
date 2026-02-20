@@ -1,0 +1,15 @@
+{% load wagtailcore_tags %}
+
+<section class="section in-plain-english">
+  <div class="container container--narrow">
+    <article class="content-block">
+      {% if self.label %}
+      <span class="section__eyebrow">{{ self.label }}</span>
+      {% endif %}
+      {% if self.heading %}
+      <h2 class="section__heading">{{ self.heading }}</h2>
+      {% endif %}
+      <div class="content-block content-block--rich-text">{{ self.body|richtext }}</div>
+    </article>
+  </div>
+</section>

@@ -1,5 +1,5 @@
 {% load wagtailcore_tags %}
-<section class="content-block-wrapper">
+<section class="content-block-wrapper section-tone-{{ self.tone|default:'dark' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'dark' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container">
     <div class="content-block content-block--cta">
       {% if self.eyebrow %}

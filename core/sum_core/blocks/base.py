@@ -65,6 +65,13 @@ from sum_core.pages.chrome import HEADER_BLOCK_TYPES
 from wagtail import blocks
 from wagtail.blocks import StreamBlock
 
+DEPRECATED_BLOCK_TYPES = {
+    "hero",
+    "process_timeline_lead_magnet",
+    "provenance_plate",
+    "rich_text",
+}
+
 
 class PageStreamBlock(StreamBlock):
     """
@@ -153,6 +160,20 @@ class PageStreamBlock(StreamBlock):
         label = "Content Block"
         label_format = "Content: {label}"
 
+    def grouped_child_blocks(self):
+        """
+        Return chooser-visible blocks while hiding deprecated block types.
+
+        Deprecated blocks remain supported for rendering/editing existing content.
+        """
+        visible_blocks = [
+            block
+            for name, block in self.child_blocks.items()
+            if name not in DEPRECATED_BLOCK_TYPES
+        ]
+        visible_blocks = sorted(visible_blocks, key=lambda block: block.meta.group)
+        return itertools.groupby(visible_blocks, key=lambda block: block.meta.group)
+
 
 class BodyStreamBlock(PageStreamBlock):
     """StreamBlock for page bodies without hero/header blocks."""
@@ -162,7 +183,7 @@ class BodyStreamBlock(PageStreamBlock):
         visible_blocks = [
             block
             for name, block in self.child_blocks.items()
-            if name not in HEADER_BLOCK_TYPES
+            if name not in HEADER_BLOCK_TYPES and name not in DEPRECATED_BLOCK_TYPES
         ]
         visible_blocks = sorted(visible_blocks, key=lambda block: block.meta.group)
         return itertools.groupby(visible_blocks, key=lambda block: block.meta.group)

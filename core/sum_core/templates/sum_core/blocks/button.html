@@ -1,0 +1,5 @@
+{% with href=self.link|default:self.page.url|default:'#' %}
+<a href="{{ href }}" class="btn {{ self.style|default:'btn-primary' }}">
+  {{ self.label }}
+</a>
+{% endwith %}

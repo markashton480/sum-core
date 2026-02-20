@@ -38,6 +38,26 @@ class TestimonialsBlock(blocks.StructBlock):
         features=["bold", "italic"],
         help_text="Main section heading. Use italics for accent styling.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="dark",
+        required=False,
+        help_text="Visual tone for section and card surface treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
     testimonials = blocks.ListBlock(
         TestimonialBlock(),
         min_num=1,

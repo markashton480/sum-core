@@ -1,9 +1,9 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 
-<section class="section section--dark testimonials">
+<section class="section section--dark testimonials section-tone-{{ self.tone|default:'dark' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'dark' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container">
-    
+
     <header class="section__header reveal-group">
       {% if self.eyebrow %}
       <span class="section__eyebrow">{{ self.eyebrow }}</span>
@@ -40,7 +40,7 @@
             <div class="author__avatar author__avatar--initials">{{ initials }}</div>
             {% endwith %}
           {% endif %}
-          
+
           <div class="author__info">
             <h4>{{ item.author_name }}</h4>
             {% if item.company %}

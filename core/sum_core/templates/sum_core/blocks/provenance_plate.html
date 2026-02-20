@@ -1,0 +1,41 @@
+{% load wagtailcore_tags %}
+
+<section class="section provenance-plate">
+  <div class="container">
+    <div class="provenance-plate__layout">
+      <article class="provenance-plate__summary">
+        {% if self.eyebrow %}
+        <span class="section__eyebrow">{{ self.eyebrow }}</span>
+        {% endif %}
+        <div class="section__heading">{{ self.heading|richtext }}</div>
+        <div class="content-block content-block--rich-text">{{ self.body|richtext }}</div>
+        {% if self.points %}
+        <ul>
+          {% for point in self.points %}
+          <li>{{ point }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if self.cta %}
+        <a href="{{ self.cta.link.href }}" {{ self.cta.link.attrs_str }} class="btn btn-primary">{{ self.cta.label }}</a>
+        {% endif %}
+      </article>
+
+      <aside class="provenance-plate__meta">
+        <dl>
+          <dt>{{ self.plate.maker_label|default:"Maker" }}</dt>
+          <dd>{{ self.plate.maker_name }}</dd>
+
+          <dt>{{ self.plate.source_label|default:"Source" }}</dt>
+          <dd>
+            {{ self.plate.source_coordinates }}
+            {% if self.plate.source_location %}<br>{{ self.plate.source_location }}{% endif %}
+          </dd>
+
+          <dt>{{ self.plate.completion_label|default:"Completion" }}</dt>
+          <dd>{{ self.plate.completion_date }}</dd>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>

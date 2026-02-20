@@ -297,6 +297,26 @@ class FeaturedCaseStudyBlock(blocks.StructBlock):
         features=["bold", "italic", "link", "ol", "ul"],
         help_text="Optional outcome narrative.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="muted",
+        required=False,
+        help_text="Visual tone for section background and contrast.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
     citation_name = blocks.CharBlock(
         required=False,
         max_length=100,

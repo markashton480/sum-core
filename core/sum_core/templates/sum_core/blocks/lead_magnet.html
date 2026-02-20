@@ -1,0 +1,42 @@
+{% load wagtailcore_tags form_tags %}
+
+<section class="section lead-magnet">
+  <div class="container container--narrow">
+    <header class="section__header">
+      {% if self.eyebrow %}
+      <span class="section__eyebrow">{{ self.eyebrow }}</span>
+      {% endif %}
+      <div class="section__heading">{{ self.heading|richtext }}</div>
+      {% if self.description %}
+      <div class="section__intro">{{ self.description|richtext }}</div>
+      {% endif %}
+    </header>
+
+    {% if self.form_definition %}
+    <form action="/forms/submit/" method="post" class="form premium-form js-async-form">
+      {% csrf_token %}
+      {% form_hidden_fields form_type=self.form_definition.slug %}
+      <input type="hidden" name="form_definition_id" value="{{ self.form_definition.pk }}">
+
+      {% for field in self.form_definition.fields %}
+        {% if field.block_type == "email_input" %}
+        <div class="form-group">
+          <label class="form-label" for="lead-magnet-{{ block.id }}-{{ field.value.field_name }}">{{ field.value.label|default:self.email_label|default:'Email' }}</label>
+          <input id="lead-magnet-{{ block.id }}-{{ field.value.field_name }}" class="form-input" type="email" name="{{ field.value.field_name }}" {% if field.value.required %}required{% endif %}>
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary">{{ self.submit_label|default:'Submit' }}</button>
+    </form>
+    {% else %}
+    <form class="form">
+      <div class="form-group">
+        <label class="form-label" for="lead-magnet-email-{{ block.id }}">{{ self.email_label|default:'Email' }}</label>
+        <input id="lead-magnet-email-{{ block.id }}" class="form-input" type="email" name="email" required>
+      </div>
+      <button type="submit" class="btn btn-primary">{{ self.submit_label|default:'Submit' }}</button>
+    </form>
+    {% endif %}
+  </div>
+</section>

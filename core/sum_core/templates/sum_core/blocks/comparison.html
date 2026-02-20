@@ -1,0 +1,26 @@
+{% load wagtailimages_tags %}
+
+<section class="section comparison">
+  <div class="container">
+    <header class="section__header">
+      {% if self.accent_text %}
+      <span class="section__eyebrow">{{ self.accent_text }}</span>
+      {% endif %}
+      <h2 class="section__heading">{{ self.title }}</h2>
+      {% if self.description %}
+      <p class="section__intro">{{ self.description }}</p>
+      {% endif %}
+    </header>
+
+    <div class="comparison__images">
+      <figure>
+        {% image self.image_before fill-960x640 as before %}
+        <img src="{{ before.url }}" width="{{ before.width }}" height="{{ before.height }}" alt="Before image" loading="lazy" />
+      </figure>
+      <figure>
+        {% image self.image_after fill-960x640 as after %}
+        <img src="{{ after.url }}" width="{{ after.width }}" height="{{ after.height }}" alt="After image" loading="lazy" />
+      </figure>
+    </div>
+  </div>
+</section>

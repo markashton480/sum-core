@@ -1,0 +1,29 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="section founder-letter">
+  <div class="container">
+    <div class="founder-letter__layout">
+      <figure class="founder-letter__media">
+        {% image self.image fill-720x900 as portrait %}
+        <img src="{{ portrait.url }}" width="{{ portrait.width }}" height="{{ portrait.height }}" alt="{{ self.alt_text }}" loading="lazy" />
+        <figcaption>
+          <strong>{{ self.image_name }}</strong>
+          <span>{{ self.image_role }}</span>
+        </figcaption>
+      </figure>
+
+      <div class="founder-letter__content">
+        <div class="section__heading">{{ self.quote_heading|richtext }}</div>
+        <div class="content-block content-block--rich-text">{{ self.body|richtext }}</div>
+        {% if self.signature_name %}
+        <p class="founder-letter__signature">
+          <strong>{{ self.signature_name }}</strong>
+          {% if self.signature_label %}
+          <span>{{ self.signature_label }}</span>
+          {% endif %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

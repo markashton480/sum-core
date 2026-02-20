@@ -1,0 +1,27 @@
+{% load wagtailimages_tags %}
+
+<section class="section section--hero hero">
+  <div class="container">
+    <div class="hero__layout">
+      <div class="hero__content">
+        {% if self.status_text %}
+        <span class="section__eyebrow">{{ self.status_text }}</span>
+        {% endif %}
+        <h1 class="section__heading">{{ self.title|safe }}</h1>
+        <p class="section__intro">{{ self.description }}</p>
+        <div class="hero__actions">
+          {% if self.primary_cta %}
+          {% include_block self.primary_cta %}
+          {% endif %}
+          {% if self.secondary_cta %}
+          {% include_block self.secondary_cta %}
+          {% endif %}
+        </div>
+      </div>
+      <div class="hero__media">
+        {% image self.image fill-1200x900 as hero_img %}
+        <img src="{{ hero_img.url }}" width="{{ hero_img.width }}" height="{{ hero_img.height }}" alt="" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>

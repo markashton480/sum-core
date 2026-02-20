@@ -1,6 +1,6 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<section class="section services"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+<section class="section services section-tone-{{ self.tone|default:'muted' }} section-density-{{ self.density|default:'regular' }}"{% if section_id %} data-section-id="{{ section_id }}"{% endif %} data-tone="{{ self.tone|default:'muted' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="container">
         <!-- Header Group -->
         <header class="section__header reveal-group">
