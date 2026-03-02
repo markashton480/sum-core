@@ -14,7 +14,7 @@
     <div class="quote-form-container reveal-group delay-100">
       {% with block_id=block.id %}
       <form action="/forms/submit/" method="post" novalidate class="form premium-form quote-form js-async-form" data-form-type="quote_request" id="quote-form{% if block_id %}-{{ block_id }}{% endif %}"
-            data-success-message="{{ self.success_message|default:"Thanks, we'll prepare your quote."|escapejs }}"
+            data-success-message="{{ self.success_message|default:"Thanks, we'll prepare your quote." }}"
             data-error-message="Something went wrong. Please try again.">
         {% csrf_token %}
 

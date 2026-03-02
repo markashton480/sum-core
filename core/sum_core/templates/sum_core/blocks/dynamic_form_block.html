@@ -17,8 +17,8 @@
     <form action="/forms/submit/" method="post" novalidate
           class="form premium-form js-async-form"
           data-form-type="{{ self.form_definition.slug }}"
-          data-success-message="{{ self.form_definition.success_message|default:"Thank you for your submission!"|escapejs }}"
-          data-success-redirect="{{ self.success_redirect.href|default:""|escapejs }}"
+          data-success-message="{{ self.form_definition.success_message|default:"Thank you for your submission!" }}"
+          {% if self.success_redirect.href and self.success_redirect.href != "#" %}data-success-redirect="{{ self.success_redirect.href }}"{% endif %}
           data-error-message="Something went wrong. Please try again."
           id="form-{{ self.form_definition.id }}-{{ block.id }}">
       {% csrf_token %}

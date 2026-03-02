@@ -25,8 +25,8 @@
       <div class="contact-form-container reveal-group delay-100">
         {% with block_id=block.id %}
         <form action="/forms/submit/" method="post" novalidate class="form premium-form js-async-form" data-form-type="contact" id="contact-form{% if block_id %}-{{ block_id }}{% endif %}"
-              data-success-message="{{ self.success_message|default:"Thanks, we'll be in touch shortly."|escapejs }}"
-              data-success-redirect="{{ self.success_redirect.href|default:""|escapejs }}"
+              data-success-message="{{ self.success_message|default:"Thanks, we'll be in touch shortly." }}"
+              {% if self.success_redirect.href and self.success_redirect.href != "#" %}data-success-redirect="{{ self.success_redirect.href }}"{% endif %}
               data-error-message="Something went wrong. Please try again.">
           {% csrf_token %}
 
