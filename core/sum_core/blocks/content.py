@@ -475,6 +475,59 @@ class LeadParagraphBlock(blocks.StructBlock):
         template = "sum_core/blocks/lead_paragraph.html"
 
 
+class LongformHeadingAnchorOverrideBlock(blocks.StructBlock):
+    """Optional stable-anchor override for a longform heading."""
+
+    heading = blocks.CharBlock(
+        required=True,
+        help_text="Heading text to match (case-insensitive).",
+    )
+    anchor = blocks.RegexBlock(
+        regex=r"^[a-z][a-z0-9-]*$",
+        required=True,
+        help_text=(
+            "Stable anchor ID for this heading (lowercase letters, numbers, "
+            "and hyphens only)."
+        ),
+    )
+    occurrence = blocks.IntegerBlock(
+        required=False,
+        default=1,
+        min_value=1,
+        help_text="Heading occurrence to target when the same heading repeats.",
+    )
+
+    class Meta:
+        icon = "link"
+        label = "Heading Anchor Override"
+
+
+class LongformArticleBlock(blocks.StructBlock):
+    """Long-form prose block for blog authoring with optional stable anchors."""
+
+    body = blocks.RichTextBlock(
+        features=["h2", "h3", "h4", "bold", "italic", "link", "ol", "ul", "hr"],
+        required=True,
+        help_text=(
+            "Preferred for long-form blog writing. Use H2/H3 headings to build "
+            "the table of contents."
+        ),
+    )
+    anchor_overrides = blocks.ListBlock(
+        LongformHeadingAnchorOverrideBlock(),
+        required=False,
+        help_text=(
+            "Optional stable anchors for specific headings to prevent URL "
+            "changes when heading copy is edited."
+        ),
+    )
+
+    class Meta:
+        icon = "doc-full"
+        label = "Longform Article"
+        template = "sum_core/blocks/longform_article.html"
+
+
 class ArticleSectionBlock(blocks.StructBlock):
     """
     Editorial section with optional eyebrow/heading and body copy.

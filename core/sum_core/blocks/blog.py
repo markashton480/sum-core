@@ -15,6 +15,7 @@ from sum_core.blocks.content import (
     DividerBlock,
     ImageBlock,
     LeadParagraphBlock,
+    LongformArticleBlock,
     NumberedStepsBlock,
     QuoteBlock,
     RichTextContentBlock,
@@ -33,6 +34,7 @@ class BlogPostStreamBlock(StreamBlock):
     """
 
     lead_paragraph = LeadParagraphBlock(group="Blog")
+    longform_article = LongformArticleBlock(group="Blog")
     article_section = ArticleSectionBlock(group="Blog")
     content = RichTextContentBlock(group="Blog")
     numbered_steps = NumberedStepsBlock(group="Blog")

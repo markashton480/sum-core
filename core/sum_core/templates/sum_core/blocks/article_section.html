@@ -1,6 +1,7 @@
-{% load wagtailcore_tags richtext_tags %}
+{% load wagtailcore_tags richtext_tags blog_tags %}
 {% with heading_text=self.heading|striptags %}
   {% with anchor=self.anchor|default:heading_text|slugify %}
+    {% blog_block_anchor page block.id anchor as resolved_anchor %}
     <section class="content-block-wrapper">
       <div class="container container--narrow">
         <div class="content-block content-block--article-section {% if self.align == 'center' %}text-center{% endif %}">
@@ -8,7 +9,7 @@
             <span class="page-meta">{{ self.eyebrow }}</span>
           {% endif %}
           {% if self.heading %}
-            <h2 class="content-block__title"{% if anchor %} id="{{ anchor }}"{% endif %}>
+            <h2 class="content-block__title"{% if resolved_anchor %} id="{{ resolved_anchor }}"{% endif %}>
               {{ self.heading|richtext_inline }}
             </h2>
           {% endif %}

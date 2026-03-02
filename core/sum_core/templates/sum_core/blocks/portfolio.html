@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section gallery" id="gallery-{{ block.id }}">
     <div class="container">
@@ -6,11 +6,11 @@
             {% if self.eyebrow %}
                 <span class="section__eyebrow">{{ self.eyebrow }}</span>
             {% endif %}
-            
+
             {% if self.heading %}
                 <div class="section__heading">{{ self.heading|richtext }}</div>
             {% endif %}
-            
+
             {% if self.intro %}
                 <p class="section__intro text-body">{{ self.intro }}</p>
             {% endif %}
@@ -20,9 +20,9 @@
             {% for item in self.items %}
                 <div class="gallery__item reveal-group">
                     <div class="gallery__image-wrapper">
-                        {% image item.image fill-800x600 class="gallery__image" alt=item.alt_text %}
+                        {% responsive_picture item.image "card_landscape" class="gallery__image" alt=item.alt_text %}
                     </div>
-                    
+
                     <div class="gallery__content">
                         {% if item.location or item.services %}
                             <div class="gallery__meta text-muted text-sm">

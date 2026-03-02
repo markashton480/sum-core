@@ -7,6 +7,9 @@ Family: Pages.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from html import escape
+from html.parser import HTMLParser
 from typing import cast
 
 from django.core.cache import cache
@@ -43,6 +46,146 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page, Site
 from wagtail.snippets.views.snippets import SnippetViewSet
+
+
+@dataclass
+class LongformHeading:
+    """Parsed heading metadata extracted from longform rich text."""
+
+    level: int
+    text: str
+    explicit_anchor: str | None = None
+
+
+@dataclass
+class BlogBodyAnalysis:
+    """Cached analysis output for blog body anchor and TOC rendering."""
+
+    toc_entries: list[dict[str, str]]
+    article_section_anchors: dict[str, str]
+    longform_rendered_html: dict[str, str]
+
+
+class LongformHeadingParser(HTMLParser):
+    """Extract H2/H3 heading text (and optional ID) from HTML."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.headings: list[LongformHeading] = []
+        self._depth = 0
+        self._current_level: int | None = None
+        self._current_anchor: str | None = None
+        self._text_chunks: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if self._depth == 0 and tag in {"h2", "h3"}:
+            self._depth = 1
+            self._current_level = int(tag[1])
+            attrs_dict = dict(attrs)
+            self._current_anchor = attrs_dict.get("id")
+            self._text_chunks = []
+            return
+
+        if self._depth > 0:
+            self._depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._depth == 0:
+            return
+
+        self._depth -= 1
+        if self._depth != 0:
+            return
+
+        if self._current_level is None:
+            return
+
+        heading_text = " ".join("".join(self._text_chunks).split())
+        self.headings.append(
+            LongformHeading(
+                level=self._current_level,
+                text=heading_text,
+                explicit_anchor=self._current_anchor,
+            )
+        )
+        self._current_level = None
+        self._current_anchor = None
+        self._text_chunks = []
+
+    def handle_data(self, data: str) -> None:
+        if self._depth > 0:
+            self._text_chunks.append(data)
+
+
+class HeadingAnchorInjector(HTMLParser):
+    """Inject precomputed IDs into H2/H3 tags while preserving HTML output."""
+
+    def __init__(self, anchors: list[str]) -> None:
+        super().__init__(convert_charrefs=False)
+        self._anchors = anchors
+        self._parts: list[str] = []
+        self._anchor_index = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"h2", "h3"} and self._anchor_index < len(self._anchors):
+            anchor = self._anchors[self._anchor_index]
+            self._anchor_index += 1
+            self._parts.append(self._render_start_tag(tag, attrs, anchor))
+            return
+
+        self._parts.append(
+            self.get_starttag_text() or self._render_start_tag(tag, attrs)
+        )
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._parts.append(
+            self.get_starttag_text() or self._render_start_tag(tag, attrs, closed=True)
+        )
+
+    def handle_endtag(self, tag: str) -> None:
+        self._parts.append(f"</{tag}>")
+
+    def handle_data(self, data: str) -> None:
+        self._parts.append(data)
+
+    def handle_entityref(self, name: str) -> None:
+        self._parts.append(f"&{name};")
+
+    def handle_charref(self, name: str) -> None:
+        self._parts.append(f"&#{name};")
+
+    def handle_comment(self, data: str) -> None:
+        self._parts.append(f"<!--{data}-->")
+
+    def handle_decl(self, decl: str) -> None:
+        self._parts.append(f"<!{decl}>")
+
+    def handle_pi(self, data: str) -> None:
+        self._parts.append(f"<?{data}>")
+
+    def get_html(self) -> str:
+        return "".join(self._parts)
+
+    def _render_start_tag(
+        self,
+        tag: str,
+        attrs: list[tuple[str, str | None]],
+        anchor: str | None = None,
+        *,
+        closed: bool = False,
+    ) -> str:
+        final_attrs = [(name, value) for name, value in attrs if name.lower() != "id"]
+        if anchor:
+            final_attrs.append(("id", anchor))
+
+        rendered_attrs = []
+        for name, value in final_attrs:
+            if value is None:
+                rendered_attrs.append(f" {name}")
+            else:
+                rendered_attrs.append(f' {name}="{escape(value, quote=True)}"')
+        suffix = " /" if closed else ""
+        return f"<{tag}{''.join(rendered_attrs)}{suffix}>"
 
 
 class Category(models.Model):
@@ -569,6 +712,7 @@ class BlogPostPage(
             elif block.block_type in {
                 "lead_paragraph",
                 "article_section",
+                "longform_article",
                 "call_to_action",
             }:
                 for key in (
@@ -604,7 +748,153 @@ class BlogPostPage(
             if text_candidates:
                 parts.append(" ".join(text_candidates))
 
-        return cast(str, strip_tags(" ".join(parts)))
+        raw_body_html = " ".join(parts).replace("><", "> <")
+        plain_text = strip_tags(raw_body_html)
+        return cast(str, " ".join(plain_text.split()))
+
+    def _normalize_anchor(self, raw_anchor: str | None) -> str:
+        """Return a normalized anchor ID or an empty string."""
+        if not raw_anchor:
+            return ""
+        return slugify(str(raw_anchor).strip().lstrip("#"))
+
+    def _normalize_heading_key(self, heading_text: str | None) -> str:
+        """Return a case-insensitive heading key for override matching."""
+        if not heading_text:
+            return ""
+        return " ".join(strip_tags(str(heading_text)).split()).casefold()
+
+    def _build_unique_anchor(
+        self, raw_anchor: str | None, used_anchors: set[str]
+    ) -> str:
+        """Return a deterministic unique anchor and reserve it in used_anchors."""
+        base_anchor = self._normalize_anchor(raw_anchor) or "section"
+        candidate = base_anchor
+        index = 2
+        while candidate in used_anchors:
+            candidate = f"{base_anchor}-{index}"
+            index += 1
+        used_anchors.add(candidate)
+        return candidate
+
+    def _get_block_id(self, block, index: int) -> str:
+        block_id = getattr(block, "id", None)
+        if block_id:
+            return str(block_id)
+        return f"idx-{index}"
+
+    def _get_richtext_source(self, value) -> str:
+        if value is None:
+            return ""
+        source = getattr(value, "source", None)
+        if source is not None:
+            return str(source)
+        return str(value)
+
+    def _collect_longform_override_map(
+        self, override_items
+    ) -> dict[tuple[str, int], str]:
+        """Build map of (normalized heading, occurrence) -> explicit anchor."""
+        overrides: dict[tuple[str, int], str] = {}
+        for item in override_items or []:
+            heading_key = self._normalize_heading_key(item.get("heading"))
+            occurrence = int(item.get("occurrence") or 1)
+            anchor = self._normalize_anchor(item.get("anchor"))
+            if not heading_key or occurrence < 1 or not anchor:
+                continue
+            overrides[(heading_key, occurrence)] = anchor
+        return overrides
+
+    def _analyze_blog_body(self) -> BlogBodyAnalysis:
+        """Analyze body once to produce TOC entries and render-safe anchors."""
+        cached = getattr(self, "_blog_body_analysis_cache", None)
+        if cached is not None:
+            return cached
+
+        if not self.body:
+            empty_analysis = BlogBodyAnalysis(
+                toc_entries=[],
+                article_section_anchors={},
+                longform_rendered_html={},
+            )
+            self._blog_body_analysis_cache = empty_analysis
+            return empty_analysis
+
+        used_anchors: set[str] = set()
+        toc_entries: list[dict[str, str]] = []
+        article_section_anchors: dict[str, str] = {}
+        longform_rendered_html: dict[str, str] = {}
+
+        for index, block in enumerate(self.body):
+            block_id = self._get_block_id(block, index)
+            value = getattr(block, "value", None)
+            if value is None:
+                continue
+
+            if block.block_type == "article_section":
+                heading_text = " ".join(strip_tags(value.get("heading") or "").split())
+                if not heading_text:
+                    continue
+
+                anchor = self._build_unique_anchor(
+                    value.get("anchor") or heading_text,
+                    used_anchors,
+                )
+                article_section_anchors[block_id] = anchor
+                toc_entries.append({"anchor": anchor, "label": heading_text})
+                continue
+
+            if block.block_type != "longform_article":
+                continue
+
+            longform_html = self._get_richtext_source(value.get("body"))
+            parser = LongformHeadingParser()
+            parser.feed(longform_html)
+            parser.close()
+            headings = parser.headings
+
+            heading_occurrences: dict[str, int] = {}
+            override_map = self._collect_longform_override_map(
+                value.get("anchor_overrides")
+            )
+            resolved_heading_anchors: list[str] = []
+
+            for heading in headings:
+                heading_key = self._normalize_heading_key(heading.text)
+                if heading_key:
+                    heading_occurrences[heading_key] = (
+                        heading_occurrences.get(heading_key, 0) + 1
+                    )
+                occurrence = heading_occurrences.get(heading_key, 1)
+
+                override_anchor = override_map.get((heading_key, occurrence))
+                anchor = self._build_unique_anchor(
+                    override_anchor or heading.explicit_anchor or heading.text,
+                    used_anchors,
+                )
+                resolved_heading_anchors.append(anchor)
+
+                if heading.text:
+                    toc_entries.append(
+                        {
+                            "anchor": anchor,
+                            "label": heading.text,
+                            "level": f"h{heading.level}",
+                        }
+                    )
+
+            injector = HeadingAnchorInjector(resolved_heading_anchors)
+            injector.feed(longform_html)
+            injector.close()
+            longform_rendered_html[block_id] = injector.get_html()
+
+        analysis = BlogBodyAnalysis(
+            toc_entries=toc_entries,
+            article_section_anchors=article_section_anchors,
+            longform_rendered_html=longform_rendered_html,
+        )
+        self._blog_body_analysis_cache = analysis
+        return analysis
 
     class Meta:
         verbose_name = "Blog Post"
@@ -616,23 +906,19 @@ class BlogPostPage(
         return True
 
     def _extract_toc_entries(self) -> list[dict[str, str]]:
-        if not self.body:
-            return []
+        return self._analyze_blog_body().toc_entries
 
-        entries: list[dict[str, str]] = []
+    def get_blog_block_anchor(self, block_id: str | None) -> str | None:
+        """Return computed anchor for blog article_section block IDs."""
+        if not block_id:
+            return None
+        return self._analyze_blog_body().article_section_anchors.get(str(block_id))
 
-        for block in self.body:
-            if block.block_type == "article_section":
-                value = getattr(block, "value", None)
-                if not value:
-                    continue
-                heading_text = strip_tags(value.get("heading") or "")
-                if not heading_text:
-                    continue
-                anchor = value.get("anchor") or slugify(heading_text)
-                entries.append({"anchor": anchor, "label": heading_text})
-
-        return entries
+    def get_longform_block_html(self, block_id: str | None) -> str | None:
+        """Return rendered longform HTML with injected heading IDs."""
+        if not block_id:
+            return None
+        return self._analyze_blog_body().longform_rendered_html.get(str(block_id))
 
     def get_read_next_posts(self) -> models.QuerySet[BlogPostPage]:
         parent = self.get_parent()

@@ -1,5 +1,5 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
-{% load static wagtailcore_tags branding_tags wagtailimages_tags analytics_tags seo_tags %}
+{% load static wagtailcore_tags branding_tags image_delivery_tags analytics_tags seo_tags %}
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
@@ -21,8 +21,8 @@
 
     {% firstof site_settings.company_name current_site.site_name WAGTAIL_SITE_NAME as site_name %}
     {% if site_settings.favicon %}
-      {% image site_settings.favicon fill-32x32 as favicon_rendition %}
-      <link rel="icon" href="{{ favicon_rendition.url }}">
+      {% responsive_img_url site_settings.favicon "logo" as favicon_url %}
+      <link rel="icon" href="{{ favicon_url }}">
     {% endif %}
 
     {# Expose consent version for cookie_consent.js #}

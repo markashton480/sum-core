@@ -1,4 +1,4 @@
-{% load wagtailimages_tags %}
+{% load image_delivery_tags %}
 
 <div class="content-block-wrapper">
   <div class="container container--narrow">
@@ -8,7 +8,7 @@
       {% if self.logo %}
       {% with logo_alt=self.company|default:self.author|default:"Logo" %}
       <div class="social-proof-quote__logo">
-        {% image self.logo fill-120x120 alt=logo_alt %}
+        {% responsive_picture self.logo "logo" alt=logo_alt %}
       </div>
       {% endwith %}
       {% endif %}

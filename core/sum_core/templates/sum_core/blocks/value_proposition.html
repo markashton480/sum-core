@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section value-proposition"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
     <div class="container">
@@ -49,7 +49,7 @@
 
             {% if self.image %}
                 <div class="value-proposition__media">
-                    {% image self.image fill-900x1200 class="value-proposition__image" alt=self.alt_text|default:"" %}
+                    {% responsive_picture self.image "hero_block" class="value-proposition__image" alt=self.alt_text|default:"" %}
                     {% if self.image_quote %}
                         <div class="value-proposition__quote">{{ self.image_quote }}</div>
                     {% endif %}

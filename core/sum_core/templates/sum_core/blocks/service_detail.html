@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 {% with has_image=self.image %}
 <section class="section service-detail"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
@@ -36,7 +36,7 @@
 
             {% if has_image and self.layout != "no_image" %}
                 <div class="service-detail__media">
-                    {% image self.image fill-900x600 class="service-detail__image" alt=self.alt_text|default:self.heading|striptags %}
+                    {% responsive_picture self.image "card_landscape" class="service-detail__image" alt=self.alt_text|default:self.heading|striptags %}
                 </div>
             {% endif %}
         </div>

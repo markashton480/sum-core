@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section accreditations-warranty"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
   <div class="container accreditations-warranty__inner">
@@ -12,14 +12,14 @@
           {% if item.url %}
             <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
               {% if item.logo %}
-                {% image item.logo fill-200x80 class="accreditations-warranty__logo-img" alt=item.alt_text %}
+                {% responsive_picture item.logo "logo" class="accreditations-warranty__logo-img" alt=item.alt_text %}
               {% else %}
                 <span class="accreditations-warranty__logo-text">{{ item.text_label }}</span>
               {% endif %}
             </a>
           {% else %}
             {% if item.logo %}
-              {% image item.logo fill-200x80 class="accreditations-warranty__logo-img" alt=item.alt_text %}
+              {% responsive_picture item.logo "logo" class="accreditations-warranty__logo-img" alt=item.alt_text %}
             {% else %}
               <span class="accreditations-warranty__logo-text">{{ item.text_label }}</span>
             {% endif %}

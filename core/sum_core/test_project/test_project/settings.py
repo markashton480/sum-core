@@ -334,6 +334,29 @@ CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "cache+memory://
 CELERY_TASK_ALWAYS_EAGER: bool = True  # Run tasks synchronously
 CELERY_TASK_EAGER_PROPAGATES: bool = True  # Propagate exceptions in eager mode
 
+# Image optimization defaults
+SUM_CORE_IMAGE_OPTIMIZATION_ENABLED: bool = True
+SUM_CORE_IMAGE_PROFILE_OVERRIDES: dict[str, dict[str, object]] = {}
+SUM_CORE_IMAGE_PREGENERATE_ON_UPLOAD: bool = True
+SUM_CORE_IMAGE_PREGENERATE_ON_ATTACH: bool = True
+SUM_CORE_IMAGE_PREGENERATE_ON_PUBLISH: bool = True
+SUM_CORE_IMAGE_PREGENERATE_UPLOAD_PROFILES: list[str] = [
+    "hero_full",
+    "card_landscape",
+    "content_inline",
+    "logo",
+    "og_social",
+]
+SUM_CORE_IMAGE_PREGENERATE_ATTACH_PROFILES: list[str] = [
+    "hero_full",
+    "hero_block",
+    "card_landscape",
+    "content_inline",
+    "og_social",
+]
+SUM_CORE_IMAGE_PREGENERATE_SYNC_IN_TESTS: bool = True
+SUM_CORE_IMAGE_PREGENERATE_LOCK_SECONDS: int = 180
+
 # Forms Configuration
 # Silence Django 6.0 deprecation warning about URL scheme
 # Default scheme will change from 'http' to 'https' in Django 6.0

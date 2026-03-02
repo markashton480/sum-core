@@ -325,6 +325,42 @@ CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "memory://")
 CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "cache+memory://")
 
 # =============================================================================
+# Image Optimization (sum_core)
+# =============================================================================
+
+SUM_CORE_IMAGE_OPTIMIZATION_ENABLED: bool = (
+    os.getenv("SUM_CORE_IMAGE_OPTIMIZATION_ENABLED", "true").lower() == "true"
+)
+SUM_CORE_IMAGE_PROFILE_OVERRIDES: dict[str, dict[str, object]] = {}
+SUM_CORE_IMAGE_PREGENERATE_ON_UPLOAD: bool = (
+    os.getenv("SUM_CORE_IMAGE_PREGENERATE_ON_UPLOAD", "true").lower() == "true"
+)
+SUM_CORE_IMAGE_PREGENERATE_ON_ATTACH: bool = (
+    os.getenv("SUM_CORE_IMAGE_PREGENERATE_ON_ATTACH", "true").lower() == "true"
+)
+SUM_CORE_IMAGE_PREGENERATE_ON_PUBLISH: bool = (
+    os.getenv("SUM_CORE_IMAGE_PREGENERATE_ON_PUBLISH", "true").lower() == "true"
+)
+SUM_CORE_IMAGE_PREGENERATE_UPLOAD_PROFILES: list[str] = [
+    "hero_full",
+    "card_landscape",
+    "content_inline",
+    "logo",
+    "og_social",
+]
+SUM_CORE_IMAGE_PREGENERATE_ATTACH_PROFILES: list[str] = [
+    "hero_full",
+    "hero_block",
+    "card_landscape",
+    "content_inline",
+    "og_social",
+]
+SUM_CORE_IMAGE_PREGENERATE_SYNC_IN_TESTS: bool = False
+SUM_CORE_IMAGE_PREGENERATE_LOCK_SECONDS: int = int(
+    os.getenv("SUM_CORE_IMAGE_PREGENERATE_LOCK_SECONDS", "180")
+)
+
+# =============================================================================
 # Email Configuration (defaults for development)
 # =============================================================================
 

@@ -1,0 +1,26 @@
+{% load wagtailcore_tags blog_tags %}
+{% blog_longform_html page block.id as rendered_longform_html %}
+
+{% if is_blog_article %}
+  <section class="mb-12">
+    <div class="prose prose-sage prose-lg font-accent text-sage-black prose-headings:font-display prose-headings:font-normal prose-h2:font-semibold prose-a:text-sage-terra prose-a:underline max-w-none">
+      {% if rendered_longform_html %}
+        {{ rendered_longform_html }}
+      {% else %}
+        {{ self.body|richtext }}
+      {% endif %}
+    </div>
+  </section>
+{% else %}
+  <section class="content-block-wrapper">
+    <div class="container container--narrow">
+      <div class="content-block content-block--rich-text rich-text observe-me">
+        {% if rendered_longform_html %}
+          {{ rendered_longform_html }}
+        {% else %}
+          {{ self.body|richtext }}
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endif %}

@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section-featured-case-study py-16 section-tone-{{ self.tone|default:'muted' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'muted' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="container mx-auto px-4">
@@ -16,8 +16,7 @@
                     </div>
                 {% endif %}
 
-                {% image self.image original as img %}
-                <img src="{{ img.url }}" alt="{{ self.alt_text }}" class="w-full h-auto object-cover">
+                {% responsive_picture self.image "content_inline" alt=self.alt_text class="w-full h-auto object-cover" %}
             </div>
 
             <div class="case-study-content">

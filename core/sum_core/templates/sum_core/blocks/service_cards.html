@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section services section-tone-{{ self.tone|default:'muted' }} section-density-{{ self.density|default:'regular' }}"{% if section_id %} data-section-id="{{ section_id }}"{% endif %} data-tone="{{ self.tone|default:'muted' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="container">
@@ -31,7 +31,7 @@
                             <div class="services__icon-wrapper">
                                 {% if card.image %}
                                     <div class="services__icon services__icon--image">
-                                        {% image card.image fill-160x160 class="services__icon-image" %}
+                                        {% responsive_picture card.image "card_square" class="services__icon-image" alt=card.title %}
                                     </div>
                                 {% elif card.icon %}
                                     <div class="services__icon services__icon--emoji">

@@ -1,6 +1,6 @@
 {# sum_core fallback template for the v0.6 theme-owned rendering contract. #}
 {% extends "theme/base.html" %}
-{% load wagtailcore_tags chrome_tags %}
+{% load wagtailcore_tags image_delivery_tags chrome_tags %}
 
 {% block content %}
   {% hero_context page status=page.hero_status headline=page.hero_heading subheadline=page.hero_subheading gradient_style=page.hero_gradient_style section_id="services-03" as hero %}
@@ -51,7 +51,7 @@
                 {% if service.featured_image %}
                   <div class="services__icon-wrapper">
                     <div class="services__icon services__icon--image">
-                      {% image service.featured_image fill-160x160 class="services__icon-image" %}
+                      {% responsive_picture service.featured_image "card_square" class="services__icon-image" alt=service.title %}
                     </div>
                     <span class="services__index">{{ forloop.counter|stringformat:"02d" }}</span>
                   </div>

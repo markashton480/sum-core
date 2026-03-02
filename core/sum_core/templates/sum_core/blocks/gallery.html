@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section gallery">
   <div class="container">
@@ -24,15 +24,7 @@
       {% for item in self.images %}
       <figure class="gallery__item">
         <div class="gallery__image-wrapper">
-          {% image item.image fill-600x400 as rendition %}
-          <img
-            src="{{ rendition.url }}"
-            width="{{ rendition.width }}"
-            height="{{ rendition.height }}"
-            alt="{{ item.alt_text|default:item.image.title }}"
-            class="gallery__image"
-            loading="lazy"
-          />
+          {% responsive_picture item.image "card_landscape" alt=item.alt_text|default:item.image.title class="gallery__image" loading="lazy" %}
         </div>
         {% if item.caption %}
         <figcaption class="gallery__caption text-sm text-muted">

@@ -1,4 +1,4 @@
-{% load wagtailimages_tags %}
+{% load image_delivery_tags %}
 
 <section class="section comparison">
   <div class="container">
@@ -14,12 +14,10 @@
 
     <div class="comparison__images">
       <figure>
-        {% image self.image_before fill-960x640 as before %}
-        <img src="{{ before.url }}" width="{{ before.width }}" height="{{ before.height }}" alt="Before image" loading="lazy" />
+        {% responsive_picture self.image_before "card_landscape" alt="Before image" loading="lazy" %}
       </figure>
       <figure>
-        {% image self.image_after fill-960x640 as after %}
-        <img src="{{ after.url }}" width="{{ after.width }}" height="{{ after.height }}" alt="After image" loading="lazy" />
+        {% responsive_picture self.image_after "card_landscape" alt="After image" loading="lazy" %}
       </figure>
     </div>
   </div>

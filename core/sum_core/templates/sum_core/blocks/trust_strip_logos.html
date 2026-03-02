@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section section--muted trust-strip trust-strip--logos">
   <div class="container trust-strip__inner">
@@ -12,14 +12,14 @@
         {% if item.url %}
         <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
           {% if item.logo %}
-            {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+            {% responsive_picture item.logo "logo" class="trust-strip__logo-img" alt=item.alt_text %}
           {% else %}
             <span class="trust-strip__logo-text">{{ item.text_label }}</span>
           {% endif %}
         </a>
         {% else %}
           {% if item.logo %}
-            {% image item.logo fill-200x80 class="trust-strip__logo-img" alt=item.alt_text %}
+            {% responsive_picture item.logo "logo" class="trust-strip__logo-img" alt=item.alt_text %}
           {% else %}
             <span class="trust-strip__logo-text">{{ item.text_label }}</span>
           {% endif %}

@@ -35,5 +35,9 @@ class SumCoreConfig(AppConfig):
         """Wire up custom admin forms after all models are loaded."""
         from sum_core.branding.forms import SiteSettingsAdminForm
         from sum_core.branding.models import SiteSettings
+        from sum_core.images import signals  # noqa: F401
+        from sum_core.images.settings import get_image_optimization_settings
 
         SiteSettings.base_form_class = SiteSettingsAdminForm
+        # Fail fast on invalid image optimization settings/profile configuration.
+        get_image_optimization_settings()

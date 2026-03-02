@@ -1,5 +1,5 @@
 {# Minimal SEO + Open Graph meta tags. #}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 {% if page %}
   {% firstof site_settings.company_name current_site.site_name WAGTAIL_SITE_NAME as site_name %}
@@ -25,13 +25,13 @@
   <meta property="og:type" content="website">
 
   {% if page.og_image %}
-    {% image page.og_image fill-1200x630 as og_rendition %}
-    <meta property="og:image" content="{{ og_rendition.url }}">
+    {% responsive_img_url page.og_image "og_social" as og_rendition_url %}
+    <meta property="og:image" content="{{ og_rendition_url }}">
   {% elif page.featured_image %}
-    {% image page.featured_image fill-1200x630 as og_rendition %}
-    <meta property="og:image" content="{{ og_rendition.url }}">
+    {% responsive_img_url page.featured_image "og_social" as og_rendition_url %}
+    <meta property="og:image" content="{{ og_rendition_url }}">
   {% elif site_settings.og_default_image %}
-    {% image site_settings.og_default_image fill-1200x630 as og_rendition %}
-    <meta property="og:image" content="{{ og_rendition.url }}">
+    {% responsive_img_url site_settings.og_default_image "og_social" as og_rendition_url %}
+    <meta property="og:image" content="{{ og_rendition_url }}">
   {% endif %}
 {% endif %}

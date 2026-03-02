@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section bg-sage-oat/30 border-y border-sage-black/5">
     <div class="section__inner grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-24 items-start">
@@ -35,7 +35,7 @@
 
                             {% if item.image %}
                                 <figure class="mt-2">
-                                    {% image item.image fill-1200x720 class="w-full rounded-lg shadow-sm" alt=item.alt_text %}
+                                    {% responsive_picture item.image "card_landscape" class="w-full rounded-lg shadow-sm" alt=item.alt_text %}
                                     {% if item.alt_text %}
                                         <figcaption class="text-sm text-sage-label mt-2">{{ item.alt_text }}</figcaption>
                                     {% endif %}

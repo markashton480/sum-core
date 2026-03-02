@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section team-members" aria-label="{{ self.heading|striptags|default:self.eyebrow|default:'Team' }}">
   <div class="container">
@@ -19,7 +19,7 @@
       {% for member in self.members %}
       <article class="team-member-card" data-team-member>
         <div class="team-member-card__photo">
-          {% image member.photo fill-400x400 class="team-member-card__image" alt=member.alt_text %}
+          {% responsive_picture member.photo "card_square" class="team-member-card__image" alt=member.alt_text %}
         </div>
         <div class="team-member-card__body">
           <h3 class="team-member-card__name">{{ member.name }}</h3>

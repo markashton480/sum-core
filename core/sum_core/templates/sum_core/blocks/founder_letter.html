@@ -1,11 +1,10 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 <section class="section founder-letter">
   <div class="container">
     <div class="founder-letter__layout">
       <figure class="founder-letter__media">
-        {% image self.image fill-720x900 as portrait %}
-        <img src="{{ portrait.url }}" width="{{ portrait.width }}" height="{{ portrait.height }}" alt="{{ self.alt_text }}" loading="lazy" />
+        {% responsive_picture self.image "hero_block" alt=self.alt_text loading="lazy" %}
         <figcaption>
           <strong>{{ self.image_name }}</strong>
           <span>{{ self.image_role }}</span>

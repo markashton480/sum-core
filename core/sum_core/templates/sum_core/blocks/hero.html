@@ -1,4 +1,4 @@
-{% load wagtailimages_tags %}
+{% load image_delivery_tags %}
 
 <section class="section section--hero hero">
   <div class="container">
@@ -19,8 +19,7 @@
         </div>
       </div>
       <div class="hero__media">
-        {% image self.image fill-1200x900 as hero_img %}
-        <img src="{{ hero_img.url }}" width="{{ hero_img.width }}" height="{{ hero_img.height }}" alt="" loading="lazy" />
+        {% responsive_picture self.image "hero_block" alt="" loading="lazy" %}
       </div>
     </div>
   </div>

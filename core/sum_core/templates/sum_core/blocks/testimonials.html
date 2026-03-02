@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags image_delivery_tags %}
 
 
 <section class="section section--dark testimonials section-tone-{{ self.tone|default:'dark' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'dark' }}" data-density="{{ self.density|default:'regular' }}">
@@ -34,7 +34,7 @@
 
         <div class="testimonial__author">
           {% if item.photo %}
-            {% image item.photo fill-96x96 class="author__avatar" %}
+            {% responsive_picture item.photo "avatar" class="author__avatar" alt=item.author_name %}
           {% else %}
             {% with initials=item.author_name|slice:":2" %}
             <div class="author__avatar author__avatar--initials">{{ initials }}</div>
