@@ -1,6 +1,6 @@
 {% load wagtailcore_tags image_delivery_tags %}
 
-<section class="section team-members" aria-label="{{ self.heading|striptags|default:self.eyebrow|default:'Team' }}">
+<section class="section team-members section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" aria-label="{{ self.heading|striptags|default:self.eyebrow|default:'Team' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container">
     {% if self.eyebrow or self.heading %}
     <header class="section__header" data-team-heading>

@@ -1,6 +1,6 @@
 {% load wagtailcore_tags image_delivery_tags %}
 
-<section class="section founder-letter">
+<section class="section founder-letter section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container">
     <div class="founder-letter__layout">
       <figure class="founder-letter__media">

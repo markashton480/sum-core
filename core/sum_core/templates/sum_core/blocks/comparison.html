@@ -1,6 +1,6 @@
 {% load image_delivery_tags %}
 
-<section class="section comparison">
+<section class="section comparison section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container">
     <header class="section__header">
       {% if self.accent_text %}

@@ -1,6 +1,6 @@
 {% load wagtailcore_tags image_delivery_tags %}
 
-<section class="section section--muted trust-strip trust-strip--logos">
+<section class="section section--muted trust-strip trust-strip--logos section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container trust-strip__inner">
     {% if self.eyebrow %}
     <p class="section__eyebrow trust-strip__eyebrow">{{ self.eyebrow }}</p>

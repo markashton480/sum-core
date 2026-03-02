@@ -7,6 +7,7 @@ Dependencies: Wagtail core blocks, PageStreamBlock, templates in sum_core/blocks
 """
 
 from sum_core.blocks.links import UniversalLinkBlock
+from wagtail import blocks
 from wagtail.blocks import (
     BooleanBlock,
     CharBlock,
@@ -46,6 +47,26 @@ class ContactFormBlock(StructBlock):
         help_text="Optional redirect after submission (e.g. to a thank-you page).",
     )
     submit_label = CharBlock(required=False, default="Send enquiry")
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="dark",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         icon = "mail"
@@ -67,6 +88,26 @@ class QuoteRequestFormBlock(StructBlock):
     submit_label = CharBlock(required=False, default="Request a quote")
     show_compact_meta = BooleanBlock(
         required=False, help_text="Compact layout for sidebars/short sections."
+    )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="muted",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
     )
 
     class Meta:

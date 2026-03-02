@@ -1,8 +1,8 @@
 {% load wagtailcore_tags %}
 
-<section class="section stats">
+<section class="section stats section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container">
-    
+
     {% if self.eyebrow or self.intro %}
     <header class="section__header">
       {% if self.eyebrow %}

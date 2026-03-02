@@ -1,6 +1,6 @@
 {% load wagtailcore_tags %}
 
-<section class="section in-plain-english">
+<section class="section in-plain-english section-tone-{{ self.tone|default:'muted' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'muted' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container container--narrow">
     <article class="content-block">
       {% if self.label %}

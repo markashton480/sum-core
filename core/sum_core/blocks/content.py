@@ -67,6 +67,26 @@ class TrustItemBlock(blocks.StructBlock):
 
 class TrustStripBlock(blocks.StructBlock):
     items = blocks.ListBlock(TrustItemBlock())
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/trust_strip.html"
@@ -88,6 +108,26 @@ class FeaturesListBlock(blocks.StructBlock):
     heading = blocks.CharBlock(required=True)
     intro = blocks.TextBlock(required=False)
     features = blocks.ListBlock(FeatureBlock())
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="dark",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/features_list.html"
@@ -103,6 +143,26 @@ class ComparisonBlock(blocks.StructBlock):
     description = blocks.TextBlock(required=True)
     image_before = ImageChooserBlock(required=True, help_text="Background/Before image")
     image_after = ImageChooserBlock(required=True, help_text="Foreground/After image")
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/comparison.html"
@@ -158,6 +218,26 @@ class PortfolioBlock(blocks.StructBlock):
         required=False, max_length=50, label="View All Label"
     )
     items = blocks.ListBlock(PortfolioItemBlock(), min_num=1, max_num=12)
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
@@ -238,6 +318,26 @@ class TeamMemberBlock(blocks.StructBlock):
         help_text="Optional badge value, e.g. 142 Years.",
     )
     members = blocks.ListBlock(TeamMemberItemBlock(), min_num=1, max_num=12)
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/team_members.html"
@@ -297,6 +397,26 @@ class TimelineBlock(blocks.StructBlock):
         help_text="Short intro or description for the timeline",
     )
     items = blocks.ListBlock(TimelineItemBlock(), min_num=1)
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="muted",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/timeline.html"
@@ -334,6 +454,26 @@ class ManifestoBlock(blocks.StructBlock):
         required=False,
         help_text="Optional pull quote shown beneath the prose content.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/manifesto.html"
@@ -368,6 +508,26 @@ class FounderLetterBlock(blocks.StructBlock):
     signature_label = blocks.CharBlock(
         required=False, help_text="Optional secondary label under the signature."
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/founder_letter.html"
@@ -401,6 +561,26 @@ class InPlainEnglishBlock(blocks.StructBlock):
         default="info",
         required=False,
         help_text="Select the callout icon style.",
+    )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="muted",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
     )
 
     class Meta:

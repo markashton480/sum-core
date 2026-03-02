@@ -1,7 +1,7 @@
 {% load wagtailcore_tags image_delivery_tags %}
 
 {% with has_image=self.image %}
-<section class="section service-detail"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+<section class="section service-detail section-tone-{{ self.tone|default:'dark' }} section-density-{{ self.density|default:'regular' }}"{% if section_id %} data-section-id="{{ section_id }}"{% endif %} data-tone="{{ self.tone|default:'dark' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="container">
         <div class="service-detail__inner{% if has_image and self.layout != 'no_image' %} service-detail__inner--with-image{% endif %}{% if has_image and self.layout == 'image_right' %} service-detail__inner--image-right{% endif %}">
             <div class="service-detail__content">

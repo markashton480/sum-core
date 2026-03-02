@@ -1,13 +1,8 @@
 {% load wagtailcore_tags %}
-<div class="trust-strip">
+<div class="trust-strip section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="marquee-wrapper">
         <div class="marquee-track">
             {% for item in self.items %}<div class="trust-item">{{ item.text }}</div>{% endfor %}{% for item in self.items %}<div class="trust-item">{{ item.text }}</div>{% endfor %}
         </div>
     </div>
 </div>
-
-
-
-
-

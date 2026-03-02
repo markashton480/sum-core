@@ -58,6 +58,26 @@ class GalleryBlock(blocks.StructBlock):
         max_num=24,
         help_text="Add 1–24 images to the gallery.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         icon = "image"

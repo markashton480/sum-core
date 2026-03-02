@@ -269,6 +269,26 @@ class ServiceDetailBlock(blocks.StructBlock):
         required=False,
         help_text="Optional call-to-action link (shown when label provided).",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="dark",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/service_detail.html"
@@ -320,6 +340,26 @@ class ServiceIconGridBlock(blocks.StructBlock):
         max_num=6,
         help_text="Two to six icon cards.",
     )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/service_icon_grid.html"
@@ -358,6 +398,26 @@ class AccreditationsAndWarrantyBlock(blocks.StructBlock):
         min_num=2,
         max_num=2,
         help_text="Exactly two policy cards.",
+    )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
     )
 
     class Meta:
@@ -405,6 +465,26 @@ class ValuePropositionBlock(blocks.StructBlock):
         help_text="Alt text for the image (required if image is set).",
     )
     image_quote = blocks.CharBlock(required=False, max_length=200)
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
+    )
 
     class Meta:
         template = "sum_core/blocks/value_proposition.html"
@@ -545,6 +625,26 @@ class CenteredCTASectionBlock(blocks.StructBlock):
     cta_link = UniversalLinkBlock(
         required=False,
         help_text="Optional call-to-action link.",
+    )
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="dark",
+        required=False,
+        help_text="Visual tone for the section background and text treatment.",
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+        help_text="Vertical spacing density for the section.",
     )
 
     class Meta:

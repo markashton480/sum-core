@@ -1,7 +1,7 @@
 {% load wagtailcore_tags %}
 
 {# Fallback template (non-theme-owned) for ManifestoBlock. #}
-<section class="py-16">
+<section class="section manifesto section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container max-w-3xl mx-auto px-4 text-center">
     {% if self.eyebrow %}
       <p class="text-xs font-bold uppercase tracking-widest mb-4">{{ self.eyebrow }}</p>

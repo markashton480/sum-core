@@ -1,6 +1,6 @@
 {% load wagtailcore_tags image_delivery_tags %}
 
-<section class="section accreditations-warranty"{% if section_id %} data-section-id="{{ section_id }}"{% endif %}>
+<section class="section accreditations-warranty section-tone-{{ self.tone|default:'light' }} section-density-{{ self.density|default:'regular' }}"{% if section_id %} data-section-id="{{ section_id }}"{% endif %} data-tone="{{ self.tone|default:'light' }}" data-density="{{ self.density|default:'regular' }}">
   <div class="container accreditations-warranty__inner">
     {% if self.eyebrow %}
       <p class="section__eyebrow accreditations-warranty__eyebrow">{{ self.eyebrow }}</p>

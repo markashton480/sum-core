@@ -1,6 +1,6 @@
 {% load wagtailcore_tags %}
 
-<section class="section process">
+<section class="section process section-tone-{{ self.tone|default:'muted' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'muted' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="container">
         <div class="process-layout">
             <!-- Left Column: Sticky Header -->
@@ -8,11 +8,11 @@
                 {% if self.eyebrow %}
                     <span class="block-eyebrow">{{ self.eyebrow }}</span>
                 {% endif %}
-                
+
                 <div class="block-heading">
                     {{ self.heading|richtext }}
                 </div>
-                
+
                 {% if self.intro %}
                     <div class="process-intro">
                         {{ self.intro|richtext }}

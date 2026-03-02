@@ -1,6 +1,6 @@
 {% load wagtailcore_tags image_delivery_tags %}
 
-<section class="section bg-sage-oat/30 border-y border-sage-black/5">
+<section class="section timeline section-tone-{{ self.tone|default:'muted' }} section-density-{{ self.density|default:'regular' }}" data-tone="{{ self.tone|default:'muted' }}" data-density="{{ self.density|default:'regular' }}">
     <div class="section__inner grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-24 items-start">
         <header class="reveal lg:col-span-2 lg:sticky lg:top-32 lg:self-start">
             {% if self.eyebrow %}
