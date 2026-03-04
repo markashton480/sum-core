@@ -337,9 +337,12 @@ CELERY_TASK_EAGER_PROPAGATES: bool = True  # Propagate exceptions in eager mode
 # Image optimization defaults
 SUM_CORE_IMAGE_OPTIMIZATION_ENABLED: bool = True
 SUM_CORE_IMAGE_PROFILE_OVERRIDES: dict[str, dict[str, object]] = {}
-SUM_CORE_IMAGE_PREGENERATE_ON_UPLOAD: bool = True
-SUM_CORE_IMAGE_PREGENERATE_ON_ATTACH: bool = True
-SUM_CORE_IMAGE_PREGENERATE_ON_PUBLISH: bool = True
+# Pregeneration is disabled by default in tests (conftest.py autouse fixture)
+# to avoid synchronous Pillow rendition overhead (~82 renditions per image).
+# Tests that exercise the image pipeline use @override_settings to opt in.
+SUM_CORE_IMAGE_PREGENERATE_ON_UPLOAD: bool = False
+SUM_CORE_IMAGE_PREGENERATE_ON_ATTACH: bool = False
+SUM_CORE_IMAGE_PREGENERATE_ON_PUBLISH: bool = False
 SUM_CORE_IMAGE_PREGENERATE_UPLOAD_PROFILES: list[str] = [
     "hero_full",
     "card_landscape",
@@ -354,7 +357,7 @@ SUM_CORE_IMAGE_PREGENERATE_ATTACH_PROFILES: list[str] = [
     "content_inline",
     "og_social",
 ]
-SUM_CORE_IMAGE_PREGENERATE_SYNC_IN_TESTS: bool = True
+SUM_CORE_IMAGE_PREGENERATE_SYNC_IN_TESTS: bool = False
 SUM_CORE_IMAGE_PREGENERATE_LOCK_SECONDS: int = 180
 
 # Forms Configuration
