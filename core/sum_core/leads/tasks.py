@@ -139,6 +139,7 @@ def send_lead_notification(
     """
     from django.db import transaction
     from sum_core.branding.models import SiteSettings
+    from sum_core.forms.models import FormConfiguration
     from sum_core.leads.models import EmailStatus, Lead
     from wagtail.models import Site
 
@@ -150,8 +151,26 @@ def send_lead_notification(
         task="send_lead_notification",
     )
 
-    # Get notification email address
-    notification_email = getattr(settings, "LEAD_NOTIFICATION_EMAIL", "")
+    # Resolve site context once so recipient and branding can both use it.
+    site = None
+    if site_id:
+        try:
+            site = Site.objects.get(id=site_id)
+        except Site.DoesNotExist:
+            pass
+
+    # Prefer per-site form configuration recipient; fallback to env setting.
+    notification_email = ""
+    if site:
+        configured_email = (
+            FormConfiguration.objects.filter(site=site)
+            .values_list("lead_notification_email", flat=True)
+            .first()
+            or ""
+        )
+        notification_email = configured_email.strip()
+    if not notification_email:
+        notification_email = getattr(settings, "LEAD_NOTIFICATION_EMAIL", "").strip()
 
     attempt_count = 0
 
@@ -213,14 +232,6 @@ def send_lead_notification(
             },
         )
         return
-
-    # Get site for URL normalization (if available)
-    site = None
-    if site_id:
-        try:
-            site = Site.objects.get(id=site_id)
-        except Site.DoesNotExist:
-            pass
 
     # Build email context and render templates
     context = build_lead_notification_context(lead, site=site)
