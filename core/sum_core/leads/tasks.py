@@ -139,7 +139,8 @@ def send_lead_notification(
     """
     from django.db import transaction
     from sum_core.branding.models import SiteSettings
-    from sum_core.forms.models import FormConfiguration
+    from sum_core.forms.models import FormConfiguration, FormDefinition
+    from sum_core.forms.tasks.base import parse_recipients
     from sum_core.leads.models import EmailStatus, Lead
     from wagtail.models import Site
 
@@ -159,18 +160,8 @@ def send_lead_notification(
         except Site.DoesNotExist:
             pass
 
-    # Prefer per-site form configuration recipient; fallback to env setting.
-    notification_email = ""
-    if site:
-        configured_email = (
-            FormConfiguration.objects.filter(site=site)
-            .values_list("lead_notification_email", flat=True)
-            .first()
-            or ""
-        )
-        notification_email = configured_email.strip()
-    if not notification_email:
-        notification_email = getattr(settings, "LEAD_NOTIFICATION_EMAIL", "").strip()
+    # Resolve recipients from form definition first, then legacy config, then env.
+    notification_recipients: list[str] = []
 
     attempt_count = 0
 
@@ -205,9 +196,37 @@ def send_lead_notification(
                 )
                 return
 
-            if not notification_email:
+            if site and lead.form_type:
+                form_definition = (
+                    FormDefinition.objects.filter(site=site, slug=lead.form_type)
+                    .only("notification_emails")
+                    .first()
+                )
+                if form_definition:
+                    notification_recipients = parse_recipients(
+                        form_definition.notification_emails
+                    )
+
+            if not notification_recipients and site:
+                configured_email = (
+                    FormConfiguration.objects.filter(site=site)
+                    .values_list("lead_notification_email", flat=True)
+                    .first()
+                    or ""
+                )
+                if configured_email.strip():
+                    notification_recipients = [configured_email.strip()]
+
+            if not notification_recipients:
+                configured_email = getattr(
+                    settings, "LEAD_NOTIFICATION_EMAIL", ""
+                ).strip()
+                if configured_email:
+                    notification_recipients = [configured_email]
+
+            if not notification_recipients:
                 logger.warning(
-                    "No LEAD_NOTIFICATION_EMAIL configured, skipping",
+                    "No lead notification recipients configured, skipping",
                     extra={"lead_id": lead_id, "request_id": request_id or "-"},
                 )
                 lead.email_status = EmailStatus.FAILED
@@ -286,7 +305,7 @@ def send_lead_notification(
         subject=subject,
         body=body,
         from_email=from_email,
-        to=[notification_email],
+        to=notification_recipients,
         reply_to=reply_to or None,
     )
 
