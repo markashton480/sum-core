@@ -160,7 +160,7 @@ def send_lead_notification(
         except Site.DoesNotExist:
             pass
 
-    # Resolve recipients from form definition first, then legacy config, then env.
+    # Resolve recipients from Site Settings primary email first, then fallbacks.
     notification_recipients: list[str] = []
 
     attempt_count = 0
@@ -196,7 +196,15 @@ def send_lead_notification(
                 )
                 return
 
-            if site and lead.form_type:
+            if site:
+                try:
+                    site_settings = SiteSettings.for_site(site)
+                    if site_settings.email:
+                        notification_recipients = [site_settings.email.strip()]
+                except (Site.DoesNotExist, SiteSettings.DoesNotExist):
+                    pass
+
+            if not notification_recipients and site and lead.form_type:
                 form_definition = (
                     FormDefinition.objects.filter(site=site, slug=lead.form_type)
                     .only("notification_emails")
