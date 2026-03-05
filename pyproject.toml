@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sum-platform"
-version = "0.10.6-dev"
+version = "0.10.5-dev"
 description = "SUM core package and tooling (platform monorepo)"
 requires-python = ">=3.12"
 dependencies = []
 
 [tool.sum_platform]
-version = "0.10.6-dev"
+version = "0.10.5-dev"
 
 [tool.setuptools]
 package-dir = {"" = "core"}
