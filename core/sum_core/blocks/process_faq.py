@@ -52,7 +52,7 @@ class ProcessStepsBlock(blocks.StructBlock):
         features=["bold", "italic", "link"],
         help_text="Optional short supporting text.",
     )
-    steps = blocks.ListBlock(ProcessStepBlock(), min_num=3, max_num=8)
+    steps = blocks.ListBlock(ProcessStepBlock(), min_num=1, max_num=8)
     cta_label = blocks.CharBlock(
         required=False,
         max_length=80,

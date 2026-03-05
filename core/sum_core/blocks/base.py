@@ -10,6 +10,7 @@ import itertools
 
 from sum_core.blocks.content import (
     ArticleSectionBlock,
+    BulletListBlock,
     ButtonGroupBlock,
     CallToActionBlock,
     ComparisonBlock,
@@ -32,8 +33,10 @@ from sum_core.blocks.content import (
     SpacerBlock,
     TableOfContentsBlock,
     TeamMemberBlock,
+    ThreeColumnLayoutBlock,
     TimelineBlock,
     TrustStripBlock,
+    TwoColumnLayoutBlock,
 )
 from sum_core.blocks.forms import (
     ContactFormBlock,
@@ -129,6 +132,11 @@ class PageStreamBlock(StreamBlock):
     spacer = SpacerBlock(group="Page Content")
     divider = DividerBlock(group="Page Content")
     call_to_action = CallToActionBlock(group="Page Content")
+
+    # Layout Blocks
+    bullet_list = BulletListBlock(group="Layout")
+    two_column = TwoColumnLayoutBlock(group="Layout")
+    three_column = ThreeColumnLayoutBlock(group="Layout")
 
     # Forms
     contact_form = ContactFormBlock(group="Forms")

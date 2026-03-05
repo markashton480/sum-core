@@ -262,7 +262,6 @@ class SiteSettings(BaseSiteSetting):
         MultiFieldPanel(
             [
                 FieldPanel("company_name"),
-                FieldPanel("established_year"),
                 FieldPanel("tagline"),
                 FieldPanel("phone_number"),
                 FieldPanel("email"),

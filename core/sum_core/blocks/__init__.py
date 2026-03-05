@@ -10,6 +10,7 @@ from .base import BodyStreamBlock, PageStreamBlock
 from .blog import BlogPostStreamBlock
 from .content import (
     ArticleSectionBlock,
+    BulletListBlock,
     ButtonBlock,
     ButtonGroupBlock,
     CallToActionBlock,
@@ -37,10 +38,14 @@ from .content import (
     TableOfContentsItemBlock,
     TeamMemberBlock,
     TeamMemberItemBlock,
+    ThreeColumnLayoutBlock,
     TimelineBlock,
     TimelineItemBlock,
 )
 from .content import TrustStripBlock as TextTrustStripBlock
+from .content import (
+    TwoColumnLayoutBlock,
+)
 from .forms import (
     ContactFormBlock,
     DynamicFormBlock,
@@ -146,6 +151,9 @@ __all__ = [
     "DynamicFormBlock",
     "QuoteRequestFormBlock",
     "LeadMagnetBlock",
+    "BulletListBlock",
+    "TwoColumnLayoutBlock",
+    "ThreeColumnLayoutBlock",
     "UniversalLinkBlock",
     "UniversalLinkValue",
     "LINK_TYPE_CHOICES",

@@ -1099,3 +1099,137 @@ class LegalSectionBlock(blocks.StructBlock):
         icon = "doc-full"
         label = "Legal Section"
         template = "sum_core/blocks/legal_section.html"
+
+
+class BulletListItemBlock(blocks.StructBlock):
+    text = blocks.RichTextBlock(
+        features=["bold", "italic", "link"],
+        required=True,
+    )
+    icon = blocks.ChoiceBlock(
+        choices=[
+            ("check", "Checkmark"),
+            ("arrow", "Arrow"),
+            ("dot", "Dot"),
+            ("star", "Star"),
+        ],
+        default="check",
+        required=False,
+    )
+
+
+class BulletListBlock(blocks.StructBlock):
+    eyebrow = blocks.CharBlock(required=False)
+    heading = blocks.RichTextBlock(required=False, features=["bold", "italic"])
+    intro = blocks.RichTextBlock(required=False, features=["bold", "italic", "link"])
+    items = blocks.ListBlock(BulletListItemBlock(), min_num=1)
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Bullet List"
+        template = "sum_core/blocks/bullet_list.html"
+
+
+class ColumnContentStreamBlock(blocks.StreamBlock):
+    heading = blocks.CharBlock(icon="title")
+    rich_text = blocks.RichTextBlock(
+        features=["h2", "h3", "h4", "bold", "italic", "link", "ul", "ol"],
+        icon="pilcrow",
+    )
+    image = ImageChooserBlock(icon="image")
+    button = ButtonBlock(icon="placeholder")
+
+
+class TwoColumnLayoutBlock(blocks.StructBlock):
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+    )
+    valign = blocks.ChoiceBlock(
+        choices=[
+            ("start", "Top"),
+            ("center", "Middle"),
+            ("end", "Bottom"),
+        ],
+        default="start",
+        required=False,
+        label="Vertical Alignment",
+    )
+    column_one = ColumnContentStreamBlock(required=False, label="Left Column")
+    column_two = ColumnContentStreamBlock(required=False, label="Right Column")
+
+    class Meta:
+        icon = "placeholder"
+        label = "Two Column Layout"
+        template = "sum_core/blocks/two_column_layout.html"
+
+
+class ThreeColumnLayoutBlock(blocks.StructBlock):
+    tone = blocks.ChoiceBlock(
+        choices=[
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("muted", "Muted"),
+        ],
+        default="light",
+        required=False,
+    )
+    density = blocks.ChoiceBlock(
+        choices=[
+            ("compact", "Compact"),
+            ("regular", "Regular"),
+            ("spacious", "Spacious"),
+        ],
+        default="regular",
+        required=False,
+    )
+    valign = blocks.ChoiceBlock(
+        choices=[
+            ("start", "Top"),
+            ("center", "Middle"),
+            ("end", "Bottom"),
+        ],
+        default="start",
+        required=False,
+        label="Vertical Alignment",
+    )
+    column_one = ColumnContentStreamBlock(required=False, label="Left Column")
+    column_two = ColumnContentStreamBlock(required=False, label="Middle Column")
+    column_three = ColumnContentStreamBlock(required=False, label="Right Column")
+
+    class Meta:
+        icon = "placeholder"
+        label = "Three Column Layout"
+        template = "sum_core/blocks/three_column_layout.html"

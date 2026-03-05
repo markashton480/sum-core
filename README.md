@@ -8,8 +8,8 @@ deployment, multi-theme support, and built-in lead management.
 | Component | Version | Description |
 |-----------|---------|-------------|
 | [sum_core](core/) | 0.7.12 | Core Django/Wagtail package — page types, blocks, lead system |
-| [CLI](cli/) | 3.3.2 | Operator tool — init, update, backup, restore, destroy, themes |
-| [Theme A](themes/theme_a/) | 1.0.9 | Default theme — Tailwind-based, responsive, accessible |
+| [CLI](cli/) | 3.3.3 | Operator tool — init, update, backup, restore, destroy, themes |
+| [Theme A](themes/theme_a/) | 1.1.0 | Default theme — Tailwind-based, responsive, accessible |
 | [Boilerplate](boilerplate/) | — | Project template used by CLI during `init` |
 
 ## Features
