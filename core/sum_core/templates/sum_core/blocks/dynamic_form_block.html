@@ -132,7 +132,7 @@
       <div class="form-actions">
         <button
           type="submit"
-          class="btn btn-primary btn-submit"
+          class="btn btn-submit {% if self.submit_button_style == 'secondary' %}btn-secondary{% elif self.submit_button_style == 'outline' %}btn-outline{% else %}btn-primary{% endif %}"
           {% if form_inactive_warning %}disabled aria-disabled="true"{% endif %}
         >
           {{ self.cta_button_text|default:"Submit" }}

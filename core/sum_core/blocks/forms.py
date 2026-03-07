@@ -18,6 +18,17 @@ from wagtail.blocks import (
 )
 from wagtail.snippets.blocks import SnippetChooserBlock
 
+BUTTON_STYLE_CHOICES = [
+    ("primary", "Primary"),
+    ("secondary", "Secondary"),
+    ("outline", "Outline"),
+]
+
+OPTIONAL_BUTTON_STYLE_CHOICES = [
+    ("", "Auto"),
+    *BUTTON_STYLE_CHOICES,
+]
+
 
 class ContactFormBlock(StructBlock):
     eyebrow = CharBlock(
@@ -47,6 +58,12 @@ class ContactFormBlock(StructBlock):
         help_text="Optional redirect after submission (e.g. to a thank-you page).",
     )
     submit_label = CharBlock(required=False, default="Send enquiry")
+    submit_style = ChoiceBlock(
+        choices=OPTIONAL_BUTTON_STYLE_CHOICES,
+        default="",
+        required=False,
+        help_text="Button style for the form submit action. Leave as Auto to preserve the presentation default.",
+    )
     tone = blocks.ChoiceBlock(
         choices=[
             ("light", "Light"),
@@ -86,6 +103,12 @@ class QuoteRequestFormBlock(StructBlock):
         required=False, default="Thanks, we'll prepare your quote."
     )
     submit_label = CharBlock(required=False, default="Request a quote")
+    submit_style = ChoiceBlock(
+        choices=BUTTON_STYLE_CHOICES,
+        default="primary",
+        required=False,
+        help_text="Button style for the form submit action.",
+    )
     show_compact_meta = BooleanBlock(
         required=False, help_text="Compact layout for sidebars/short sections."
     )
@@ -137,6 +160,18 @@ class DynamicFormBlock(StructBlock):
         max_length=100,
         help_text="Override default CTA button text (for modal/sidebar styles)",
     )
+    cta_button_style = ChoiceBlock(
+        choices=OPTIONAL_BUTTON_STYLE_CHOICES,
+        default="",
+        required=False,
+        help_text="Style for the modal/sidebar trigger button. Leave as Auto to preserve the presentation default.",
+    )
+    submit_button_style = ChoiceBlock(
+        choices=BUTTON_STYLE_CHOICES,
+        default="primary",
+        required=False,
+        help_text="Style for the form submit button.",
+    )
     success_redirect = UniversalLinkBlock(
         required=False,
         help_text="Optional redirect after submission (use 'page' or 'path' for internal links)",
@@ -185,6 +220,12 @@ class LeadMagnetBlock(StructBlock):
         required=False,
         max_length=80,
         help_text="Optional submit button label.",
+    )
+    submit_style = ChoiceBlock(
+        choices=OPTIONAL_BUTTON_STYLE_CHOICES,
+        default="",
+        required=False,
+        help_text="Button style for the lead magnet submit action. Leave as Auto to preserve the presentation default.",
     )
     success_message = TextBlock(
         required=False,

@@ -14,7 +14,7 @@ Health contract (authoritative):
 
 Severity rules (current baseline):
 - Critical checks: DB, cache. If either fails => overall `unhealthy`.
-- Non-critical check: Celery. If it fails (and is configured) => overall `degraded`.
+- Non-critical checks: Celery, backup. If either fails => overall `degraded`.
 """
 
 from __future__ import annotations
@@ -101,20 +101,25 @@ def check_backup() -> CheckResult:
     """Check if backups are recent (within 48 hours).
 
     Reads the last backup timestamp from a marker file written by pgBackRest.
-    Returns ok if backups are not configured (backwards compatibility).
+    Missing monitoring configuration is treated as a failed non-critical check so
+    `/health/` does not claim backup health when the app is not actually wired to
+    observe backup freshness.
     """
     from pathlib import Path
 
-    # Check if backup monitoring is configured via BACKUP_STATUS_FILE env var
     backup_status_file = os.environ.get("BACKUP_STATUS_FILE", "")
     if not backup_status_file:
-        # No marker configured = backups not configured or legacy setup
-        return CheckResult(status="ok", detail="Not configured (skipped)")
+        return CheckResult(
+            status="fail",
+            detail="Backup monitoring not configured: BACKUP_STATUS_FILE is unset",
+        )
     backup_marker = Path(backup_status_file)
 
     if not backup_marker.exists():
-        # No marker = backups not configured or legacy setup
-        return CheckResult(status="ok", detail="Not configured (skipped)")
+        return CheckResult(
+            status="fail",
+            detail=f"Backup status file not found: {backup_marker}",
+        )
 
     try:
         content = backup_marker.read_text().strip()

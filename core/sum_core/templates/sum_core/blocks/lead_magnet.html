@@ -27,7 +27,7 @@
         {% endif %}
       {% endfor %}
 
-      <button type="submit" class="btn btn-primary">{{ self.submit_label|default:'Submit' }}</button>
+      <button type="submit" class="btn {% if self.submit_style == 'secondary' %}btn-secondary{% elif self.submit_style == 'outline' %}btn-outline{% else %}btn-primary{% endif %}">{{ self.submit_label|default:'Submit' }}</button>
     </form>
     {% else %}
     <form class="form">
@@ -35,7 +35,7 @@
         <label class="form-label" for="lead-magnet-email-{{ block.id }}">{{ self.email_label|default:'Email' }}</label>
         <input id="lead-magnet-email-{{ block.id }}" class="form-input" type="email" name="email" required>
       </div>
-      <button type="submit" class="btn btn-primary">{{ self.submit_label|default:'Submit' }}</button>
+      <button type="submit" class="btn {% if self.submit_style == 'secondary' %}btn-secondary{% elif self.submit_style == 'outline' %}btn-outline{% else %}btn-primary{% endif %}">{{ self.submit_label|default:'Submit' }}</button>
     </form>
     {% endif %}
   </div>

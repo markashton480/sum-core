@@ -89,7 +89,7 @@
           <div class="form-messages" role="alert" aria-live="polite"></div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary btn-submit">
+            <button type="submit" class="btn btn-submit {% if self.submit_style == 'secondary' %}btn-secondary{% elif self.submit_style == 'outline' %}btn-outline{% else %}btn-primary{% endif %}">
               {{ self.submit_label|default:"Send enquiry" }}
             </button>
           </div>
